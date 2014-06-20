@@ -1,5 +1,5 @@
-Open Graphiti : Data Visualization Engine
-=========================================
+OpenGraphiti
+============
 
 This is the public repository referencing the information to install, run and work with the data visualization platform.
 
