@@ -557,6 +557,76 @@ def multiply_colors(v, node_flag, edge_flag):
             c = rd.get_link_attribute(id, "raindance:space:color2")
             rd.set_link_attribute(id, "raindance:space:color2", "vec4", std.vec4_to_str(f(c, v)))
 
+def calculate_degree_map():
+    degrees = dict()
+
+    for eid in rd.get_link_ids():
+        bi = False
+        e_type = rd.get_link_attribute(eid, "type")
+        if e_type is not None and "<->" in e_type:
+            bi = True
+
+        nid1 = rd.get_link_node1(eid)
+        nid2 = rd.get_link_node2(eid)
+
+        if nid1 not in degrees:
+            degrees[nid1] = { "in" : 0, "out" : 0 }
+        if nid2 not in degrees:
+            degrees[nid2] = { "in" : 0, "out" : 0 }
+        
+        if bi:
+            degrees[nid1]["in"] += 1
+            degrees[nid1]["out"] += 1
+            degrees[nid2]["in"] += 1
+            degrees[nid2]["out"] += 1
+        else:
+            degrees[nid1]["out"] += 1
+            degrees[nid2]["in"] += 1
+
+    return degrees
+
+def detect_spn():
+
+    degree_map = calculate_degree_map()
+    source_map = dict()
+
+    for eid in rd.get_link_ids():
+        src = rd.get_link_node1(eid)
+        if src not in degree_map:
+            continue
+        
+        if degree_map[src]["in"] == 0 and degree_map[src]["out"] >= 0:
+            dst = rd.get_link_node2(eid)
+            if src not in source_map:
+                source_map[src] = [(dst, eid)]
+            elif dst not in source_map[src]:
+                source_map[src].append((dst, eid))
+    
+    colors = [
+        std.vec4_to_str(std.random_vec4([0, 1], [0, 1], [0, 1], [1, 1])),     # Source
+        std.vec4_to_str(std.random_vec4([0, 1], [0, 1], [0, 1], [1, 1])),     # Source Successors
+        std.vec4_to_str(std.random_vec4([0, 1], [0, 1], [0, 1], [0.1, 0.5]))  # Others
+    ]
+
+    for nid in rd.get_node_ids():
+        rd.set_node_attribute(nid, "raindance:space:lod", "float", "0.0")
+        rd.set_node_attribute(nid, "raindance:space:color", "vec4", colors[2])
+        
+    for eid in rd.get_link_ids():
+        rd.set_link_attribute(eid, "raindance:space:lod", "float", "0.0")
+
+    for source in source_map.keys():
+        rd.set_node_attribute(source, "raindance:space:lod", "float", "1.0")
+        rd.set_node_attribute(source, "raindance:space:color", "vec4", colors[0])
+
+        for successor in source_map[source]:
+            rd.set_node_attribute(successor[0], "raindance:space:lod", "float", "1.0")
+            rd.set_node_attribute(successor[0], "raindance:space:color", "vec4", colors[1])
+            rd.set_link_attribute(successor[1], "raindance:space:lod", "float", "1.0")
+
+    print("SPN detection results :")
+    print(source_map)
+
 def start():
 
     Scripts = [
@@ -580,14 +650,14 @@ def start():
             ["Search by Link Attribute", "demo.search_by_attribute(False, True)"],
         ]],
         ["Colors", [
-            ["Dim Nodes", "demo.multiply_colors([0.8, 0.8, 0.8, 1.0], True, False)"],
-            ["Dim Edges", "demo.multiply_colors([0.8, 0.8, 0.8, 1.0], False, True)"],
-            ["Brighten Nodes", "demo.multiply_colors([1.2, 1.2, 1.2, 1.0], True, False)"],
-            ["Brighten Edges", "demo.multiply_colors([1.2, 1.2, 1.2, 1.0], False, True)"],
-            ["Dim Nodes Alpha", "demo.multiply_colors([1.0, 1.0, 1.0, 0.8], True, False)"],
-            ["Dim Edges Alpha", "demo.multiply_colors([1.0, 1.0, 1.0, 0.8], False, True)"],
-            ["Brighten Nodes Alpha", "demo.multiply_colors([1.0, 1.0, 1.0, 1.2], True, False)"],
-            ["Brighten Edges Alpha", "demo.multiply_colors([1.0, 1.0, 1.0, 1.2], False, True)"],
+            ["Dim Nodes", "demo.multiply_colors([0.7, 0.7, 0.7, 1.0], True, False)"],
+            ["Dim Edges", "demo.multiply_colors([0.7, 0.7, 0.7, 1.0], False, True)"],
+            ["Brighten Nodes", "demo.multiply_colors([1.3, 1.3, 1.3, 1.0], True, False)"],
+            ["Brighten Edges", "demo.multiply_colors([1.3, 1.3, 1.3, 1.0], False, True)"],
+            ["Dim Nodes Alpha", "demo.multiply_colors([1.0, 1.0, 1.0, 0.7], True, False)"],
+            ["Dim Edges Alpha", "demo.multiply_colors([1.0, 1.0, 1.0, 0.7], False, True)"],
+            ["Brighten Nodes Alpha", "demo.multiply_colors([1.0, 1.0, 1.0, 1.3], True, False)"],
+            ["Brighten Edges Alpha", "demo.multiply_colors([1.0, 1.0, 1.0, 1.3], False, True)"],
         ]],
         ["Arrangement", [
             ["Lock / Unlock", "demo.lock_unlock()"],
@@ -604,6 +674,7 @@ def start():
             ["High Degrees", "demo.show_high_degrees()"],
             ["Low Degrees", "demo.show_low_degrees()"],
             ["Node Connections", "demo.color_by_node_degree()"],
+            ["Detect SPN", "demo.detect_spn()"]
         ]],
         ["Animation", [
             ["Start", "rd.set_attribute('raindance:space:animation', 'bool', 'True')"],
@@ -612,7 +683,6 @@ def start():
         ["Security", [
             ["Umbrella Score", "demo.color_nodes_by_score()"],
             ["Infected Score", "demo.color_nodes_by_infected()"],
-            ["Infected Score (Artsy)", "demo.color_nodes_by_nominal_attribute('sgraph:infected')"],
             ["DGA Score", "demo.color_nodes_by_dga_score()"],
         ]],
         ["Test / Debug", [

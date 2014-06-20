@@ -10,7 +10,7 @@ EM_CFLAGS=-std=c++11
 
 INCLUDES=-I./ -I../ -I../raindance -I../raindance/Lib -I../raindance/Lib/glm-0.9.4.4
 
-PYTHON_CFLAGS = `python2.7-config --cflags`
+PYTHON_CFLAGS = `python2.7-config --cflags | sed s/"-mno-fused-madd"//g`
 PYTHON_LDFLAGS = `python2.7-config --ldflags`
 
 RESOURCES=resources
