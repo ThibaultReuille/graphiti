@@ -266,6 +266,9 @@ public:
 
     virtual IVariable* getLinkAttribute(Link::ID id, std::string& name)
     {
+        // TODO : ParticleView::getLinkAttribute
+        (void) id;
+        (void) name;
         return NULL;
     }
 

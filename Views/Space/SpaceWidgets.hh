@@ -500,6 +500,8 @@ public:
             m_SpheresTextWidget->text().set("On", m_Font);
             tl.y -= m_WidgetDimension.y;
             */
+            // TODO : Integrate SphereWidget when possible
+            m_SpheresWidget = NULL;
 
             TextWidget* physicsWidget = new TextWidget("physics text", NULL, tl, glm::vec2(textWidgetWidth, m_WidgetDimension.y));
             m_TopLeftWidgetGroup->add(physicsWidget);

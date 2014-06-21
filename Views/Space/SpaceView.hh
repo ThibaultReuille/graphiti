@@ -229,7 +229,7 @@ public:
 
                 // m_Octree->getElementsInsideBox(glm::vec3(-50, -50, -50), glm::vec3(50, 50, 50), elements);
                 m_Octree->findElementsInsideFrustrum(frustrum, elements);
-                LOG("Visible elements : %lu\n", elements.size());
+                // LOG("Visible elements : %lu\n", elements.size());
                 for (auto e : elements)
                 {
                     Scene::Node* node = static_cast<Scene::OctreeNode*>(e)->getNode();
