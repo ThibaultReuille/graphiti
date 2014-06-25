@@ -641,6 +641,7 @@ static PyMethodDef g_Module[] =
     {"unregister_script",     API::Python::unregisterScript,    METH_VARARGS, "Unregister a script"},
 
 	// ----- Graph -----
+
 	    {"set_attribute",         API::Python::Graph::setAttribute,        METH_VARARGS, "Set graph attribute"},
         // ----- Nodes -----
         {"add_node",              API::Python::Graph::addNode,             METH_VARARGS, "Add node to the graph"},
@@ -680,8 +681,7 @@ static PyMethodDef g_Module[] =
 
 static void initialize()
 {
-	 // TODO : Rename raindance into gaia and change it in the scripts
-	Py_InitModule("raindance", g_Module);
+	Py_InitModule("graphiti", g_Module);
 }
 
 }

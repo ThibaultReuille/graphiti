@@ -7,9 +7,9 @@ extern "C" {
 
     void setAttribute(const char* name, const char* type, const char* value)
     {
-        LOG("[API] setAttribute('%s', '%s', '%s')\n", name, type, value);
+        // LOG("[API] setAttribute('%s', '%s', '%s')\n", name, type, value);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -20,9 +20,9 @@ extern "C" {
 
     Node::ID addNode(const char* label)
     {
-        LOG("[API] addNode('%s')\n", label);
+        // LOG("[API] addNode('%s')\n", label);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -31,9 +31,9 @@ extern "C" {
 
     void removeNode(Node::ID id)
     {
-        LOG("[API] removeNode(%lu)\n", id);
+        // LOG("[API] removeNode(%lu)\n", id);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -42,9 +42,9 @@ extern "C" {
 
     void tagNode(Node::ID node, Sphere::ID sphere)
     {
-        LOG("[API] tagNode(%lu, %lu)\n", node, sphere);
+        // LOG("[API] tagNode(%lu, %lu)\n", node, sphere);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -55,7 +55,7 @@ extern "C" {
     {
         // LOG("[API] countNodes()\n");
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -66,7 +66,7 @@ extern "C" {
     {
         // LOG("[API] getNodeID(%u)", i);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -78,7 +78,7 @@ extern "C" {
     {
         // LOG("[API] getNodeIDs()\n");
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -89,9 +89,9 @@ extern "C"
 {
     void setNodeLabel(Node::ID id, const char* label)
     {
-        LOG("[API] setNodeLabel(%lu, '%s')\n", id, label);
+        // LOG("[API] setNodeLabel(%lu, '%s')\n", id, label);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -102,7 +102,7 @@ extern "C"
     {
         // LOG("[API] getNodeLabel(%lu)\n", id);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -111,9 +111,9 @@ extern "C"
 
     void setNodeMark(Node::ID id, unsigned int mark)
     {
-        LOG("[API] setNodeMark(%lu, %u)\n", id, mark);
+        // LOG("[API] setNodeMark(%lu, %u)\n", id, mark);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -124,7 +124,7 @@ extern "C"
     {
         // LOG("[API] getNodeMark(%lu)\n", id);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -133,9 +133,9 @@ extern "C"
 
     void setNodeWeight(Node::ID id, const float weight)
     {
-        LOG("[API] setNodeWeight(%lu, %f)\n", id, weight);
+        // LOG("[API] setNodeWeight(%lu, %f)\n", id, weight);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -146,7 +146,7 @@ extern "C"
     {
         // LOG("[API] getNodeWeight(%lu)\n", id);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -155,9 +155,9 @@ extern "C"
 
     void setNodeAttribute(Node::ID id, const char* name, const char* type, const char* value)
     {
-        LOG("[API] setNodeAttribute(%lu, '%s', '%s', '%s')\n", id, name, type, value);
+        // LOG("[API] setNodeAttribute(%lu, '%s', '%s', '%s')\n", id, name, type, value);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -168,7 +168,7 @@ extern "C"
     {
         // LOG("[API] getNodeAttribute(%lu, '%s')\n", id, name);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -179,9 +179,9 @@ extern "C"
 
     Link::ID addLink(Node::ID uid1, Node::ID uid2)
     {
-        LOG("[API] addLink(%lu, %lu)\n", uid1, uid2);
+        // LOG("[API] addLink(%lu, %lu)\n", uid1, uid2);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -190,9 +190,9 @@ extern "C"
 
     void removeLink(Link::ID id)
     {
-        LOG("[API] removeLink(%lu)\n", id);
+        // LOG("[API] removeLink(%lu)\n", id);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -203,7 +203,7 @@ extern "C"
     {
         // LOG("[API] countLinks()\n");
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -214,7 +214,7 @@ extern "C"
     {
         // LOG("[API] getLinkID(%lu)\n", i);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -226,7 +226,7 @@ extern "C"
     {
         // LOG("[API] getLinkIDs()\n");
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -239,7 +239,7 @@ extern "C"
     {
         // LOG("[API] getLinkNode1(%lu)", id);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -250,7 +250,7 @@ extern "C"
     {
         // LOG("[API] getLinkNode2(%lu)", id);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -259,9 +259,9 @@ extern "C"
 
     void setLinkAttribute(Link::ID id, const char* name, const char* type, const char* value)
     {
-        LOG("[API] setLinkAttribute(%lu, '%s', '%s', '%s')\n", id, name, type, value);
+        // LOG("[API] setLinkAttribute(%lu, '%s', '%s', '%s')\n", id, name, type, value);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -273,7 +273,7 @@ extern "C"
     {
         // LOG("[API] getLinkAttribute(%lu, '%s')\n", id, name);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -286,9 +286,9 @@ extern "C"
 
     Sphere::ID addSphere(const char* label)
     {
-        LOG("[API] addSphere('%s')\n", label);
+        // LOG("[API] addSphere('%s')\n", label);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -297,9 +297,9 @@ extern "C"
 
     void setSphereMark(Sphere::ID id, unsigned int mark)
     {
-        LOG("[API] markSphere(%lu, %u)\n", id, mark);
+        // LOG("[API] markSphere(%lu, %u)\n", id, mark);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -310,9 +310,9 @@ extern "C"
 
     std::pair<Node::ID, Link::ID> addNeighbor(const char* label, Node::ID neighbor)
     {
-        LOG("[API] addNeighbor('%s', %lu)\n", label, neighbor);
+        // LOG("[API] addNeighbor('%s', %lu)\n", label, neighbor);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -325,7 +325,7 @@ extern "C"
     {
         // LOG("[API] countSelectedNodes()\n");
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -336,7 +336,7 @@ extern "C"
     {
         // LOG("[API] getSelectedNode(%u)\n", index);
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -350,11 +350,11 @@ extern "C"
     {
         Sequence* command = NULL;
         std::string sname = std::string(name);
-        LOG("[API] sendCommand(%lu, '%s', %p)\n", timecode, name, &variables);
+        // LOG("[API] sendCommand(%lu, '%s', %p)\n", timecode, name, &variables);
 
         // variables.dump();
 
-        Entity* entity = g_Gaia.getEntityManager().active();
+        Entity* entity = g_Graphiti.getEntityManager().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 

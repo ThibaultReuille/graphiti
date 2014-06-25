@@ -9,7 +9,7 @@ import fnmatch
 import re
 import os
 
-from Scripts import rd
+from Scripts import graphiti
 from Scripts import nx
 from Scripts import std
 
@@ -19,23 +19,23 @@ from Scripts import std
 #import sgraph as sgraph
 
 def clear_graph():
-    for id in rd.get_node_ids():
-        rd.remove_node(id)
+    for id in graphiti.get_node_ids():
+        graphiti.remove_node(id)
 
 def clear_colors():
-    rd.set_attribute("raindance:space:linkmode", "string", "node_color")
-    for n in rd.get_node_ids():
-        rd.set_node_attribute(n, "raindance:space:color", "vec4", "1.0 1.0 1.0 1.0")
+    graphiti.set_attribute("graphiti:space:linkmode", "string", "node_color")
+    for n in graphiti.get_node_ids():
+        graphiti.set_node_attribute(n, "graphiti:space:color", "vec4", "1.0 1.0 1.0 1.0")
 
 def clear_icons():
-    for n in rd.get_node_ids():
-        rd.set_node_attribute(n, "raindance:space:icon", "string", "shapes/disk")
+    for n in graphiti.get_node_ids():
+        graphiti.set_node_attribute(n, "graphiti:space:icon", "string", "shapes/disk")
 
 def clear_lod():
-    for id in rd.get_node_ids():
-        rd.set_node_attribute(id, "raindance:space:lod", "float", "1.0")
-    for id in rd.get_link_ids():
-        rd.set_link_attribute(id, "raindance:space:lod", "float", "1.0")
+    for id in graphiti.get_node_ids():
+        graphiti.set_node_attribute(id, "graphiti:space:lod", "float", "1.0")
+    for id in graphiti.get_link_ids():
+        graphiti.set_link_attribute(id, "graphiti:space:lod", "float", "1.0")
 
 def add_random_graph():
     node_count = int(raw_input("Number of nodes : "))
@@ -43,9 +43,9 @@ def add_random_graph():
 
     nodes = []
     for i in range(node_count):
-        id = rd.add_node(str(i))
-        rd.set_node_weight(id, float(1 + abs(math.sin(float(i)))))
-        rd.set_node_attribute(id, "type", "string", str(i % 3))
+        id = graphiti.add_node(str(i))
+        graphiti.set_node_weight(id, float(1 + abs(math.sin(float(i)))))
+        graphiti.set_node_attribute(id, "type", "string", str(i % 3))
         nodes.append(id)
 
     for j in range(edge_count):
@@ -55,41 +55,41 @@ def add_random_graph():
             dst = random.choice(nodes)
             if src != dst:
                 loop = False
-        id = rd.add_link(src, dst)
-        rd.set_link_attribute(id, "type", "string", str(j % 3))
+        id = graphiti.add_link(src, dst)
+        graphiti.set_link_attribute(id, "type", "string", str(j % 3))
             
 def remove_selected_node():
-    if rd.count_selected_nodes() == 0:
+    if graphiti.count_selected_nodes() == 0:
         print("Please select a node !")
         return
-    id = rd.get_selected_node(0)
-    rd.remove_node(id)
+    id = graphiti.get_selected_node(0)
+    graphiti.remove_node(id)
 
 def randomize_node_activity():
-    for id in rd.get_node_ids():
+    for id in graphiti.get_node_ids():
         activity = random.uniform(0.0, 5.0)
-        rd.set_node_attribute(id, "raindance:space:activity", "float", str(activity))
+        graphiti.set_node_attribute(id, "graphiti:space:activity", "float", str(activity))
 
 def randomize_edge_activity():
-    for id in rd.get_link_ids():
+    for id in graphiti.get_link_ids():
         activity = random.uniform(0.0, 2.0)
-        rd.set_link_attribute(id, "raindance:space:activity", "float", str(activity))
+        graphiti.set_link_attribute(id, "graphiti:space:activity", "float", str(activity))
 
 def randomize_node_icons():
     icons = glob.glob("./Resources/Countries/*.png")
     print(icons)
-    for id in rd.get_node_ids():
+    for id in graphiti.get_node_ids():
         icon = "countries/" + random.choice(icons).split("/")[-1][:2].lower()
-        rd.set_node_attribute(id, "raindance:space:icon", "string", icon)
+        graphiti.set_node_attribute(id, "graphiti:space:icon", "string", icon)
 
 def reset_icons():
-    for nid in rd.get_node_ids():
-        rd.set_node_attribute(nid, "raindance:space:icon", "string", "shapes/disk")
+    for nid in graphiti.get_node_ids():
+        graphiti.set_node_attribute(nid, "graphiti:space:icon", "string", "shapes/disk")
 
 def attribute_to_icon(attribute, fun = lambda a : "shapes/disk"):
-    for nid in rd.get_node_ids():
-        value = rd.get_node_attribute(nid, attribute)
-        rd.set_node_attribute(nid, "raindance:space:icon", "string", fun(value))
+    for nid in graphiti.get_node_ids():
+        value = graphiti.get_node_attribute(nid, attribute)
+        graphiti.set_node_attribute(nid, "graphiti:space:icon", "string", fun(value))
 
 def countries_to_icons():
     def convert_cc_to_icon(country_code):
@@ -106,14 +106,14 @@ def attribute_to_lod(attribute, fun = lambda x : x):
     max_value = None
 
     n_values = dict()
-    for nid in rd.get_node_ids():
-        value = rd.get_node_attribute(nid, attribute)
+    for nid in graphiti.get_node_ids():
+        value = graphiti.get_node_attribute(nid, attribute)
         if value is None:
-            rd.set_node_attribute(nid, "raindance:space:lod", "float", "-1000")
+            graphiti.set_node_attribute(nid, "graphiti:space:lod", "float", "-1000")
             continue
         fun_value = fun(value)
         if fun_value is None:
-            rd.set_node_attribute(nid, "raindance:space:lod", "float", "-1000")
+            graphiti.set_node_attribute(nid, "graphiti:space:lod", "float", "-1000")
             continue
         fvalue = float(fun_value)
         if fvalue > max:
@@ -125,14 +125,14 @@ def attribute_to_lod(attribute, fun = lambda x : x):
         n_values[nid] = fvalue
 
     e_values = dict()
-    for eid in rd.get_link_ids():
-        value = rd.get_link_attribute(eid, attribute)
+    for eid in graphiti.get_link_ids():
+        value = graphiti.get_link_attribute(eid, attribute)
         if value is None:
-            rd.set_link_attribute(eid, "raindance:space:lod", "float", "-1000")
+            graphiti.set_link_attribute(eid, "graphiti:space:lod", "float", "-1000")
             continue
         fun_value = fun(value)
         if fun_value is None:
-            rd.set_link_attribute(eid, "raindance:space:lod", "float", "-1000")
+            graphiti.set_link_attribute(eid, "graphiti:space:lod", "float", "-1000")
             continue
         fvalue = float(fun_value)
         if fvalue > max:
@@ -146,48 +146,48 @@ def attribute_to_lod(attribute, fun = lambda x : x):
     for nid in n_values.keys():
         svalue = (n_values[nid] - min) / (max - min)
         print(attribute + " : " + str(n_values[nid]) + " --> lod : " + str(svalue)) 
-        rd.set_node_attribute(nid, "raindance:space:lod", "float", str(svalue))
+        graphiti.set_node_attribute(nid, "graphiti:space:lod", "float", str(svalue))
     for eid in e_values.keys():
         svalue = (e_values[eid] - min) / (max - min)
         print(attribute + " : " + str(e_values[eid]) + " --> lod : " + str(svalue)) 
-        rd.set_link_attribute(eid, "raindance:space:lod", "float", str(svalue))
+        graphiti.set_link_attribute(eid, "graphiti:space:lod", "float", str(svalue))
 
     print("LOD range : " + str(min_value) + " to " + str(max_value))
 
 def lock_unlock():
-    if rd.count_selected_nodes() == 0:
+    if graphiti.count_selected_nodes() == 0:
         print ("Please select a node !")
         return
 
-    selected = rd.get_selected_node(0)
+    selected = graphiti.get_selected_node(0)
     print("SELECTED : ", selected)
-    locked = rd.get_node_attribute(selected, "raindance:space:locked")
+    locked = graphiti.get_node_attribute(selected, "graphiti:space:locked")
     if locked:
-        rd.set_node_attribute(selected, "raindance:space:locked", "bool", "False")
-        rd.set_node_mark(selected, 0)
+        graphiti.set_node_attribute(selected, "graphiti:space:locked", "bool", "False")
+        graphiti.set_node_mark(selected, 0)
         print("Node " + str(selected) + " unlocked.")
     else:
-        rd.set_node_attribute(selected, "raindance:space:locked", "bool", "True")
-        rd.set_node_mark(selected, 2)
+        graphiti.set_node_attribute(selected, "graphiti:space:locked", "bool", "True")
+        graphiti.set_node_mark(selected, 2)
         print("Node " + str(selected) + " locked.")
 
 def color_neighbors():
-    rd.set_attribute("raindance:space:linkmode", "string", "node_color")
+    graphiti.set_attribute("graphiti:space:linkmode", "string", "node_color")
 
-    if rd.count_selected_nodes() == 0:
+    if graphiti.count_selected_nodes() == 0:
         print("Please select a node !")
         return
     
-    selected = rd.get_selected_node(0)
+    selected = graphiti.get_selected_node(0)
     graph = std.load_nx_graph()
     neighbors = graph.neighbors(selected)
-    rd.set_node_attribute(selected, "raindance:space:color", "vec3", "0.0 1.0 1.0")
+    graphiti.set_node_attribute(selected, "graphiti:space:color", "vec3", "0.0 1.0 1.0")
     for node in neighbors:
-        rd.set_node_attribute(node, "raindance:space:lod", "float", "1.0")
-        rd.set_node_attribute(node, "raindance:space:color", "vec3", "0.0 1.0 1.0")
+        graphiti.set_node_attribute(node, "graphiti:space:lod", "float", "1.0")
+        graphiti.set_node_attribute(node, "graphiti:space:color", "vec3", "0.0 1.0 1.0")
 
 def show_high_degrees():
-    rd.set_attribute("raindance:space:linkmode", "string", "node_color")
+    graphiti.set_attribute("graphiti:space:linkmode", "string", "node_color")
 
     graph = std.load_nx_graph()
     max_degree = max(nx.degree(graph).values())
@@ -195,17 +195,17 @@ def show_high_degrees():
         deg = nx.degree(graph, n[0])
         tint = 0.3 + 0.9 * float(deg) / float(max_degree)
 
-        color = rd.get_node_attribute(n[0], "raindance:space:color")
+        color = graphiti.get_node_attribute(n[0], "graphiti:space:color")
         color[0] = tint * color[0]
         color[1] = tint * color[1]
         color[2] = tint * color[2]
         color[3] = 1.0
         c = str(color[0]) + " " + str(color[1]) + " " + str(color[2])
 
-        rd.set_node_attribute(n[0], "raindance:space:color", "vec3", c)
+        graphiti.set_node_attribute(n[0], "graphiti:space:color", "vec3", c)
 
 def show_low_degrees():
-    rd.set_attribute("raindance:space:linkmode", "string", "node_color")
+    graphiti.set_attribute("graphiti:space:linkmode", "string", "node_color")
 
     graph = std.load_nx_graph()
     max_degree = max(nx.degree(graph).values())
@@ -213,23 +213,23 @@ def show_low_degrees():
         deg = nx.degree(graph, n[0])
         tint = 0.3 + 0.9 * (1.0 - float(deg) / float(max_degree))
 
-        color = rd.get_node_attribute(n[0], "raindance:space:color")
+        color = graphiti.get_node_attribute(n[0], "graphiti:space:color")
         color[0] = tint * color[0]
         color[1] = tint * color[1]
         color[2] = tint * color[2]
         c = str(color[0]) + " " + str(color[1]) + " " + str(color[2])
 
-        rd.set_node_attribute(n[0], "raindance:space:color", "vec3", c)
+        graphiti.set_node_attribute(n[0], "graphiti:space:color", "vec3", c)
 
 def color_by_node_degree():
-    rd.set_attribute("raindance:space:linkmode", "string", "node_color")
+    graphiti.set_attribute("graphiti:space:linkmode", "string", "node_color")
 
     print("Building node degree table ...")
-    edges = rd.get_link_ids()
+    edges = graphiti.get_link_ids()
     degree_table = dict()
     for eid in edges:
-        nid1 = rd.get_link_node1(eid)
-        nid2 = rd.get_link_node2(eid)
+        nid1 = graphiti.get_link_node1(eid)
+        nid2 = graphiti.get_link_node2(eid)
         if nid1 not in degree_table:
             degree_table[nid1] = { "in" : 0, "out" : 0 }
         if nid2 not in degree_table:
@@ -247,7 +247,7 @@ def color_by_node_degree():
     print(m)
 
     print("Coloring ...")
-    for nid in rd.get_node_ids():
+    for nid in graphiti.get_node_ids():
         if nid not in degree_table:
             t = "isolated"
         else:
@@ -260,7 +260,7 @@ def color_by_node_degree():
                 t = "sink"
             else:
                 t = "other"
-        rd.set_node_attribute(nid, "raindance:space:color", "vec4", std.vec4_to_str(m[t]))
+        graphiti.set_node_attribute(nid, "graphiti:space:color", "vec4", std.vec4_to_str(m[t]))
 
 def sphere_layout(radius):
     graph = std.load_nx_graph()
@@ -274,7 +274,7 @@ def sphere_layout(radius):
         z = radius * r3 * math.sin(r1) * math.sin(r2)
 
         position = str(x) + " " + str(y) + " " + str(z)
-        rd.set_node_attribute(n[0], "raindance:space:position", "vec3", position)
+        graphiti.set_node_attribute(n[0], "graphiti:space:position", "vec3", position)
 
 def cube_layout():
     graph = std.load_nx_graph()
@@ -293,13 +293,13 @@ def cube_layout():
         z = 5 * (z - size / 2)
 
         position = str(x) + " " + str(y) + " " + str(z)
-        rd.set_node_attribute(n[0], "raindance:space:position", "vec3", position)
+        graphiti.set_node_attribute(n[0], "graphiti:space:position", "vec3", position)
         node_count += 1
 
 def conic_layout():
     graph = std.load_nx_graph()
 
-    rd.set_attribute("raindance:space:linkmode", "string", "node_color")
+    graphiti.set_attribute("graphiti:space:linkmode", "string", "node_color")
 
     sorted_degrees = sorted(nx.degree(graph).values())
     max_degree = sorted_degrees[-1]
@@ -332,11 +332,11 @@ def conic_layout():
         # y = radius * math.sin(alpha) * math.sin(beta)
         # z = radius * math.cos(alpha)
 
-        rd.set_node_attribute(n[0], "raindance:space:position", "vec3", str(x) + " " + str(y) + " " + str(z))
+        graphiti.set_node_attribute(n[0], "graphiti:space:position", "vec3", str(x) + " " + str(y) + " " + str(z))
 
 def show_connected_components():
 
-    rd.set_attribute("raindance:space:linkmode", "string", "node_color")
+    graphiti.set_attribute("graphiti:space:linkmode", "string", "node_color")
 
     graph = std.load_nx_graph()
     cc = nx.connected_components(graph)
@@ -348,17 +348,17 @@ def show_connected_components():
         color = str(r) + " " + str(g) + " " + str(b) 
         
         for node in list:
-            rd.set_node_attribute(node, "raindance:space:color", "vec3", color)
+            graphiti.set_node_attribute(node, "graphiti:space:color", "vec3", color)
 
 def color_nodes_by_nominal_attribute(attribute_name):
 
-    rd.set_attribute("raindance:space:linkmode", "string", "edge_color")
+    graphiti.set_attribute("graphiti:space:linkmode", "string", "edge_color")
 
-    ids = rd.get_node_ids()
+    ids = graphiti.get_node_ids()
     colors = dict()
 
     for id in ids:
-        type = rd.get_node_attribute(id, attribute_name)
+        type = graphiti.get_node_attribute(id, attribute_name)
         if type == None:
             print("Node " + str(id) + " has no <" + attribute_name + "> attribute !")
         color = None
@@ -370,17 +370,17 @@ def color_nodes_by_nominal_attribute(attribute_name):
             b = random.random()
             color = str(r) + " " + str(g) + " " + str(b)
             colors[type] = color
-        rd.set_node_attribute(id, "raindance:space:color", "vec3", color)
+        graphiti.set_node_attribute(id, "graphiti:space:color", "vec3", color)
 
 def color_nodes_by_type():
 
-    rd.set_attribute("raindance:space:linkmode", "string", "edge_color")
+    graphiti.set_attribute("graphiti:space:linkmode", "string", "edge_color")
 
-    ids = rd.get_node_ids()
+    ids = graphiti.get_node_ids()
     colors = dict()
 
     for id in ids:
-        type = rd.get_node_attribute(id, "type")
+        type = graphiti.get_node_attribute(id, "type")
         if type == None:
             print("Node " + str(id) + " has no type attribute !")
         color = None
@@ -392,17 +392,17 @@ def color_nodes_by_type():
             b = random.random()
             color = str(r) + " " + str(g) + " " + str(b)
             colors[type] = color
-        rd.set_node_attribute(id, "raindance:space:color", "vec3", color)
+        graphiti.set_node_attribute(id, "graphiti:space:color", "vec3", color)
 
 def color_edges_by_type():
 
-    rd.set_attribute("raindance:space:linkmode", "string", "edge_color")
+    graphiti.set_attribute("graphiti:space:linkmode", "string", "edge_color")
 
-    ids = rd.get_link_ids()
+    ids = graphiti.get_link_ids()
     colors = dict()
 
     for id in ids:
-        type = rd.get_link_attribute(id, "type")
+        type = graphiti.get_link_attribute(id, "type")
         if type == None:
             print("Edge " + str(id) + " has no type attribute !")
         color = None
@@ -414,64 +414,64 @@ def color_edges_by_type():
             b = random.random()
             color = str(r) + " " + str(g) + " " + str(b)
             colors[type] = color
-        rd.set_link_attribute(id, "raindance:space:color", "vec3", color)
+        graphiti.set_link_attribute(id, "graphiti:space:color", "vec3", color)
 
 def color_nodes_by_score():
     
-    rd.set_attribute("raindance:space:linkmode", "string", "node_color")
+    graphiti.set_attribute("graphiti:space:linkmode", "string", "node_color")
 
-    ids = rd.get_node_ids()
+    ids = graphiti.get_node_ids()
     for id in ids:
-        score = rd.get_node_attribute(id, "sgraph:score")
+        score = graphiti.get_node_attribute(id, "sgraph:score")
         if score is None:
-            rd.set_node_attribute(id, "raindance:space:color", "vec4", "0.5 0.5 0.5 0.5")
+            graphiti.set_node_attribute(id, "graphiti:space:color", "vec4", "0.5 0.5 0.5 0.5")
         elif score < -50:
-            rd.set_node_attribute(id, "raindance:space:color", "vec3", "1.0 0.0 0.0")
+            graphiti.set_node_attribute(id, "graphiti:space:color", "vec3", "1.0 0.0 0.0")
         elif score > 50:
-            rd.set_node_attribute(id, "raindance:space:color", "vec3", "0.0 1.0 0.0")
+            graphiti.set_node_attribute(id, "graphiti:space:color", "vec3", "0.0 1.0 0.0")
         else:
-            rd.set_node_attribute(id, "raindance:space:color", "vec3", "1.0 1.0 1.0")
+            graphiti.set_node_attribute(id, "graphiti:space:color", "vec3", "1.0 1.0 1.0")
 
 def color_nodes_by_infected():
     
-    rd.set_attribute("raindance:space:linkmode", "string", "node_color")
+    graphiti.set_attribute("graphiti:space:linkmode", "string", "node_color")
 
-    ids = rd.get_node_ids()
+    ids = graphiti.get_node_ids()
     for id in ids:
-        score = rd.get_node_attribute(id, "sgraph:infected")
+        score = graphiti.get_node_attribute(id, "sgraph:infected")
         if score is None:
-            rd.set_node_attribute(id, "raindance:space:color", "vec4", "0.5 0.5 0.5 0.5")
+            graphiti.set_node_attribute(id, "graphiti:space:color", "vec4", "0.5 0.5 0.5 0.5")
         elif score < 0:
-            rd.set_node_attribute(id, "raindance:space:color", "vec3", "1.0 0.0 0.0")
+            graphiti.set_node_attribute(id, "graphiti:space:color", "vec3", "1.0 0.0 0.0")
         elif score > 0:
-            rd.set_node_attribute(id, "raindance:space:color", "vec3", "0.0 1.0 0.0")
+            graphiti.set_node_attribute(id, "graphiti:space:color", "vec3", "0.0 1.0 0.0")
         else:
-            rd.set_node_attribute(id, "raindance:space:color", "vec3", "1.0 1.0 1.0")
+            graphiti.set_node_attribute(id, "graphiti:space:color", "vec3", "1.0 1.0 1.0")
 
 def color_nodes_by_dga_score():
 
-    rd.set_attribute("raindance:space:linkmode", "string", "node_color")
+    graphiti.set_attribute("graphiti:space:linkmode", "string", "node_color")
 
-    ids = rd.get_node_ids()
+    ids = graphiti.get_node_ids()
     for id in ids:
-        score = rd.get_node_attribute(id, "sgraph:dga:score")
+        score = graphiti.get_node_attribute(id, "sgraph:dga:score")
         if score is None:
-            rd.set_node_attribute(id, "raindance:space:color", "vec4", "0.5 0.5 0.5 0.5")
+            graphiti.set_node_attribute(id, "graphiti:space:color", "vec4", "0.5 0.5 0.5 0.5")
             continue
         else:
             # DGA score is between [0 : not DGA, 100 : DGA]
             sub = score / 100;
             rgb = [1.0, 1.0 - sub, 1.0 - sub, 1.0]
-            rd.set_node_attribute(id, "raindance:space:color", "vec4", std.vec4_to_str(rgb))
+            graphiti.set_node_attribute(id, "graphiti:space:color", "vec4", std.vec4_to_str(rgb))
 
 def depth_circle_layout():
     
     radius = 100.0
 
-    ids = rd.get_node_ids()
+    ids = graphiti.get_node_ids()
     zeros = []
     for id in ids:
-        attribute = rd.get_node_attribute(id, "depth")
+        attribute = graphiti.get_node_attribute(id, "depth")
         if attribute == None:
             continue
         else:
@@ -488,10 +488,10 @@ def depth_circle_layout():
         y = 0.0
         z = radius * math.sin(angle)
 
-        rd.set_node_attribute(id, "raindance:space:position", "vec3", str(x) + " " + str(y) + " " + str(z))
-        rd.set_node_attribute(id, "raindance:space:locked", "bool", "True")
-        rd.set_node_attribute(id, "raindance:space:activity", "float", "2.0")
-        rd.set_node_mark(id, 2)
+        graphiti.set_node_attribute(id, "graphiti:space:position", "vec3", str(x) + " " + str(y) + " " + str(z))
+        graphiti.set_node_attribute(id, "graphiti:space:locked", "bool", "True")
+        graphiti.set_node_attribute(id, "graphiti:space:activity", "float", "2.0")
+        graphiti.set_node_mark(id, 2)
         count += 1
 
 def globe_coordinates(latitude, longitude, delta = 0.0):
@@ -506,16 +506,16 @@ def globe_coordinates(latitude, longitude, delta = 0.0):
     ]
 
 def globe_layout():
-    ids = rd.get_node_ids()
+    ids = graphiti.get_node_ids()
     for id in ids:
-        geo = rd.get_node_attribute(id, "world:geolocation")
+        geo = graphiti.get_node_attribute(id, "world:geolocation")
         if geo is not None:
            pos = globe_coordinates(geo[0], geo[1])
-           rd.set_node_attribute(id, "raindance:space:position", "vec3", std.vec3_to_str(pos))
-           rd.set_node_attribute(id, "raindance:space:locked", "bool", "true")
+           graphiti.set_node_attribute(id, "graphiti:space:position", "vec3", std.vec3_to_str(pos))
+           graphiti.set_node_attribute(id, "graphiti:space:locked", "bool", "true")
 
 def randomize_timeline():
-    ids = rd.get_node_ids()
+    ids = graphiti.get_node_ids()
     time = 1000
     for nid in ids:
         r = 1.0
@@ -523,8 +523,8 @@ def randomize_timeline():
         b = 0.0
         a = 1.0
         color = str(r) + " " + str(g) + " " + str(b) + " " + str(a)
-        rd.send_command(time, "graph:set_node_attribute",
-                        { "id" : int(random.choice(ids)), "type" : "vec4", "name" : "raindance:space:color", "value" : color }) 
+        graphiti.send_command(time, "graph:set_node_attribute",
+                        { "id" : int(random.choice(ids)), "type" : "vec4", "name" : "graphiti:space:color", "value" : color }) 
         time += 500
 
 def search_by_attribute(node_flag, edge_flag):
@@ -534,9 +534,9 @@ def search_by_attribute(node_flag, edge_flag):
     def f(t, id, match):
         if not match:
             if t == "node":
-                rd.set_node_attribute(id, "raindance:space:lod", "float", "0.0")
+                graphiti.set_node_attribute(id, "graphiti:space:lod", "float", "0.0")
             elif t == "edge":
-                rd.set_link_attribute(id, "raindance:space:lod", "float", "0.0")
+                graphiti.set_link_attribute(id, "graphiti:space:lod", "float", "0.0")
 
     std.regex_map(pattern, attribute, node_flag, edge_flag, f)
 
@@ -546,28 +546,28 @@ def multiply_colors(v, node_flag, edge_flag):
         
 
     if node_flag:
-        for id in rd.get_node_ids():
-            c = rd.get_node_attribute(id, "raindance:space:color")
-            rd.set_node_attribute(id, "raindance:space:color", "vec4", std.vec4_to_str(f(c, v)))
+        for id in graphiti.get_node_ids():
+            c = graphiti.get_node_attribute(id, "graphiti:space:color")
+            graphiti.set_node_attribute(id, "graphiti:space:color", "vec4", std.vec4_to_str(f(c, v)))
 
     if edge_flag:
-        for id in rd.get_link_ids():
-            c = rd.get_link_attribute(id, "raindance:space:color1")
-            rd.set_link_attribute(id, "raindance:space:color1", "vec4", std.vec4_to_str(f(c, v)))
-            c = rd.get_link_attribute(id, "raindance:space:color2")
-            rd.set_link_attribute(id, "raindance:space:color2", "vec4", std.vec4_to_str(f(c, v)))
+        for id in graphiti.get_link_ids():
+            c = graphiti.get_link_attribute(id, "graphiti:space:color1")
+            graphiti.set_link_attribute(id, "graphiti:space:color1", "vec4", std.vec4_to_str(f(c, v)))
+            c = graphiti.get_link_attribute(id, "graphiti:space:color2")
+            graphiti.set_link_attribute(id, "graphiti:space:color2", "vec4", std.vec4_to_str(f(c, v)))
 
 def calculate_degree_map():
     degrees = dict()
 
-    for eid in rd.get_link_ids():
+    for eid in graphiti.get_link_ids():
         bi = False
-        e_type = rd.get_link_attribute(eid, "type")
+        e_type = graphiti.get_link_attribute(eid, "type")
         if e_type is not None and "<->" in e_type:
             bi = True
 
-        nid1 = rd.get_link_node1(eid)
-        nid2 = rd.get_link_node2(eid)
+        nid1 = graphiti.get_link_node1(eid)
+        nid2 = graphiti.get_link_node2(eid)
 
         if nid1 not in degrees:
             degrees[nid1] = { "in" : 0, "out" : 0 }
@@ -590,13 +590,13 @@ def detect_spn():
     degree_map = calculate_degree_map()
     source_map = dict()
 
-    for eid in rd.get_link_ids():
-        src = rd.get_link_node1(eid)
+    for eid in graphiti.get_link_ids():
+        src = graphiti.get_link_node1(eid)
         if src not in degree_map:
             continue
         
         if degree_map[src]["in"] == 0 and degree_map[src]["out"] >= 0:
-            dst = rd.get_link_node2(eid)
+            dst = graphiti.get_link_node2(eid)
             if src not in source_map:
                 source_map[src] = [(dst, eid)]
             elif dst not in source_map[src]:
@@ -608,21 +608,21 @@ def detect_spn():
         std.vec4_to_str(std.random_vec4([0, 1], [0, 1], [0, 1], [0.1, 0.5]))  # Others
     ]
 
-    for nid in rd.get_node_ids():
-        rd.set_node_attribute(nid, "raindance:space:lod", "float", "0.0")
-        rd.set_node_attribute(nid, "raindance:space:color", "vec4", colors[2])
+    for nid in graphiti.get_node_ids():
+        graphiti.set_node_attribute(nid, "graphiti:space:lod", "float", "0.0")
+        graphiti.set_node_attribute(nid, "graphiti:space:color", "vec4", colors[2])
         
-    for eid in rd.get_link_ids():
-        rd.set_link_attribute(eid, "raindance:space:lod", "float", "0.0")
+    for eid in graphiti.get_link_ids():
+        graphiti.set_link_attribute(eid, "graphiti:space:lod", "float", "0.0")
 
     for source in source_map.keys():
-        rd.set_node_attribute(source, "raindance:space:lod", "float", "1.0")
-        rd.set_node_attribute(source, "raindance:space:color", "vec4", colors[0])
+        graphiti.set_node_attribute(source, "graphiti:space:lod", "float", "1.0")
+        graphiti.set_node_attribute(source, "graphiti:space:color", "vec4", colors[0])
 
         for successor in source_map[source]:
-            rd.set_node_attribute(successor[0], "raindance:space:lod", "float", "1.0")
-            rd.set_node_attribute(successor[0], "raindance:space:color", "vec4", colors[1])
-            rd.set_link_attribute(successor[1], "raindance:space:lod", "float", "1.0")
+            graphiti.set_node_attribute(successor[0], "graphiti:space:lod", "float", "1.0")
+            graphiti.set_node_attribute(successor[0], "graphiti:space:color", "vec4", colors[1])
+            graphiti.set_link_attribute(successor[1], "graphiti:space:lod", "float", "1.0")
 
     print("SPN detection results :")
     print(source_map)
@@ -677,8 +677,8 @@ def start():
             ["Detect SPN", "demo.detect_spn()"]
         ]],
         ["Animation", [
-            ["Start", "rd.set_attribute('raindance:space:animation', 'bool', 'True')"],
-            ["Stop", "rd.set_attribute('raindance:space:animation', 'bool', 'False')"]
+            ["Start", "graphiti.set_attribute('graphiti:space:animation', 'bool', 'True')"],
+            ["Stop", "graphiti.set_attribute('graphiti:space:animation', 'bool', 'False')"]
         ]],
         ["Security", [
             ["Umbrella Score", "demo.color_nodes_by_score()"],
@@ -690,36 +690,37 @@ def start():
             ["Randomize Edge Activity", "demo.randomize_edge_activity()"],
             ["Randomize Node Icons", "demo.randomize_node_icons()"],
             ["Randomize Timeline", "demo.randomize_timeline()"],
-            ["Build Octree", "rd.set_attribute('raindance:space:octree:update', 'bool', 'True')"]
+            ["Build Octree", "graphiti.set_attribute('graphiti:space:octree:update', 'bool', 'True')"]
         ]],
     ]
 
     unreg_command = ""
     for script in Scripts:
         for s in script[1]:
-            unreg_command += 'rd.unregister_script("' + s[0] + '")\n'
+            unreg_command += 'graphiti.unregister_script("' + s[0] + '")\n'
 
     for script in Scripts:
         reg_command = ""
         for s in script[1]:
-            reg_command += 'rd.register_script("' + s[0] + '", "' + s[1] + '")\n'
+            reg_command += 'graphiti.register_script("' + s[0] + '", "' + s[1] + '")\n'
 
-        rd.register_script(script[0], unreg_command + "\n" + reg_command) 
+        graphiti.register_script(script[0], unreg_command + "\n" + reg_command) 
 
-    rd.register_script("==========", "pass")
+    graphiti.register_script("==========", "pass")
 
     if len(sys.argv) == 3:
         if sys.argv[2].endswith(".json"):
-            rd.register_script('#started', 'std.load_json("' + sys.argv[2] + '")') 
+            graphiti.register_script('#started', 'std.load_json("' + sys.argv[2] + '")') 
         else:
             print("Unrecognized format <'" + sys.argv[2] + "'> !")
 
-    #wid = rd.add_window("Raindance", 1024, 728)
-    #g = rd.create_entity("graph")
-    #v = rd.create_view("graph:view", g)
-    #c = rd.create_controller("graph:controller", g)
-    #rd.bind_entity(g)
-    #rd.send(g, { "message" : "Hello Graph!" })
-    #rd.destroy_entity(g)
+    # TODO : Add entity support in python scripts
+    #wid = graphiti.add_window("OpenGraphiti : Data Visualization Engine", 1024, 728)
+    #g = graphiti.create_entity("graph")
+    #v = graphiti.create_view("graph:view", g)
+    #c = graphiti.create_controller("graph:controller", g)
+    #graphiti.bind_entity(g)
+    #graphiti.send(g, { "message" : "Hello Graph!" })
+    #graphiti.destroy_entity(g)
 
-    rd.start("space")
+    graphiti.start("space")

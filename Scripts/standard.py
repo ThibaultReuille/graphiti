@@ -1,4 +1,4 @@
-from Scripts import rd
+from Scripts import graphiti
 from Scripts import nx
 
 import re
@@ -66,7 +66,7 @@ edge_attributes = [
 ]
 
 def info():
-    print (str(rd.count_nodes()) + " nodes, " + str(rd.count_links()) + " links.")
+    print (str(graphiti.count_nodes()) + " nodes, " + str(graphiti.count_links()) + " links.")
 
 def get_attribute_info(attribute):
     t = type(attribute)
@@ -85,8 +85,8 @@ def get_attribute_info(attribute):
         return None
 
 def load_json(json_filename):
-    rd_nodes = {}
-    rd_links = {}
+    nodes = {}
+    links = {}
     global node_attributes
     global edge_attributes
 
@@ -101,7 +101,7 @@ def load_json(json_filename):
     if "meta" in data:
         if "title" in data["meta"].keys():
             if data["meta"]["title"] is not None:
-                rd.set_attribute("raindance:space:title", "string", data["meta"]["title"])
+                graphiti.set_attribute("raindance:space:title", "string", data["meta"]["title"])
 
     if "attributes" in data:
         for key in data["attributes"].keys():
@@ -111,21 +111,21 @@ def load_json(json_filename):
             if att_info is None:
                 print("Error: Couldn't parse key '" + key + "' with value '" + str(n[key]) + "'!")
                 continue
-            rd.set_attribute(key, att_info[0], att_info[1])
+            graphiti.set_attribute(key, att_info[0], att_info[1])
 
     print(". Loading nodes ...")
     for n in data["nodes"]:
         label = ""
         if "label" in n:
             label = n["label"]
-        nid = rd.add_node(label)
-        rd_nodes[n["id"]] = nid
+        nid = graphiti.add_node(label)
+        nodes[n["id"]] = nid
 
         # TODO : Should disappear
         if "raindance:model:weight" in n:
-            rd.set_node_weight(nid, float(n["raindance:model:weight"]))
+            graphiti.set_node_weight(nid, float(n["raindance:model:weight"]))
         if "raindance:model:mark" in n:
-            rd.set_node_mark(nid, int(n["raindance:model:mark"]))
+            graphiti.set_node_mark(nid, int(n["raindance:model:mark"]))
 
         for key in n.keys():
             if key in reserved_attributes:
@@ -134,12 +134,12 @@ def load_json(json_filename):
             if att_info is None:
                 print("Error: Couldn't parse key '" + key + "' with value '" + str(n[key]) + "'!")
                 continue
-            rd.set_node_attribute(nid, key, att_info[0], att_info[1])
+            graphiti.set_node_attribute(nid, key, att_info[0], att_info[1])
 
     print(". Loading edges ...")
     for e in data["edges"]:
-        eid = rd.add_link(rd_nodes[e["src"]], rd_nodes[e["dst"]])
-        rd_links[e["id"]] = eid
+        eid = graphiti.add_link(nodes[e["src"]], nodes[e["dst"]])
+        links[e["id"]] = eid
 
         for key in e.keys():
             if key in reserved_attributes:
@@ -148,14 +148,14 @@ def load_json(json_filename):
             if att_info is None:
                 print("Error: Couldn't parse key '" + key + "' with value '" + str(n[key]) + "'!")
                 continue
-            rd.set_link_attribute(eid, key, att_info[0], att_info[1])
+            graphiti.set_link_attribute(eid, key, att_info[0], att_info[1])
 
 
     if "timeline" in data:
         print(". Loading timeline ...")
         for c in data["timeline"]:
             print(c)
-            rd.send_command(c[0], c[1], c[2])
+            graphiti.send_command(c[0], c[1], c[2])
 
     print("Done.")
 
@@ -171,36 +171,36 @@ def save_json(filename):
     
     print("Saving graph into '" + filename + "' ...")
 
-    for id in rd.get_node_ids():
+    for id in graphiti.get_node_ids():
         node = dict()
         node["id"] = id
-        node["label"] = rd.get_node_label(id)
+        node["label"] = graphiti.get_node_label(id)
 
-        weight = rd.get_node_weight(id)
+        weight = graphiti.get_node_weight(id)
         if weight is not None:
             node["raindance:model:weight"] = weight
-        mark = rd.get_node_mark(id)
+        mark = graphiti.get_node_mark(id)
         if mark is not None:
             node["raindance:model:mark"] = mark
 
         for attribute in node_attributes:
             name = attribute['name']
-            value = rd.get_node_attribute(id, name)
+            value = graphiti.get_node_attribute(id, name)
             if value is None:
                 continue
             node[name] = value
 
         graph["nodes"].append(node)
 
-    for id in rd.get_link_ids():
+    for id in graphiti.get_link_ids():
         edge = dict()
         edge["id"] = id
-        edge["src"] = rd.get_link_node1(id)
-        edge["dst"] = rd.get_link_node2(id)
+        edge["src"] = graphiti.get_link_node1(id)
+        edge["dst"] = graphiti.get_link_node2(id)
 
         for attribute in edge_attributes:
             name = attribute['name']
-            value = rd.get_link_attribute(id, name)
+            value = graphiti.get_link_attribute(id, name)
             if value is None:
                 continue
             edge[name] = value
@@ -218,26 +218,26 @@ def load_nx_graph():
     
     graph = nx.Graph()
     
-    print(rd.get_node_ids())
+    print(graphiti.get_node_ids())
 
-    for id in rd.get_node_ids():
+    for id in graphiti.get_node_ids():
         graph.add_node(id)
-        graph.node[id]['label'] = rd.get_node_label(id)
-        # graph.node[id]['raindance:model:type'] = rd.get_node_type(id)   <-- TODO ?
-        graph.node[id]['raindance:model:mark'] = int(rd.get_node_mark(id))
-        graph.node[id]['raindance:model:weight'] = float(rd.get_node_weight(id))
+        graph.node[id]['label'] = graphiti.get_node_label(id)
+        # graph.node[id]['raindance:model:type'] = graphiti.get_node_type(id)   <-- TODO ?
+        graph.node[id]['graphiti:model:mark'] = int(graphiti.get_node_mark(id))
+        graph.node[id]['graphiti:model:weight'] = float(graphiti.get_node_weight(id))
 
         for a in node_attributes:
-            attribute = rd.get_node_attribute(id, a['name'])
+            attribute = graphiti.get_node_attribute(id, a['name'])
             if not(attribute is None):
                 value = str(attribute)
                 if a['type'] == "vec2" or a['type'] == "vec3":
                     value = filter(lambda x: not (x in "[,]"), value)
                 graph.node[id][a['name']] = value
 
-    for id in rd.get_link_ids():
-        node1 = rd.get_link_node1(id)
-        node2 = rd.get_link_node2(id)
+    for id in graphiti.get_link_ids():
+        node1 = graphiti.get_link_node1(id)
+        node2 = graphiti.get_link_node2(id)
         graph.add_edge(node1, node2)
     
     return graph
@@ -252,17 +252,17 @@ def regex_map(expression, attribute, node_flag, edge_flag, f, translate = True):
         return            
 
     if node_flag:
-        for nid in rd.get_node_ids():
+        for nid in graphiti.get_node_ids():
             value = None
 
             if attribute == "label":
-                value = rd.get_node_label(nid)
+                value = graphiti.get_node_label(nid)
             elif attribute == "mark":
-                value = rd.get_node_mark(nid)
+                value = graphiti.get_node_mark(nid)
             elif attribute == "weight":
-                value = rd.get_node_weight(nid)
+                value = graphiti.get_node_weight(nid)
             else:
-                value = rd.get_node_attribute(nid, attribute)
+                value = graphiti.get_node_attribute(nid, attribute)
 
             if value is None:
                 f("node", nid, None)
@@ -270,15 +270,15 @@ def regex_map(expression, attribute, node_flag, edge_flag, f, translate = True):
                 f("node", nid, r.match(str(value)))
 
     if edge_flag:
-        for eid in rd.get_link_ids():
+        for eid in graphiti.get_link_ids():
             value = None
 
             if attribute == "node1":
-                value = rd.get_link_node1(eid)
+                value = graphiti.get_link_node1(eid)
             elif attribute == "node2":
-                value = rd.get_link_node2(eid)
+                value = graphiti.get_link_node2(eid)
             else:
-                value = rd.get_link_attribute(eid, attribute)
+                value = graphiti.get_link_attribute(eid, attribute)
 
             if value is None:
                 f("edge", eid, None)

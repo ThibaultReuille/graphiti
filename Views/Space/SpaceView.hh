@@ -644,10 +644,12 @@ public:
                     m_Octree->insert(new Scene::OctreeNode(m_SpaceNodes[i]));
             }
         }
+        /*
         else
         {
             LOG("[SPACEVIEW] '%s' node attribute ignored !\n", name.c_str());
         }
+        */
     }
 
 	void onAddNode(Node::ID uid, const char* label)
@@ -729,10 +731,6 @@ public:
             vstring.set(value);
             static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->setIcon(vstring.value());
         }
-		else
-		{
-			LOG("[SPACEVIEW] '%s' node attribute ignored !\n", name.c_str());
-		}
 	}
 
 	void onSetNodeLabel(Node::ID uid, const char* label)
@@ -841,10 +839,6 @@ public:
             vfloat.set(value);
             static_cast<SpaceLink*>(m_SpaceLinks[id]->getDrawable())->setLOD(vfloat.value());
         }
-		else
-		{
-			LOG("[SPACEVIEW] '%s' link attribute ignored !\n", name.c_str());
-		}
 	}
 
 	void onAddSphere(Sphere::ID id, const char* label)

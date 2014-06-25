@@ -7,7 +7,7 @@ import random as random
 import pygeoip as pygeoip
 import networkx as nx
 
-import raindance as rd
+import graphiti as graphiti
 import standard as std
 
 import demo as demo

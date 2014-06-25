@@ -105,7 +105,8 @@ public:
         unsigned long pos = sname.find(":");
         std::string category = sname.substr (0, pos);
 
-        if (category == "raindance")
+        // TODO : Remove 'raindance' attribute namespace whenever possible.
+        if (category == "raindance" || category == "graphiti")
         {
             sname = sname.substr(pos + 1);
         }
@@ -122,8 +123,6 @@ public:
     {
         Node::ID id;
         Node::Data data;
-
-        LOG("[GRAPH] addNode('%s')\n", label);
 
         data.Label = std::string(label);
         data.Weight = 1.0;
@@ -234,7 +233,8 @@ public:
         unsigned long pos = sname.find(":");
         std::string category = sname.substr (0, pos);
 
-        if (category == "raindance")
+        // TODO : Remove 'raindance' attribute namespace whenever possible.
+        if (category == "raindance" || category == "graphiti")
         {
             sname = sname.substr(pos + 1);
         }
@@ -254,7 +254,8 @@ public:
         unsigned long pos1 = sname.find(":");
         std::string category = sname.substr (0, pos1);
 
-        if (category == "raindance")
+        // TODO : Remove 'raindance' attribute namespace whenever possible.
+        if (category == "raindance" || category == "graphiti")
         {
             std::string rest = sname.substr(pos1 + 1);
             unsigned long pos2 = rest.find(":");
@@ -352,7 +353,8 @@ public:
         unsigned long pos = sname.find(":");
         std::string category = sname.substr (0, pos);
 
-        if (category == "raindance")
+        // TODO : Remove 'raindance' attribute namespace whenever possible.
+        if (category == "raindance" || category == "graphiti")
         {
             sname = sname.substr(pos + 1);
         }
@@ -372,7 +374,8 @@ public:
         unsigned long pos1 = sname.find(":");
         std::string category = sname.substr (0, pos1);
 
-        if (category == "raindance")
+        // TODO : Remove 'raindance' attribute namespace whenever possible.
+        if (category == "raindance" || category == "graphiti")
         {
             std::string rest = sname.substr(pos1 + 1);
             unsigned long pos2 = rest.find(":");

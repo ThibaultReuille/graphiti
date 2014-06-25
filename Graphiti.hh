@@ -29,10 +29,10 @@
 
 #endif
 
-class Gaia : public RainDance
+class Graphiti : public RainDance
 {
 public:
-	Gaia()
+    Graphiti()
 	{
 		m_GraphConsole = NULL;
 
@@ -47,7 +47,7 @@ public:
 		m_PostEffect2 = Canvas::NORMAL;
 	}
 
-	virtual ~Gaia()
+	virtual ~Graphiti()
 	{
 	}
 
@@ -99,8 +99,8 @@ public:
 
 	virtual void start(const char* view)
 	{
-		// addWindow("Gaia : Data Visualization Engine", 1024, 728);
-		addWindow("Gaia : Data Visualization Engine", 1920, 1080); // TODO : Make resolution adjustable
+		// addWindow("OpenGraphiti : Data Visualization Engine", 1024, 728);
+		addWindow("OpenGraphiti : Data Visualization Engine", 1920, 1080); // TODO : Make resolution adjustable
 		auto entity = static_cast<GraphEntity*>(m_EntityManager.active());
 
 		m_HUD = new HUD();
@@ -216,7 +216,7 @@ public:
             }
 #endif
             else
-                LOG("[GAIA] Unknown view name '%s' !\n", view);
+                LOG("[GRAPHITI] Unknown view name '%s' !\n", view);
         }
 	}
 
