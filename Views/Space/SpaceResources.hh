@@ -306,6 +306,14 @@ public:
 			LinkActivityIcon->load("link_activity", Resources_Particle_metaball_png, sizeof(Resources_Particle_metaball_png));
 		}
 
+		// Edges
+		{
+		    EdgeShader = ResourceManager::getInstance().loadShader("graph::edges",
+		            Resources_Shaders_Primitives_wideline_vert, sizeof(Resources_Shaders_Primitives_wideline_vert),
+		            Resources_Shaders_Primitives_wideline_frag, sizeof(Resources_Shaders_Primitives_wideline_frag));
+		    EdgeShader->dump();
+		}
+
 		// Spheres
 		{
 			SphereIcon = new Icon();
@@ -329,6 +337,7 @@ public:
 		delete NodeActivityIcon;
 
 		ResourceManager::getInstance().unload(LinkShader);
+		ResourceManager::getInstance().unload(EdgeShader);
 		delete LinkActivityIcon;
 
 		delete SphereIcon;
@@ -373,8 +382,9 @@ public:
 	Icon* NodeActivityIcon;
 
 	// Links
-	Shader::Program* LinkShader;
-	Geometry LinkGeometry;
+    Shader::Program* LinkShader;
+    Shader::Program* EdgeShader;
+	// Geometry LinkGeometry;
 	LinkMode m_LinkMode;
 	Icon* LinkActivityIcon;
 

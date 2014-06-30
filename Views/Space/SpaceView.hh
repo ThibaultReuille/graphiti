@@ -5,6 +5,7 @@
 #include <raindance/Core/Intersection.hh>
 #include <raindance/Core/Primitives/Sphere.hh>
 #include <raindance/Core/Primitives/Line.hh>
+#include <raindance/Core/Primitives/WideLine.hh>
 #include <raindance/Core/Camera/Camera.hh>
 #include <raindance/Core/Camera/Frustrum.hh>
 #include <raindance/Core/Transformation.hh>
@@ -775,6 +776,7 @@ public:
 		SpaceNode::ID node2 = m_NodeMap.getLocalID(uid2);
 
 		SpaceLink::ID lid = m_SpaceLinks.add(new Scene::Node(new SpaceLink(m_SpaceNodes[node1], m_SpaceNodes[node2]), true));
+		// SpaceEdge::ID lid = m_SpaceLinks.add(new Scene::Node(new SpaceEdge(m_SpaceNodes[node1], m_SpaceNodes[node2]), true));
 
 		m_LinkMap.addRemoteID(uid, lid);
 	}

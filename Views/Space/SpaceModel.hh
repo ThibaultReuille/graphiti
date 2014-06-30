@@ -262,6 +262,160 @@ private:
     float m_LOD;
 };
 
+class SpaceEdge : public Scene::IDrawable
+{
+public:
+    typedef unsigned long ID;
+
+    SpaceEdge(Scene::Node* node1, Scene::Node* node2)
+    : m_Node1(node1), m_Node2(node2)
+    {
+        m_Activity = 0.0f;
+        m_LOD = 1.0f;
+        update();
+    }
+
+    virtual ~SpaceEdge()
+    {
+    }
+
+    void draw(Context* context, const glm::mat4& projection, const glm::mat4& view, const glm::mat4& model)
+    {
+        glm::vec4 color = glm::vec4(0.5, 0.5, 0.5, 1.0);
+
+        if (g_SpaceResources->ShowLinkLOD)
+        {
+            if (m_LOD == 0.0)
+                return;
+
+            color.a = m_LOD;
+            // TODO : Smart LOD filters
+            // g_SpaceResources->getTentFilter(m_LOD, 1.0, g_SpaceResources->CurrentLOD, g_SpaceResources->LODSlice);
+            if (color.a > 1.0)
+                color.a = 1.0;
+        }
+
+        if (g_SpaceResources->ShowEdges)
+        {
+            Buffer& vertexBuffer = m_WideLine.getVertexBuffer();
+
+            glLineWidth(g_SpaceResources->EdgeSize);
+
+            // TODO : Figure out why this code crashes with large line sets
+
+            g_SpaceResources->EdgeShader->use();
+            g_SpaceResources->EdgeShader->uniform("u_ModelViewProjection").set(projection * view * model);
+            g_SpaceResources->EdgeShader->uniform("u_StartPosition").set(m_WideLine.getPosition(0));
+            g_SpaceResources->EdgeShader->uniform("u_EndPosition").set(m_WideLine.getPosition(1));
+            g_SpaceResources->EdgeShader->uniform("u_Width").set(g_SpaceResources->EdgeSize);
+            g_SpaceResources->EdgeShader->uniform("u_Tint").set(color);
+            context->geometry().bind(vertexBuffer, *(g_SpaceResources->EdgeShader));
+            context->geometry().drawArrays(GL_TRIANGLE_STRIP, 0, vertexBuffer.size() / sizeof(Line::Vertex));
+            context->geometry().unbind(vertexBuffer);
+        }
+
+        if (g_SpaceResources->ShowEdgeActivity && m_Activity > 0.0f)
+        {
+            float t = fmod(m_Activity * context->clock().seconds(), 1.0f);
+            glm::vec3 v = BezierCurve::linear(m_Node1->getPosition(), m_Node2->getPosition(), t);
+            glm::vec4 c = BezierCurve::linear(m_WideLine.getColor(0), m_WideLine.getColor(1), t);
+            c.a *= color.a;
+
+            float nodeSize = g_SpaceResources->NodeIconSize;
+            glm::mat4 billboard = Geometry::billboard(view * glm::translate(model, v));
+
+            g_SpaceResources->LinkActivityIcon->draw(context, projection * glm::scale(billboard, glm::vec3(nodeSize, nodeSize, nodeSize)), c, 0);
+        }
+    }
+
+    void update()
+    {
+        LOG("1\n");
+        glm::vec3 nodePosition[2] =
+        {
+                m_Node1->getPosition(),
+                m_Node2->getPosition()
+        };
+
+        glm::vec3 linePosition[2] =
+        {
+                m_WideLine.getPosition(0),
+                m_WideLine.getPosition(1)
+        };
+
+        bool needsPositionUpdate = false;
+        if (linePosition[0] != nodePosition[0] || linePosition[1] != nodePosition[1])
+            needsPositionUpdate = true;
+
+        if (g_SpaceResources->m_LinkMode == SpaceResources::LINK_COLOR)
+        {
+            if (needsPositionUpdate)
+            {
+                LOG("2\n");
+                m_WideLine.setPosition(0, nodePosition[0]);
+                m_WideLine.setPosition(1, nodePosition[1]);
+                m_WideLine.update();
+            }
+        }
+        else if (g_SpaceResources->m_LinkMode == SpaceResources::NODE_COLOR)
+        {
+            glm::vec4 lineColor[2] =
+            {
+                    m_WideLine.getColor(0),
+                    m_WideLine.getColor(1)
+            };
+
+            glm::vec4 nodeColor[2];
+
+            nodeColor[0] = static_cast<SpaceNode*>(m_Node1->getDrawable())->getColor();
+            nodeColor[1] = static_cast<SpaceNode*>(m_Node2->getDrawable())->getColor();
+
+            bool needsColorUpdate = false;
+            if (lineColor[0] != nodeColor[0] || lineColor[1] != nodeColor[1])
+                needsColorUpdate = true;
+
+            if (needsPositionUpdate || needsColorUpdate)
+            {
+                LOG("3\n");
+                m_WideLine.setPosition(0, nodePosition[0]);
+                m_WideLine.setPosition(1, nodePosition[1]);
+                m_WideLine.setColor(0, nodeColor[0]);
+                m_WideLine.setColor(1, nodeColor[1]);
+                m_WideLine.update();
+            }
+        }
+    }
+
+    inline SpaceNode::ID getNode1() { return static_cast<SpaceNode*>(m_Node1->getDrawable())->getID(); }
+    inline SpaceNode::ID getNode2() { return static_cast<SpaceNode*>(m_Node2->getDrawable())->getID(); }
+
+    inline void setActivity(float activity) { m_Activity = activity; }
+    inline float getActivity() { return m_Activity; }
+
+    void setColor(unsigned int vertex, const glm::vec3& color)
+    {
+        m_WideLine.setColor(vertex, glm::vec4(color, 1.0));
+        g_SpaceResources->m_LinkMode = SpaceResources::LINK_COLOR;
+    }
+
+    void setColor(unsigned int vertex, const glm::vec4& color)
+    {
+        m_WideLine.setColor(vertex, color);
+        g_SpaceResources->m_LinkMode = SpaceResources::LINK_COLOR;
+    }
+
+    inline glm::vec4 getColor(unsigned int vertex) { return m_WideLine.getColor(vertex); }
+
+    inline void setLOD(float lod) { m_LOD = lod; }
+
+private:
+    Scene::Node* m_Node1;
+    Scene::Node* m_Node2;
+    WideLine m_WideLine;
+    float m_Activity;
+    float m_LOD;
+};
+
 class SpaceSphere : public Scene::IDrawable
 {
 public:
