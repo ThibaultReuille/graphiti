@@ -74,7 +74,7 @@ def get_attribute_info(attribute):
     if (t is bool) or (t is int) or (t is float):
         return (t.__name__, str(attribute))
     if t is unicode:
-        return ("string", attribute)
+        return ("string", attribute.encode("utf-8"))
     elif t is list:
         l = len(attribute)
         count = sum(type(i) is float for i in attribute)
@@ -117,7 +117,8 @@ def load_json(json_filename):
     for n in data["nodes"]:
         label = ""
         if "label" in n:
-            label = n["label"]
+            label = n["label"].encode("utf-8")
+        
         nid = graphiti.add_node(label)
         nodes[n["id"]] = nid
 
