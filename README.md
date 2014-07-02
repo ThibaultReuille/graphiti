@@ -109,7 +109,7 @@ For more information on how to utilize the <code>semanticnet</code> library, ple
 * Andrew Hay, OpenDNS - <a href="https://twitter.com/andrewsmhay">@andrewsmhay</a>
 * Skyler Hawthorne, OpenDNS - <a href="https://twitter.com/dead10ck">@dead10ck</a>
 
- 7 - Contact Information
+7 - Contact Information
 ----------
 For any questions, problems, or feature requests in reference to OpenGraphiti, semanticnet, or Raindance, please use the  **issues** link associated with the repository in question. We will attempt to address all issues as quickly as possible.
 
