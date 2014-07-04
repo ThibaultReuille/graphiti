@@ -106,7 +106,7 @@ public:
         std::string category = sname.substr (0, pos);
 
         // TODO : Remove 'raindance' attribute namespace whenever possible.
-        if (category == "raindance" || category == "graphiti")
+        if (category == "raindance" || category == "graphiti" || category == "og")
         {
             sname = sname.substr(pos + 1);
         }
@@ -234,7 +234,7 @@ public:
         std::string category = sname.substr (0, pos);
 
         // TODO : Remove 'raindance' attribute namespace whenever possible.
-        if (category == "raindance" || category == "graphiti")
+        if (category == "raindance" || category == "graphiti" || category == "og")
         {
             sname = sname.substr(pos + 1);
         }
@@ -255,7 +255,7 @@ public:
         std::string category = sname.substr (0, pos1);
 
         // TODO : Remove 'raindance' attribute namespace whenever possible.
-        if (category == "raindance" || category == "graphiti")
+        if (category == "raindance" || category == "graphiti" || category == "og")
         {
             std::string rest = sname.substr(pos1 + 1);
             unsigned long pos2 = rest.find(":");
@@ -354,7 +354,7 @@ public:
         std::string category = sname.substr (0, pos);
 
         // TODO : Remove 'raindance' attribute namespace whenever possible.
-        if (category == "raindance" || category == "graphiti")
+        if (category == "raindance" || category == "graphiti" || category == "og")
         {
             sname = sname.substr(pos + 1);
         }
@@ -375,7 +375,7 @@ public:
         std::string category = sname.substr (0, pos1);
 
         // TODO : Remove 'raindance' attribute namespace whenever possible.
-        if (category == "raindance" || category == "graphiti")
+        if (category == "raindance" || category == "graphiti" || category == "og")
         {
             std::string rest = sname.substr(pos1 + 1);
             unsigned long pos2 = rest.find(":");

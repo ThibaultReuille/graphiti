@@ -8,6 +8,7 @@ import time
 import fnmatch
 import re
 import os
+import glob
 
 from Scripts import graphiti
 from Scripts import nx
@@ -75,12 +76,24 @@ def randomize_edge_activity():
         activity = random.uniform(0.0, 2.0)
         graphiti.set_link_attribute(id, "graphiti:space:activity", "float", str(activity))
 
+def randomize_edge_width():
+    for id in graphiti.get_link_ids():
+        width = random.uniform(0.0, 5.0)
+        graphiti.set_link_attribute(id, "graphiti:space:width", "float", str(width))
+
 def randomize_node_icons():
     icons = glob.glob("./Resources/Countries/*.png")
     print(icons)
     for id in graphiti.get_node_ids():
         icon = "countries/" + random.choice(icons).split("/")[-1][:2].lower()
         graphiti.set_node_attribute(id, "graphiti:space:icon", "string", icon)
+
+def randomize_edge_icons():
+    icons = glob.glob("./Resources/SpaceView/EdgeStyles/*.png")
+    print(icons)
+    for id in graphiti.get_link_ids():
+        icon = "styles/" + random.choice(icons).split("/")[-1][:-4].lower()
+        graphiti.set_link_attribute(id, "graphiti:space:icon", "string", icon)
 
 def reset_icons():
     for nid in graphiti.get_node_ids():
@@ -687,8 +700,10 @@ def start():
         ]],
         ["Test / Debug", [
             ["Randomize Node Activity", "demo.randomize_node_activity()"],
-            ["Randomize Edge Activity", "demo.randomize_edge_activity()"],
             ["Randomize Node Icons", "demo.randomize_node_icons()"],
+            ["Randomize Edge Activity", "demo.randomize_edge_activity()"],
+            ["Randomize Edge Icons", "demo.randomize_edge_icons()"],
+            ["Randomize Edge Width", "demo.randomize_edge_width()"],
             ["Randomize Timeline", "demo.randomize_timeline()"],
             ["Build Octree", "graphiti.set_attribute('graphiti:space:octree:update', 'bool', 'True')"]
         ]],

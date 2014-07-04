@@ -17,7 +17,7 @@
 #include "Views/World/WorldResources.hh"
 
 typedef TranslationMap<SpaceNode::ID, Node::ID> NodeTranslationMap;
-typedef TranslationMap<SpaceLink::ID, Link::ID> LinkTranslationMap;
+typedef TranslationMap<SpaceEdge::ID, Link::ID> LinkTranslationMap;
 
 class WorldMapGeoPoint : public Scene::IDrawable
 {
@@ -587,14 +587,14 @@ public:
 
     void onRemoveLink(Link::ID uid)
     {
-        SpaceLink::ID vid = m_LinkMap.getLocalID(uid);
+        SpaceEdge::ID vid = m_LinkMap.getLocalID(uid);
         m_GeoLinks.remove(vid);
         m_LinkMap.eraseRemoteID(uid, vid);
     }
 
     void onSetLinkAttribute(Link::ID uid, const std::string& name, VariableType type, const std::string& value)
     {
-        SpaceLink::ID vid = m_LinkMap.getLocalID(uid);
+        SpaceEdge::ID vid = m_LinkMap.getLocalID(uid);
 
         Vec2Variable vvec2;
         Vec3Variable vvec3;

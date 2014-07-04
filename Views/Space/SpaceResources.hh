@@ -7,6 +7,7 @@ class SpaceResources
 public:
 	enum NodeMode { ALL, COLORS, MARKS, NONE };
 	enum LinkMode { NODE_COLOR, LINK_COLOR };
+	enum EdgeMode { LINES, WIDE_LINES, OFF };
 
 	SpaceResources()
 	{
@@ -18,11 +19,12 @@ public:
 			ShowNodeShapes = ALL;
 			ShowNodeLabels = true;
 			ShowNodeActivity = true;
+
 			EdgeSize = 1.0f;
+			m_EdgeMode = LINES;
 			ShowEdges = true;
 			ShowEdgeActivity = true;
 			ShowSpheres = true;
-			ShowLabels = true;
 			ShowDebug = false;
 
 			LODFrame = glm::vec2(0.0, 1.0);
@@ -269,6 +271,7 @@ public:
 			NodeIcon->load("countries/ua", Resources_Countries_ua_png, sizeof(Resources_Countries_ua_png));
 			NodeIcon->load("countries/ug", Resources_Countries_ug_png, sizeof(Resources_Countries_ug_png));
 			NodeIcon->load("countries/uk", Resources_Countries_uk_png, sizeof(Resources_Countries_uk_png));
+			NodeIcon->load("countries/gb", Resources_Countries_uk_png, sizeof(Resources_Countries_uk_png)); // Duplicating UK as GB
 			NodeIcon->load("countries/us", Resources_Countries_us_png, sizeof(Resources_Countries_us_png));
 			NodeIcon->load("countries/uy", Resources_Countries_uy_png, sizeof(Resources_Countries_uy_png));
 			NodeIcon->load("countries/uz", Resources_Countries_uz_png, sizeof(Resources_Countries_uz_png));
@@ -301,17 +304,21 @@ public:
 
 		// Links
 		{
-			LinkShader = ResourceManager::getInstance().loadShader("graph", Resources_graph_vert, sizeof(Resources_graph_vert), Resources_graph_frag, sizeof(Resources_graph_frag));
+			LinkShader = ResourceManager::getInstance().loadShader("graph:links", Resources_graph_vert, sizeof(Resources_graph_vert), Resources_graph_frag, sizeof(Resources_graph_frag));
 			LinkActivityIcon = new Icon();
 			LinkActivityIcon->load("link_activity", Resources_Particle_metaball_png, sizeof(Resources_Particle_metaball_png));
 		}
 
 		// Edges
 		{
-		    EdgeShader = ResourceManager::getInstance().loadShader("graph::edges",
+		    EdgeShader = ResourceManager::getInstance().loadShader("graph:edges",
 		            Resources_Shaders_Primitives_wideline_vert, sizeof(Resources_Shaders_Primitives_wideline_vert),
 		            Resources_Shaders_Primitives_wideline_frag, sizeof(Resources_Shaders_Primitives_wideline_frag));
 		    EdgeShader->dump();
+
+		    EdgeStyleIcon = new Icon();
+            EdgeStyleIcon->load("styles/solid", Resources_SpaceView_EdgeStyles_solid_png, sizeof(Resources_SpaceView_EdgeStyles_solid_png));
+            EdgeStyleIcon->load("styles/checkerboard", Resources_SpaceView_EdgeStyles_checkerboard_png, sizeof(Resources_SpaceView_EdgeStyles_checkerboard_png));
 		}
 
 		// Spheres
@@ -337,8 +344,10 @@ public:
 		delete NodeActivityIcon;
 
 		ResourceManager::getInstance().unload(LinkShader);
-		ResourceManager::getInstance().unload(EdgeShader);
-		delete LinkActivityIcon;
+        delete LinkActivityIcon;
+
+        ResourceManager::getInstance().unload(EdgeShader);
+        delete EdgeStyleIcon;
 
 		delete SphereIcon;
 
@@ -359,16 +368,17 @@ public:
 	NodeMode ShowNodeShapes;
 	bool ShowNodeLabels;
 	bool ShowNodeActivity;
+
 	float EdgeSize;
+	EdgeMode m_EdgeMode;
 	bool ShowEdges;
 	bool ShowEdgeActivity;
 	bool ShowSpheres;
-	bool ShowLabels;
+
 	bool ShowDebug;
 
     bool ShowNodeLOD;
     bool ShowLinkLOD;
-	float CurrentLOD;
 	glm::vec2 LODFrame;
 	float LODSlice;
 
@@ -384,7 +394,7 @@ public:
 	// Links
     Shader::Program* LinkShader;
     Shader::Program* EdgeShader;
-	// Geometry LinkGeometry;
+    Icon* EdgeStyleIcon;
 	LinkMode m_LinkMode;
 	Icon* LinkActivityIcon;
 

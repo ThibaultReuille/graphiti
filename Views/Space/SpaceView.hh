@@ -21,11 +21,14 @@
 #include "Entities/Graph/GraphModel.hh"
 #include "Entities/Graph/GraphMessages.hh"
 
-#include "Views/Space/SpaceModel.hh"
+#include "Views/Space/SpaceNode.hh"
+#include "Views/Space/SpaceEdge.hh"
+#include "Views/Space/SpaceSphere.hh"
+
 #include "Views/Space/SpaceResources.hh"
 
 typedef TranslationMap<SpaceNode::ID, Node::ID> NodeTranslationMap;
-typedef TranslationMap<SpaceLink::ID, Link::ID> LinkTranslationMap;
+typedef TranslationMap<SpaceEdge::ID, Link::ID> LinkTranslationMap;
 #include "Views/Space/SpaceForces.hh"
 
 #include "Pack.hh"
@@ -40,6 +43,8 @@ public:
     {
         LOG("[SPACEVIEW] Creating space view ...\n");
 
+        g_SpaceResources = new SpaceResources();
+
         m_WindowWidth = glutGet(GLUT_WINDOW_WIDTH);
         m_WindowHeight = glutGet(GLUT_WINDOW_HEIGHT);
 
@@ -47,13 +52,9 @@ public:
         m_Camera.lookAt(glm::vec3(0, 0, -5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
         m_CameraAnimation = false;
 
-        g_SpaceResources = new SpaceResources();
-
         m_GraphEntity = NULL;
 
         m_Octree = NULL;
-
-        m_RayPacket = new RayPacket();
 
         m_PhysicsMode = PAUSE;
         m_LastUpdateTime = 0;
@@ -64,7 +65,6 @@ public:
 	virtual ~SpaceView()
 	{
 		delete g_SpaceResources;
-		delete m_RayPacket;
 	}
 
 	virtual const char* name() const { return "space"; }
@@ -86,6 +86,8 @@ public:
 
         g_SpaceResources->Model = m_GraphEntity->model();
 
+        context()->setCamera(&m_Camera);
+
         return true;
 	}
 
@@ -96,12 +98,12 @@ public:
 		unsigned int maxDegree = 0;
 
 		Scene::NodeVector::iterator itl;
-		for (itl = m_SpaceLinks.begin(); itl != m_SpaceLinks.end(); ++itl)
+		for (itl = m_SpaceEdges.begin(); itl != m_SpaceEdges.end(); ++itl)
 		{
 			if (*itl == NULL)
 				continue;
 
-			SpaceLink* link = static_cast<SpaceLink*>((*itl)->getDrawable());
+			SpaceEdge* link = static_cast<SpaceEdge*>((*itl)->getDrawable());
 
 			SpaceNode::ID node1 = link->getNode1();
 			SpaceNode::ID node2 = link->getNode2();
@@ -161,24 +163,24 @@ public:
 
 	virtual IVariable* getLinkAttribute(Link::ID uid, std::string& name)
 	{
-		SpaceLink::ID id = m_LinkMap.getLocalID(uid);
+		SpaceEdge::ID id = m_LinkMap.getLocalID(uid);
 
 		if (name == "activity")
 		{
 			FloatVariable* variable = new FloatVariable();
-			variable->set(static_cast<SpaceLink*>(m_SpaceLinks[id]->getDrawable())->getActivity());
+			variable->set(static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->getActivity());
 			return variable;
 		}
 		else if (name == "color1")
 		{
 		    Vec4Variable* variable = new Vec4Variable();
-		    variable->set(static_cast<SpaceLink*>(m_SpaceLinks[id]->getDrawable())->getColor(0));
+		    variable->set(static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->getColor(0));
 		    return variable;
 		}
 		else if (name == "color2")
 		{
             Vec4Variable* variable = new Vec4Variable();
-            variable->set(static_cast<SpaceLink*>(m_SpaceLinks[id]->getDrawable())->getColor(1));
+            variable->set(static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->getColor(1));
             return variable;
 		}
 
@@ -212,7 +214,7 @@ public:
 			glEnable(GL_LINE_SMOOTH);
 			glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 #endif
-			m_SpaceLinks.draw(context(), m_Camera.getProjectionMatrix(), m_Camera.getViewMatrix(), transformation.state());
+			m_SpaceEdges.draw(context(), m_Camera.getProjectionMatrix(), m_Camera.getViewMatrix(), transformation.state());
 		}
 
 		// Draw Nodes
@@ -225,12 +227,9 @@ public:
             {
                 static std::vector<OctreeElement*> elements;
                 elements.clear();
-
                 Frustrum frustrum(m_Camera.getViewProjectionMatrix());
-
-                // m_Octree->getElementsInsideBox(glm::vec3(-50, -50, -50), glm::vec3(50, 50, 50), elements);
                 m_Octree->findElementsInsideFrustrum(frustrum, elements);
-                // LOG("Visible elements : %lu\n", elements.size());
+
                 for (auto e : elements)
                 {
                     Scene::Node* node = static_cast<Scene::OctreeNode*>(e)->getNode();
@@ -238,7 +237,8 @@ public:
                         node->draw(context(), m_Camera.getProjectionMatrix(), m_Camera.getViewMatrix(), transformation.state());
                 }
 
-                // m_Octree->draw(context(), m_Camera.getProjectionMatrix(), m_Camera.getViewMatrix(), transformation.state());
+                if (g_SpaceResources->ShowDebug)
+                    m_Octree->draw(context(), m_Camera.getProjectionMatrix(), m_Camera.getViewMatrix(), transformation.state());
             }
 
             std::set<Node::ID>::iterator iti;
@@ -257,10 +257,6 @@ public:
 		// Draw spheres
 		if (g_SpaceResources->ShowSpheres)
 			m_SpaceSpheres.draw(context(), m_Camera.getProjectionMatrix(), m_Camera.getViewMatrix(), transformation.state());
-
-		if (g_SpaceResources->ShowDebug)
-			m_RayPacket->draw(context(), m_Camera.getProjectionMatrix() * m_Camera.getViewMatrix() * transformation.state());
-
 	}
 
 	void computeBoundingSphere(Sphere& sphere, glm::vec3* center, float* radius)
@@ -361,11 +357,13 @@ public:
 				g_SpaceResources->ShowNodeShapes = SpaceResources::NONE;
 				g_SpaceResources->ShowNodeLabels = false;
 			}
+			else if (msg->Message == "space:edges:lines")
+				g_SpaceResources->m_EdgeMode = SpaceResources::LINES;
+            else if (msg->Message == "space:edges:widelines")
+                g_SpaceResources->m_EdgeMode = SpaceResources::WIDE_LINES;
+            else if (msg->Message == "space:edges:off")
+                g_SpaceResources->m_EdgeMode = SpaceResources::OFF;
 
-			else if (msg->Message == "show edges")
-				g_SpaceResources->ShowEdges = true;
-			else if (msg->Message == "hide edges")
-				g_SpaceResources->ShowEdges = false;
 
 			else if (msg->Message == "show spheres")
 				g_SpaceResources->ShowSpheres = true;
@@ -382,10 +380,6 @@ public:
 	bool pickNode(int x, int y, SpaceNode::ID* id)
 	{
 		Ray ray = m_Camera.createRay(x, y);
-
-		// Debug rays
-		if (g_SpaceResources->ShowDebug)
-			m_RayPacket->add(ray);
 
 		Intersection::Hit hit;
 		bool found = false;
@@ -448,9 +442,12 @@ public:
 	    if (g_SpaceResources->ShowEdges || g_SpaceResources->ShowEdgeActivity)
 	    {
             Scene::NodeVector::iterator it;
-            for (it = m_SpaceLinks.begin(); it != m_SpaceLinks.end(); ++it)
+            for (it = m_SpaceEdges.begin(); it != m_SpaceEdges.end(); ++it)
                 if (*it != NULL)
-                    static_cast<SpaceLink*>((*it)->getDrawable())->update();
+                {
+                    //static_cast<SpaceEdge*>((*it)->getDrawable())->update();
+                    static_cast<SpaceEdge*>((*it)->getDrawable())->update();
+                }
 	    }
 	}
 
@@ -664,15 +661,15 @@ public:
 
 		SpaceNode::ID vid = m_NodeMap.getLocalID(uid);
 
-		for (unsigned int i = 0; i < m_SpaceLinks.size(); i++)
+		for (unsigned int i = 0; i < m_SpaceEdges.size(); i++)
 		{
-			if (m_SpaceLinks[i] != NULL)
+			if (m_SpaceEdges[i] != NULL)
 			{
-				SpaceLink* link = static_cast<SpaceLink*>(m_SpaceLinks[i]->getDrawable());
+				SpaceEdge* link = static_cast<SpaceEdge*>(m_SpaceEdges[i]->getDrawable());
 
 				if (link->getNode1() == vid || link->getNode2() == vid)
 				{
-					m_SpaceLinks.remove(i);
+					m_SpaceEdges.remove(i);
 					m_LinkMap.removeLocalID(i);
 
 					LOG("Link %i removed with node\n", i);
@@ -707,10 +704,21 @@ public:
 			vvec3.set(value);
 			m_SpaceNodes[id]->setPosition(vvec3.value());
 		}
-        else if (name == "space:color" && type == VEC3)
+        else if (name == "space:color" && (type == VEC3 || type == VEC4))
         {
-            vvec3.set(value);
-            static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->setColor(vvec3.value());
+            glm::vec4 c;
+
+            if (type == VEC3)
+            {
+                vvec3.set(value);
+                c = glm::vec4(vvec3.value(), 1.0);
+            }
+            else
+            {
+                vvec4.set(value);
+                c = vvec4.value();
+            }
+            static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->setColor(c);
         }
         else if (name == "space:color" && type == VEC4)
         {
@@ -775,8 +783,8 @@ public:
 		SpaceNode::ID node1 = m_NodeMap.getLocalID(uid1);
 		SpaceNode::ID node2 = m_NodeMap.getLocalID(uid2);
 
-		SpaceLink::ID lid = m_SpaceLinks.add(new Scene::Node(new SpaceLink(m_SpaceNodes[node1], m_SpaceNodes[node2]), true));
-		// SpaceEdge::ID lid = m_SpaceLinks.add(new Scene::Node(new SpaceEdge(m_SpaceNodes[node1], m_SpaceNodes[node2]), true));
+		// SpaceEdge::ID lid = m_SpaceEdges.add(new Scene::Node(new SpaceEdge(m_SpaceNodes[node1], m_SpaceNodes[node2]), true));
+		SpaceEdge::ID lid = m_SpaceEdges.add(new Scene::Node(new SpaceEdge(m_SpaceNodes[node1], m_SpaceNodes[node2]), true));
 
 		m_LinkMap.addRemoteID(uid, lid);
 	}
@@ -785,9 +793,9 @@ public:
 	{
 		checkLinkUID(uid);
 
-		SpaceLink::ID vid = m_LinkMap.getLocalID(uid);
+		SpaceEdge::ID vid = m_LinkMap.getLocalID(uid);
 
-		m_SpaceLinks.remove(vid);
+		m_SpaceEdges.remove(vid);
 		m_LinkMap.eraseRemoteID(uid, vid);
 	}
 
@@ -798,48 +806,66 @@ public:
 		FloatVariable vfloat;
         Vec3Variable vvec3;
         Vec4Variable vvec4;
+        StringVariable vstring;
 
-		SpaceLink::ID id = m_LinkMap.getLocalID(uid);
+		SpaceEdge::ID id = m_LinkMap.getLocalID(uid);
 
-        if (name == "space:color" && type == VEC3)
+        if (name == "space:color" && (type == VEC3 || type == VEC4))
         {
             checkLinkUID(uid);
-            SpaceLink::ID id = m_LinkMap.getLocalID(uid);
-            vvec3.set(value);
-            static_cast<SpaceLink*>(m_SpaceLinks[id]->getDrawable())->setColor(0, vvec3.value());
-            static_cast<SpaceLink*>(m_SpaceLinks[id]->getDrawable())->setColor(1, vvec3.value());
-        }
-        else if (name == "space:color" && type == VEC4)
-        {
-            checkLinkUID(uid);
-            SpaceLink::ID id = m_LinkMap.getLocalID(uid);
-            vvec4.set(value);
-            static_cast<SpaceLink*>(m_SpaceLinks[id]->getDrawable())->setColor(0, vvec4.value());
-            static_cast<SpaceLink*>(m_SpaceLinks[id]->getDrawable())->setColor(1, vvec4.value());
+            SpaceEdge::ID id = m_LinkMap.getLocalID(uid);
+
+            glm::vec4 c;
+            if (type == VEC3)
+            {
+                vvec3.set(value);
+                c = glm::vec4(vvec3.value(), 1.0);
+            }
+            else
+            {
+                vvec4.set(value);
+                c = vvec4.value();
+            }
+
+            static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setColor(0, c);
+            static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setColor(1, c);
+            static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setDirty(true);
         }
 		else if (name == "space:color1" && type == VEC4)
 		{
 			checkLinkUID(uid);
-			SpaceLink::ID id = m_LinkMap.getLocalID(uid);
+			SpaceEdge::ID id = m_LinkMap.getLocalID(uid);
 			vvec4.set(value);
-			static_cast<SpaceLink*>(m_SpaceLinks[id]->getDrawable())->setColor(0, vvec4.value());
+			static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setColor(0, vvec4.value());
+            static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setDirty(true);
 		}
 		else if (name == "space:color2" && type == VEC4)
 		{
 			checkLinkUID(uid);
-			SpaceLink::ID id = m_LinkMap.getLocalID(uid);
+			SpaceEdge::ID id = m_LinkMap.getLocalID(uid);
 			vvec4.set(value);
-			static_cast<SpaceLink*>(m_SpaceLinks[id]->getDrawable())->setColor(1, vvec4.value());
+			static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setColor(1, vvec4.value());
+            static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setDirty(true);
+		}
+		else if (name == "space:width" && type == FLOAT)
+		{
+		    vfloat.set(value);
+		    static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setWidth(vfloat.value());
 		}
         else if (name == "space:activity" && type == FLOAT)
         {
             vfloat.set(value);
-            static_cast<SpaceLink*>(m_SpaceLinks[id]->getDrawable())->setActivity(vfloat.value());
+            static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setActivity(vfloat.value());
         }
         else if (name == "space:lod" && type == FLOAT)
         {
             vfloat.set(value);
-            static_cast<SpaceLink*>(m_SpaceLinks[id]->getDrawable())->setLOD(vfloat.value());
+            static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setLOD(vfloat.value());
+        }
+        else if (name == "space:icon" && type == STRING)
+        {
+            vstring.set(value);
+            static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setIcon(vstring.value());
         }
 	}
 
@@ -864,8 +890,8 @@ public:
 		SpaceNode::ID vid = pushNodeVertexAround(element.first, label, m_SpaceNodes[nid]->getPosition(), 2);
 
 		Scene::Node* node = new Scene::Node(NULL, false);
-		SpaceLink::ID lid = m_SpaceLinks.add(node);
-		node->setDrawable(new SpaceLink(m_SpaceNodes[nid], m_SpaceNodes[vid]), true);
+		SpaceEdge::ID lid = m_SpaceEdges.add(node);
+		node->setDrawable(new SpaceEdge(m_SpaceNodes[nid], m_SpaceNodes[vid]), true);
 
 		m_LinkMap.addRemoteID(element.second, lid);
 	}
@@ -873,7 +899,7 @@ public:
 	// -----
 
 	inline Scene::NodeVector& getNodes() { return m_SpaceNodes; }
-	inline Scene::NodeVector& getLinks() { return m_SpaceLinks; }
+	inline Scene::NodeVector& getEdges() { return m_SpaceEdges; }
 	inline Scene::NodeVector& getSpheres() { return m_SpaceSpheres; }
 
 	inline NodeTranslationMap& getNodeMap() { return m_NodeMap; }
@@ -898,12 +924,10 @@ private:
 	LinkTranslationMap m_LinkMap;
 
 	Scene::NodeVector m_SpaceNodes;
-	Scene::NodeVector m_SpaceLinks;
+	Scene::NodeVector m_SpaceEdges;
 	Scene::NodeVector m_SpaceSpheres;
 
 	Octree* m_Octree;
-
-	RayPacket* m_RayPacket;
 
 	PhysicsMode m_PhysicsMode;
 	unsigned int m_Iterations;

@@ -296,7 +296,7 @@ public:
             else if (msg->Name == "slider2" && msg->Message == "update")
             {
                 float value = m_Menu->getSlider2()->value();
-                m_GraphView->setEdgeSize(10.0f * value);
+                m_GraphView->setEdgeSize(3.0f * value);
             }
             else if (msg->Name == "slider3" && msg->Message == "update")
             {
@@ -329,10 +329,12 @@ public:
 			else if (msg->Message == "show node none")
 				m_Menu->getNodeTextWidget()->text().set("Off", m_Menu->getFont());
 
-			else if (msg->Message == "show edges")
-				m_Menu->getEdgeTextWidget()->text().set("On", m_Menu->getFont());
-			else if (msg->Message == "hide edges")
-				m_Menu->getEdgeTextWidget()->text().set("Off", m_Menu->getFont());
+			else if (msg->Message == "space:edges:lines")
+				m_Menu->getEdgeTextWidget()->text().set("Lines", m_Menu->getFont());
+		    else if (msg->Message == "space:edges:widelines")
+		        m_Menu->getEdgeTextWidget()->text().set("Wide Lines", m_Menu->getFont());
+		    else if (msg->Message == "space:edges:off")
+		        m_Menu->getEdgeTextWidget()->text().set("Off", m_Menu->getFont());
 
 			else if (msg->Message == "show spheres")
 				m_Menu->getSpheresTextWidget()->text().set("On", m_Menu->getFont());
@@ -458,7 +460,6 @@ private:
 
 	SphericalCameraController m_SphericalCameraController;
 	FirstPersonCameraController m_FirstPersonCameraController;
-	RayPacket m_RayPacket;
 
 	ToolMode m_ToolMode;
 	bool m_HasSelection;

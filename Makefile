@@ -96,6 +96,10 @@ pack:
 	mkdir -p Pack/SpaceView
 	xxd -i Resources/SpaceView/node-activity.png > Pack/SpaceView/node-activity.png
 
+	mkdir -p Pack/SpaceView/EdgeStyles
+	xxd -i Resources/SpaceView/EdgeStyles/solid.png > Pack/SpaceView/EdgeStyles/solid.png
+	xxd -i Resources/SpaceView/EdgeStyles/checkerboard.png > Pack/SpaceView/EdgeStyles/checkerboard.png
+
 	mkdir -p Pack/WorldView
 	xxd -i Resources/WorldView/geoline.vert > Pack/WorldView/geoline.vert
 	xxd -i Resources/WorldView/geoline.frag > Pack/WorldView/geoline.frag

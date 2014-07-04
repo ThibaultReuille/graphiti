@@ -109,26 +109,38 @@ public:
 	{
 		m_Icon = new Icon(glm::vec2(1.0, 1.0), glm::vec2(0.5, -0.5));
 		m_Icon->load("edge", Resources_Hud_graph_png, sizeof(Resources_Hud_graph_png));
-		m_State = true;
+		m_State = 0;
 	}
 	virtual ~EdgeWidget()
 	{
 		delete m_Icon;
 	}
-	virtual void draw(Context* context, glm::mat4 model, glm::mat4 view, glm::mat4 projection)
-	{
-        m_Icon->draw(context, projection * view * glm::scale(model, glm::vec3(m_Dimension, 1.0)), m_State ? glm::vec4(1.0, 1.0, 1.0, 1.0) : glm::vec4(0.5, 0.5, 0.5, 1.0), 0);
-
-	}
-	virtual void onMouseClick(MessageQueue& messages, int x, int y)
-	{
-		(void) x;
-		(void) y;
-		m_State = !m_State;
-		messages.push(static_cast<IMessage*>(new WidgetMessage(m_State ? "show edges" : "hide edges")));
-	}
+    virtual void draw(Context* context, glm::mat4 model, glm::mat4 view, glm::mat4 projection)
+    {
+        m_Icon->draw(context, projection * view * glm::scale(model, glm::vec3(m_Dimension, 1.0)), m_State != 2 ? glm::vec4(1.0, 1.0, 1.0, 1.0) : glm::vec4(0.5, 0.5, 0.5, 1.0), 0);
+    }
+    virtual void onMouseClick(MessageQueue& messages, int x, int y)
+    {
+        (void) x;
+        (void) y;
+        m_State = (m_State + 1) % 3;
+        switch(m_State)
+        {
+        case 0:
+            messages.push(static_cast<IMessage*>(new WidgetMessage("space:edges:lines")));
+            break;
+        case 1:
+            messages.push(static_cast<IMessage*>(new WidgetMessage("space:edges:widelines")));
+            break;
+        case 2:
+            messages.push(static_cast<IMessage*>(new WidgetMessage("space:edges:off")));
+            break;
+        default:
+            break;
+        }
+    }
 private:
-	bool m_State;
+    unsigned int m_State;
 };
 
 class LabelWidget : public IWidget
@@ -471,7 +483,7 @@ public:
             tl.x += m_WidgetSpacing + m_WidgetDimension.x;
             m_TopLeftWidgetGroup->add(m_EdgeTextWidget = new TextWidget("edges text", NULL, tl, glm::vec2(textWidgetWidth, m_WidgetDimension.y)));
             tl -= glm::vec3(m_WidgetSpacing + m_WidgetDimension.x, m_WidgetSpacing + m_WidgetDimension.y, 0);
-            m_EdgeTextWidget->text().set("On", m_Font);
+            m_EdgeTextWidget->text().set("Lines", m_Font);
 
             m_TopLeftWidgetGroup->add(m_Slider2 = new SliderWidget("slider2", NULL, tl, glm::vec2(m_WidgetDimension.x * 3, m_WidgetDimension.y / 2)));
             tl.x += m_WidgetDimension.x * 3 + m_WidgetSpacing;
