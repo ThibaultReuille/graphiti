@@ -97,8 +97,14 @@ pack:
 	xxd -i Resources/SpaceView/node-activity.png > Pack/SpaceView/node-activity.png
 
 	mkdir -p Pack/SpaceView/EdgeStyles
+	xxd -i Resources/SpaceView/EdgeStyles/circles.png > Pack/SpaceView/EdgeStyles/circles.png
+	xxd -i Resources/SpaceView/EdgeStyles/cross.png > Pack/SpaceView/EdgeStyles/cross.png
+	xxd -i Resources/SpaceView/EdgeStyles/dashed.png > Pack/SpaceView/EdgeStyles/dashed.png
+	xxd -i Resources/SpaceView/EdgeStyles/dots.png > Pack/SpaceView/EdgeStyles/dots.png
+	xxd -i Resources/SpaceView/EdgeStyles/zigzag.png > Pack/SpaceView/EdgeStyles/zigzag.png
 	xxd -i Resources/SpaceView/EdgeStyles/solid.png > Pack/SpaceView/EdgeStyles/solid.png
-	xxd -i Resources/SpaceView/EdgeStyles/checkerboard.png > Pack/SpaceView/EdgeStyles/checkerboard.png
+	xxd -i Resources/SpaceView/EdgeStyles/squares.png > Pack/SpaceView/EdgeStyles/squares.png
+	xxd -i Resources/SpaceView/EdgeStyles/triangles.png > Pack/SpaceView/EdgeStyles/triangles.png
 
 	mkdir -p Pack/WorldView
 	xxd -i Resources/WorldView/geoline.vert > Pack/WorldView/geoline.vert

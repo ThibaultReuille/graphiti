@@ -48,8 +48,14 @@ namespace RaindanceResources
 
 #include "Pack/SpaceView/node-activity.png"
 
+#include "Pack/SpaceView/EdgeStyles/circles.png"
+#include "Pack/SpaceView/EdgeStyles/cross.png"
+#include "Pack/SpaceView/EdgeStyles/dashed.png"
+#include "Pack/SpaceView/EdgeStyles/dots.png"
 #include "Pack/SpaceView/EdgeStyles/solid.png"
-#include "Pack/SpaceView/EdgeStyles/checkerboard.png"
+#include "Pack/SpaceView/EdgeStyles/squares.png"
+#include "Pack/SpaceView/EdgeStyles/triangles.png"
+#include "Pack/SpaceView/EdgeStyles/zigzag.png"
 
 #include "Pack/WorldView/geoline.vert"
 #include "Pack/WorldView/geoline.frag"

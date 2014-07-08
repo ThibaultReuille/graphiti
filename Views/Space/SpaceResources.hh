@@ -318,7 +318,13 @@ public:
 
 		    EdgeStyleIcon = new Icon();
             EdgeStyleIcon->load("styles/solid", Resources_SpaceView_EdgeStyles_solid_png, sizeof(Resources_SpaceView_EdgeStyles_solid_png));
-            EdgeStyleIcon->load("styles/checkerboard", Resources_SpaceView_EdgeStyles_checkerboard_png, sizeof(Resources_SpaceView_EdgeStyles_checkerboard_png));
+            EdgeStyleIcon->load("styles/circles", Resources_SpaceView_EdgeStyles_circles_png, sizeof(Resources_SpaceView_EdgeStyles_circles_png));
+            EdgeStyleIcon->load("styles/cross", Resources_SpaceView_EdgeStyles_cross_png, sizeof(Resources_SpaceView_EdgeStyles_cross_png));
+            EdgeStyleIcon->load("styles/dashed", Resources_SpaceView_EdgeStyles_dashed_png, sizeof(Resources_SpaceView_EdgeStyles_dashed_png));
+            EdgeStyleIcon->load("styles/dots", Resources_SpaceView_EdgeStyles_dots_png, sizeof(Resources_SpaceView_EdgeStyles_dots_png));
+            EdgeStyleIcon->load("styles/triangles", Resources_SpaceView_EdgeStyles_triangles_png, sizeof(Resources_SpaceView_EdgeStyles_triangles_png));
+            EdgeStyleIcon->load("styles/squares", Resources_SpaceView_EdgeStyles_squares_png, sizeof(Resources_SpaceView_EdgeStyles_squares_png));
+            EdgeStyleIcon->load("styles/zigzag", Resources_SpaceView_EdgeStyles_zigzag_png, sizeof(Resources_SpaceView_EdgeStyles_zigzag_png));
 		}
 
 		// Spheres
