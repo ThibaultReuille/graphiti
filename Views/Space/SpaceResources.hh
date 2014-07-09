@@ -302,19 +302,14 @@ public:
 			NodeActivityIcon->load("node_activity", Resources_SpaceView_node_activity_png, sizeof(Resources_SpaceView_node_activity_png));
 		}
 
-		// Links
-		{
-			LinkShader = ResourceManager::getInstance().loadShader("graph:links", Resources_graph_vert, sizeof(Resources_graph_vert), Resources_graph_frag, sizeof(Resources_graph_frag));
-			LinkActivityIcon = new Icon();
-			LinkActivityIcon->load("link_activity", Resources_Particle_metaball_png, sizeof(Resources_Particle_metaball_png));
-		}
-
 		// Edges
 		{
+            EdgeActivityIcon = new Icon();
+            EdgeActivityIcon->load("link_activity", Resources_Particle_metaball_png, sizeof(Resources_Particle_metaball_png));
+
 		    EdgeShader = ResourceManager::getInstance().loadShader("graph:edges",
 		            Resources_Shaders_Primitives_wideline_vert, sizeof(Resources_Shaders_Primitives_wideline_vert),
 		            Resources_Shaders_Primitives_wideline_frag, sizeof(Resources_Shaders_Primitives_wideline_frag));
-		    EdgeShader->dump();
 
 		    EdgeStyleIcon = new Icon();
             EdgeStyleIcon->load("styles/solid", Resources_SpaceView_EdgeStyles_solid_png, sizeof(Resources_SpaceView_EdgeStyles_solid_png));
@@ -349,11 +344,9 @@ public:
 		delete NodeFont;
 		delete NodeActivityIcon;
 
-		ResourceManager::getInstance().unload(LinkShader);
-        delete LinkActivityIcon;
-
         ResourceManager::getInstance().unload(EdgeShader);
         delete EdgeStyleIcon;
+        delete EdgeActivityIcon;
 
 		delete SphereIcon;
 
@@ -397,12 +390,11 @@ public:
 	Font* NodeFont;
 	Icon* NodeActivityIcon;
 
-	// Links
-    Shader::Program* LinkShader;
+	// Edges
     Shader::Program* EdgeShader;
     Icon* EdgeStyleIcon;
 	LinkMode m_LinkMode;
-	Icon* LinkActivityIcon;
+	Icon* EdgeActivityIcon;
 
 	// Spheres
 	Icon* SphereIcon;

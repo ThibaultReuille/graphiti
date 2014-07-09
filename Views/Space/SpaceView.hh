@@ -437,37 +437,6 @@ public:
 		}
 	}
 
-	void updateLinks()
-	{
-	    if (g_SpaceResources->ShowEdges || g_SpaceResources->ShowEdgeActivity)
-	    {
-            Scene::NodeVector::iterator it;
-            for (it = m_SpaceEdges.begin(); it != m_SpaceEdges.end(); ++it)
-                if (*it != NULL)
-                {
-                    //static_cast<SpaceEdge*>((*it)->getDrawable())->update();
-                    static_cast<SpaceEdge*>((*it)->getDrawable())->update();
-                }
-	    }
-	}
-
-	void updateSpheres()
-	{
-		glm::vec3 position;
-		float radius;
-
-		std::vector<Sphere>::iterator its;
-		for (its = model()->spheres_begin(); its != model()->spheres_end(); ++its)
-		{
-			if (m_SpaceSpheres[its->id()] != NULL)
-			{
-				computeBoundingSphere(*its, &position, &radius);
-				m_SpaceSpheres[its->id()]->setPosition(position);
-				static_cast<SpaceSphere*>(m_SpaceSpheres[its->id()]->getDrawable())->setRadius(radius);
-			}
-		}
-	}
-
 	void updateNodes()
 	{
 		const unsigned int c_MaxIterations = 100;
@@ -482,10 +451,9 @@ public:
 		m_SpaceNodes.setSpeed(m_Temperature);
 
 		// Reset node directions
-		Scene::NodeVector::iterator itn;
-		for (itn = m_SpaceNodes.begin(); itn != m_SpaceNodes.end(); ++itn)
-			if (*itn != NULL)
-				(*itn)->setDirection(glm::vec3(0, 0, 0), false);
+		for (auto itn : m_SpaceNodes)
+			if (itn != NULL)
+				itn->setDirection(glm::vec3(0, 0, 0), false);
 
 		// Calculate graph forces
 		m_NodeRepulsionForce.apply(m_SpaceNodes);
@@ -541,6 +509,33 @@ public:
 
 		m_Iterations++;
 	}
+
+    void updateLinks()
+    {
+        if (g_SpaceResources->ShowEdges || g_SpaceResources->ShowEdgeActivity)
+        {
+            for (auto it : m_SpaceEdges)
+                if (it != NULL)
+                    static_cast<SpaceEdge*>(it->getDrawable())->update();
+        }
+    }
+
+    void updateSpheres()
+    {
+        glm::vec3 position;
+        float radius;
+
+        std::vector<Sphere>::iterator its;
+        for (its = model()->spheres_begin(); its != model()->spheres_end(); ++its)
+        {
+            if (m_SpaceSpheres[its->id()] != NULL)
+            {
+                computeBoundingSphere(*its, &position, &radius);
+                m_SpaceSpheres[its->id()]->setPosition(position);
+                static_cast<SpaceSphere*>(m_SpaceSpheres[its->id()]->getDrawable())->setRadius(radius);
+            }
+        }
+    }
 
 	inline Camera* camera() { return &m_Camera; }
 

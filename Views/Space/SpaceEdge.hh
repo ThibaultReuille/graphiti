@@ -59,7 +59,7 @@ public:
                     g_SpaceResources->EdgeShader->uniform("u_StartPosition").set(m_WideLine.getPosition(0));
                     g_SpaceResources->EdgeShader->uniform("u_EndPosition").set(m_WideLine.getPosition(1));
                     g_SpaceResources->EdgeShader->uniform("u_Tint").set(color);
-                    context->geometry().bind(vertexBuffer, *(g_SpaceResources->LinkShader));
+                    context->geometry().bind(vertexBuffer, *(g_SpaceResources->EdgeShader));
                     context->geometry().drawArrays(GL_LINES, 0, 2 * sizeof(WideLine::Vertex));
                     context->geometry().unbind(vertexBuffer);
 
@@ -97,10 +97,10 @@ public:
             glm::vec4 c = BezierCurve::linear(m_WideLine.getColor(0), m_WideLine.getColor(1), t);
             c.a *= color.a;
 
-            float nodeSize = g_SpaceResources->NodeIconSize;
+            float iconSize = 2.0 * g_SpaceResources->EdgeSize;
             glm::mat4 billboard = Geometry::billboard(view * glm::translate(model, v));
 
-            g_SpaceResources->LinkActivityIcon->draw(context, projection * glm::scale(billboard, glm::vec3(nodeSize, nodeSize, nodeSize)), c, 0);
+            g_SpaceResources->EdgeActivityIcon->draw(context, projection * glm::scale(billboard, glm::vec3(iconSize, iconSize, iconSize)), c, 0);
         }
     }
 

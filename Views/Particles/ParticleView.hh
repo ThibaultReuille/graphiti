@@ -73,9 +73,8 @@ public:
         m_OpenCL.detect();
         m_OpenCL.dump();
 
-        // TODO : Find best OpenCL architecture instead of hardcoded one
-        // OpenCL::Device* device = m_OpenCL.getBestDevice();
-        const OpenCL::Device* device = m_OpenCL.device(1);
+        // NOTE : We are assuming the last device is the best one.
+        const OpenCL::Device* device = m_OpenCL.devices().back();
         m_Context = m_OpenCL.createContext(*device);
         m_Queue = m_OpenCL.createCommandQueue(*m_Context);
 
