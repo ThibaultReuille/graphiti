@@ -14,11 +14,6 @@ from Scripts import graphiti
 from Scripts import nx
 from Scripts import std
 
-# Disabling Sgraph commands for now
-#SGRAPH_API_PATH = "../../sgraph-api"
-#sys.path.insert(0, SGRAPH_API_PATH)
-#import sgraph as sgraph
-
 def clear_graph():
     for id in graphiti.get_node_ids():
         graphiti.remove_node(id)
@@ -716,7 +711,6 @@ def start():
             ["Randomize Edge Icons", "demo.randomize_edge_icons()"],
             ["Randomize Edge Width", "demo.randomize_edge_width()"],
             ["Randomize Timeline", "demo.randomize_timeline()"],
-            ["Build Octree", "graphiti.set_attribute('graphiti:space:octree:update', 'bool', 'True')"]
         ]],
     ]
 
