@@ -55,6 +55,7 @@ public:
         m_GraphEntity = NULL;
 
         m_Octree = NULL;
+        m_DirtyOctree = false;
 
         m_PhysicsMode = PAUSE;
         m_LastUpdateTime = 0;
@@ -229,7 +230,7 @@ public:
 
 		// Draw Nodes
 		{
-            if (m_Octree == NULL)
+            if (m_Octree == NULL || m_DirtyOctree)
             {
                 m_SpaceNodes.draw(context(), m_Camera.getProjectionMatrix(), m_Camera.getViewMatrix(), transformation.state());
             }
@@ -247,8 +248,9 @@ public:
                         node->draw(context(), m_Camera.getProjectionMatrix(), m_Camera.getViewMatrix(), transformation.state());
                 }
 
-                if (g_SpaceResources->ShowDebug)
-                    m_Octree->draw(context(), m_Camera.getProjectionMatrix(), m_Camera.getViewMatrix(), transformation.state());
+                // TODO : Reimplement octree rendering with a proper traversal
+                // if (g_SpaceResources->ShowDebug)
+                //     m_Octree->draw(context(), m_Camera.getProjectionMatrix(), m_Camera.getViewMatrix(), transformation.state());
             }
 
             std::set<Node::ID>::iterator iti;
@@ -435,6 +437,17 @@ public:
 		updateLinks();
 		updateSpheres();
 
+		// NOTE : We use the octree when we are not running the physics.
+		// In the future, we will dynamically update the octree as the objects move inside it.
+		if (m_PhysicsMode == PAUSE)
+		{
+		    updateOctree();
+		}
+		else
+		{
+		    SAFE_DELETE(m_Octree);
+		}
+
 		if (m_CameraAnimation)
 		{
 			float time = context()->sequencer().track("animation")->clock().seconds();
@@ -518,6 +531,7 @@ public:
 		}
 
 		m_Iterations++;
+		m_DirtyOctree = true;
 	}
 
     void updateLinks()
@@ -545,6 +559,67 @@ public:
                 static_cast<SpaceSphere*>(m_SpaceSpheres[its->id()]->getDrawable())->setRadius(radius);
             }
         }
+    }
+
+    void updateOctree()
+    {
+        if (!m_DirtyOctree)
+            return;
+
+        LOG("[SPACE] Updating octree ...\n");
+
+        // LOG("[SPACE] . Calculating bounding box ...\n");
+
+        glm::vec3 min;
+        glm::vec3 max;
+
+        unsigned long count = 0;
+
+        for (unsigned long i = 0; i < m_SpaceNodes.size(); i++)
+        {
+            if (m_SpaceNodes[i] == NULL)
+                continue;
+
+            if (count == 0)
+            {
+                min = max = m_SpaceNodes[i]->getPosition();
+                count++;
+                continue;
+            }
+
+            glm::vec3 pos = m_SpaceNodes[i]->getPosition();
+
+            for (int i = 0; i < 3; i++)
+                min[i] = pos[i] < min[i] ? pos[i] : min[i];
+            for (int i = 0; i < 3; i++)
+                max[i] = pos[i] > max[i] ? pos[i] : max[i];
+
+            count++;
+        }
+
+        SAFE_DELETE(m_Octree);
+
+        if (count == 0)
+        {
+            LOG("[SPACE] . Graph is empty! Aborting.\n");
+            m_DirtyOctree = false;
+            return;
+        }
+
+        // LOG("[SPACE]   . Min : (%f, %f, %f)\n", min.x, min.y, min.z);
+        // LOG("[SPACE]   . Max : (%f, %f, %f)\n", max.x, max.y, max.z);
+
+        m_Octree = new Octree(0.5f * (min + max), max - min);
+
+        // LOG("[SPACE] . Inserting %lu elements in octree ...\n", count);
+
+        for (unsigned long i = 0; i < m_SpaceNodes.size(); i++)
+        {
+            if (m_SpaceNodes[i] != NULL)
+                m_Octree->insert(new Scene::OctreeNode(m_SpaceNodes[i]));
+        }
+
+        m_DirtyOctree = false;
     }
 
 	inline Camera* camera() { return &m_Camera; }
@@ -575,9 +650,9 @@ public:
     void onSetAttribute(const std::string& name, VariableType type, const std::string& value)
     {
         FloatVariable vfloat;
-        BooleanVariable vbool;
         Vec3Variable vvec3;
         StringVariable vstring;
+        BooleanVariable vbool;
 
         if (name == "space:update" && type == BOOLEAN)
         {
@@ -596,62 +671,12 @@ public:
             else if (value == "link_color")
                 g_SpaceResources->m_LinkMode = SpaceResources::LINK_COLOR;
         }
-        else if (name == "space:octree:update" && type == BOOLEAN)
-        {
-            vbool.set(value);
-
-            LOG("[SPACE] Calculating bounding box ...\n");
-            glm::vec3 min;
-            glm::vec3 max;
-
-            unsigned long count = 0;
-
-            for (unsigned long i = 0; i < m_SpaceNodes.size(); i++)
-            {
-                if (m_SpaceNodes[i] == NULL)
-                    continue;
-
-                if (count == 0)
-                {
-                    min = max = m_SpaceNodes[i]->getPosition();
-                    count++;
-                    continue;
-                }
-
-                glm::vec3 pos = m_SpaceNodes[i]->getPosition();
-
-                for (int i = 0; i < 3; i++)
-                    min[i] = pos[i] < min[i] ? pos[i] : min[i];
-                for (int i = 0; i < 3; i++)
-                    max[i] = pos[i] > max[i] ? pos[i] : max[i];
-
-                count++;
-            }
-
-            if (count == 0)
-            {
-                LOG("[SPACE] Graph is empty! Aborting.\n");
-                return;
-            }
-
-            LOG("Min : (%f, %f, %f), Max : (%f, %f, %f)\n", min.x, min.y, min.z, max.x, max.y, max.z);
-
-            LOG("[SPACE] Updating octree ...\n");
-            SAFE_DELETE(m_Octree);
-            m_Octree = new Octree(0.5f * (min + max), max - min);
-
-            LOG("[SPACE] Inserting graph nodes in octree ...\n");
-            for (unsigned long i = 0; i < m_SpaceNodes.size(); i++)
-            {
-                if (m_SpaceNodes[i] != NULL)
-                    m_Octree->insert(new Scene::OctreeNode(m_SpaceNodes[i]));
-            }
-        }
     }
 
 	void onAddNode(Node::ID uid, const char* label)
 	{
 		pushNodeVertexAround(uid, label, glm::vec3(0, 0, 0), 2);
+		m_DirtyOctree = true;
 	}
 
 	void onRemoveNode(Node::ID uid)
@@ -680,6 +705,8 @@ public:
 
 		m_SpaceNodes.remove(vid);
 		m_NodeMap.eraseRemoteID(uid, vid);
+
+		m_DirtyOctree = true;
 	}
 
 	void onSetNodeAttribute(Node::ID uid, const std::string& name, VariableType type, const std::string& value)
@@ -703,6 +730,7 @@ public:
 		{
 			vvec3.set(value);
 			m_SpaceNodes[id]->setPosition(vvec3.value());
+			m_DirtyOctree = true;
 		}
         else if (name == "space:color" && (type == VEC3 || type == VEC4))
         {
@@ -773,6 +801,7 @@ public:
 		SpaceEdge::ID lid = m_SpaceEdges.add(new Scene::Node(new SpaceEdge(m_SpaceNodes[node1], m_SpaceNodes[node2]), true));
 
 		m_LinkMap.addRemoteID(uid, lid);
+		m_DirtyOctree = true;
 	}
 
 	void onRemoveLink(Link::ID uid)
@@ -783,6 +812,8 @@ public:
 
 		m_SpaceEdges.remove(vid);
 		m_LinkMap.eraseRemoteID(uid, vid);
+
+		m_DirtyOctree = true;
 	}
 
 	void onSetLinkAttribute(Link::ID uid, const std::string& name, VariableType type, const std::string& value)
@@ -880,6 +911,8 @@ public:
 		node->setDrawable(new SpaceEdge(m_SpaceNodes[nid], m_SpaceNodes[vid]), true);
 
 		m_LinkMap.addRemoteID(element.second, lid);
+
+		m_DirtyOctree = true;
 	}
 
 	// -----
@@ -914,6 +947,7 @@ private:
 	Scene::NodeVector m_SpaceSpheres;
 
 	Octree* m_Octree;
+	bool m_DirtyOctree;
 
 	PhysicsMode m_PhysicsMode;
 	unsigned int m_Iterations;

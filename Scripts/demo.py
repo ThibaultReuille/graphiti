@@ -285,38 +285,39 @@ def color_by_node_degree():
         graphiti.set_node_attribute(nid, "graphiti:space:color", "vec4", std.vec4_to_str(m[t]))
 
 def sphere_layout(radius):
-    graph = std.load_nx_graph()
-    for n in graph.nodes(data = True):
+
+    ids = graphiti.get_node_ids()
+    for nid in ids:
         r1 = random.random() * 2 * math.pi
         r2 = random.random() * 2 * math.pi
         r3 = 0.9 + 0.1 * random.random()
 
-        x = radius * r3 * math.sin(r1) * math.cos(r2)
-        y = radius * r3 * math.cos(r1)
-        z = radius * r3 * math.sin(r1) * math.sin(r2)
+        pos = [
+            radius * r3 * math.sin(r1) * math.cos(r2),
+            radius * r3 * math.cos(r1),
+            radius * r3 * math.sin(r1) * math.sin(r2)
+        ]
 
-        position = str(x) + " " + str(y) + " " + str(z)
-        graphiti.set_node_attribute(n[0], "graphiti:space:position", "vec3", position)
+        graphiti.set_node_attribute(nid, "graphiti:space:position", "vec3", std.vec3_to_str(pos))
 
 def cube_layout():
-    graph = std.load_nx_graph()
-    node_count = graph.number_of_nodes()
 
-    size = int(node_count ** (1.0 / 3.0))
+    ids = graphiti.get_node_ids()
+    size = int(len(ids) ** (1.0 / 3.0))
 
-    node_count = 0
-    for n in graph.nodes(data = True):
-        x = node_count % size
-        y = node_count / (size * size)
-        z = (node_count % (size * size)) / size
+    count = 0
+    for nid in ids:
+        pos = [
+            count % size,
+            count / (size * size),
+            (count % (size * size)) / size
+        ]
 
-        x = 5 * (x - size / 2)
-        y = 5 * (y - size / 2)
-        z = 5 * (z - size / 2)
+        for i in range(len(pos)):
+            pos[i] = 5 * (pos[i] - size / 2)
 
-        position = str(x) + " " + str(y) + " " + str(z)
-        graphiti.set_node_attribute(n[0], "graphiti:space:position", "vec3", position)
-        node_count += 1
+        graphiti.set_node_attribute(nid, "graphiti:space:position", "vec3", std.vec3_to_str(pos))
+        count += 1
 
 def conic_layout():
     graph = std.load_nx_graph()

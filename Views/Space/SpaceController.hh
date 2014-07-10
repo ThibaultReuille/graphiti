@@ -218,6 +218,8 @@ public:
 		float length = glm::length(direction);
 
 		m_GraphView->getNodes()[m_SelectedNode]->setPosition(ray.position() + length * ray.direction());
+
+		// NOTE : I don't think we need to force octree update here since we can only drag nodes within the vision field.
 	}
 
 	virtual void onMouseMove(int x, int y, int dx, int dy)

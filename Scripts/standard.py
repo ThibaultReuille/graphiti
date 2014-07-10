@@ -221,9 +221,6 @@ def load_nx_graph():
     for id in graphiti.get_node_ids():
         graph.add_node(id)
         graph.node[id]['label'] = graphiti.get_node_label(id)
-        # graph.node[id]['raindance:model:type'] = graphiti.get_node_type(id)   <-- TODO ?
-        graph.node[id]['graphiti:model:mark'] = int(graphiti.get_node_mark(id))
-        graph.node[id]['graphiti:model:weight'] = float(graphiti.get_node_weight(id))
 
         for a in node_attributes:
             attribute = graphiti.get_node_attribute(id, a['name'])
