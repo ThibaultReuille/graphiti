@@ -75,6 +75,11 @@ def randomize_node_activity():
         activity = random.uniform(0.0, 5.0)
         graphiti.set_node_attribute(id, "graphiti:space:activity", "float", str(activity))
 
+def randomize_node_size():
+    for id in graphiti.get_node_ids():
+        activity = random.uniform(0.0, 5.0)
+        graphiti.set_node_attribute(id, "graphiti:space:size", "float", str(activity))
+
 def randomize_edge_activity():
     for id in graphiti.get_link_ids():
         activity = random.uniform(0.0, 2.0)
@@ -705,6 +710,7 @@ def start():
         ["Test / Debug", [
             ["Randomize Node Activity", "demo.randomize_node_activity()"],
             ["Randomize Node Icons", "demo.randomize_node_icons()"],
+            ["Randomize Node Size", "demo.randomize_node_size()"],
             ["Randomize Edge Activity", "demo.randomize_edge_activity()"],
             ["Randomize Edge Icons", "demo.randomize_edge_icons()"],
             ["Randomize Edge Width", "demo.randomize_edge_width()"],

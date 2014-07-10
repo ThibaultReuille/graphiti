@@ -199,8 +199,6 @@ public:
 		return NULL;
 	}
 
-	inline float computeNodeSize(const Node& node) const { return node.data().Weight * g_SpaceResources->NodeIconSize; }
-
 	void draw()
 	{
 	    const glm::vec4 bgcolor = glm::vec4(BLACK, 1.0);

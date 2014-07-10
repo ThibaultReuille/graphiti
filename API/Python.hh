@@ -5,6 +5,9 @@
 #include "API/C.hh"
 #include "API/Graph.hh"
 
+#define PROTECT_PARSE(code)      \
+    if (!(code)) return Py_BuildValue("");
+
 static PyObject* convertVariableToPyObject(IVariable* attribute)
 {
 	PyObject* result = NULL;
@@ -157,7 +160,7 @@ static PyObject* start(PyObject* self, PyObject* args)
 
 	(void)self;
 
-	PyArg_ParseTuple(args, "s", &view);
+	PROTECT_PARSE(PyArg_ParseTuple(args, "s", &view))
 
 	API::start(view);
 	return Py_BuildValue("");
@@ -169,8 +172,10 @@ static PyObject* screenshot(PyObject* self, PyObject* args)
 
 	(void)self;
 
-	PyArg_ParseTuple(args, "s", &filename);
+	PROTECT_PARSE(PyArg_ParseTuple(args, "s", &filename))
+
 	API::screenshot(filename);
+
 	return Py_BuildValue("");
 }
 
@@ -182,7 +187,7 @@ static PyObject* createEntity(PyObject* self, PyObject* args)
 
     char* type = NULL;
 
-    PyArg_ParseTuple(args, "s", &type);
+    PROTECT_PARSE(PyArg_ParseTuple(args, "s", &type))
 
     return PyLong_FromLong(API::createEntity(type));
 }
@@ -193,7 +198,7 @@ static PyObject* bindEntity(PyObject* self, PyObject* args)
 
     unsigned long id;
 
-    PyArg_ParseTuple(args, "k", &id);
+    PROTECT_PARSE(PyArg_ParseTuple(args, "k", &id))
 
     API::bindEntity(id);
 
@@ -207,7 +212,7 @@ static PyObject* send(PyObject* self, PyObject* args)
     unsigned long id;
     PyObject* dict = NULL;
 
-    PyArg_ParseTuple(args, "kO", &id, &dict);
+    PROTECT_PARSE(PyArg_ParseTuple(args, "kO", &id, &dict))
 
     Variables* input = convertPyDictToVariables(dict);
     if (input == NULL)
@@ -230,7 +235,7 @@ static PyObject* destroyEntity(PyObject* self, PyObject* args)
 
     unsigned long id;
 
-    PyArg_ParseTuple(args, "k", &id);
+    PROTECT_PARSE(PyArg_ParseTuple(args, "k", &id))
 
     API::destroyEntity(id);
 
@@ -247,8 +252,10 @@ static PyObject* setAttribute(PyObject* self, PyObject* args)
 
 	(void) self;
 
-	PyArg_ParseTuple(args, "sss", &name, &type, &value);
+	PROTECT_PARSE(PyArg_ParseTuple(args, "sss", &name, &type, &value))
+
 	API::Graph::setAttribute(name, type, value);
+
 	return Py_BuildValue("");
 }
 
@@ -260,7 +267,8 @@ static PyObject* addNode(PyObject* self, PyObject* args)
 
 	(void)self;
 
-	PyArg_ParseTuple(args, "s", &label);
+	PROTECT_PARSE(PyArg_ParseTuple(args, "s", &label))
+
 	return PyLong_FromLong(API::Graph::addNode(label));
 }
 static PyObject* removeNode(PyObject* self, PyObject* args)
@@ -269,8 +277,10 @@ static PyObject* removeNode(PyObject* self, PyObject* args)
 
 	(void)self;
 
-	PyArg_ParseTuple(args, "k", &id);
+	PROTECT_PARSE(PyArg_ParseTuple(args, "k", &id))
+
 	API::Graph::removeNode(id);
+
 	return Py_BuildValue("");
 }
 static PyObject* tagNode(PyObject* self, PyObject* args)
@@ -280,8 +290,10 @@ static PyObject* tagNode(PyObject* self, PyObject* args)
 
 	(void)self;
 
-	PyArg_ParseTuple(args, "kk", &node, &sphere);
+	PROTECT_PARSE(PyArg_ParseTuple(args, "kk", &node, &sphere))
+
 	API::Graph::tagNode(node, sphere);
+
 	return Py_BuildValue("");
 }
 static PyObject* countNodes(PyObject* self, PyObject* args)
@@ -321,8 +333,10 @@ static PyObject* setNodeLabel(PyObject* self, PyObject* args)
 
 	(void)self;
 
-	PyArg_ParseTuple(args, "ks", &id, &label);
+	PROTECT_PARSE(PyArg_ParseTuple(args, "ks", &id, &label))
+
 	API::Graph::setNodeLabel(id, label);
+
 	return Py_BuildValue("");
 }
 static PyObject* getNodeLabel(PyObject* self, PyObject* args)
@@ -331,7 +345,8 @@ static PyObject* getNodeLabel(PyObject* self, PyObject* args)
 
 	(void)self;
 
-	PyArg_ParseTuple(args, "k", &id);
+	PROTECT_PARSE(PyArg_ParseTuple(args, "k", &id))
+
 	return PyString_FromString(API::Graph::getNodeLabel(id));
 }
 static PyObject* setNodeAttribute(PyObject* self, PyObject* args)
@@ -343,8 +358,10 @@ static PyObject* setNodeAttribute(PyObject* self, PyObject* args)
 
 	(void) self;
 
-	PyArg_ParseTuple(args, "ksss", &id, &name, &type, &value);
+	PROTECT_PARSE(PyArg_ParseTuple(args, "ksss", &id, &name, &type, &value))
+
 	API::Graph::setNodeAttribute(id, name, type, value);
+
 	return Py_BuildValue("");
 }
 static PyObject* getNodeAttribute(PyObject* self, PyObject* args)
@@ -354,7 +371,8 @@ static PyObject* getNodeAttribute(PyObject* self, PyObject* args)
 
 	(void) self;
 
-	PyArg_ParseTuple(args, "ks", &id, &key);
+	PROTECT_PARSE(PyArg_ParseTuple(args, "ks", &id, &key))
+
 	IVariable* attribute = API::Graph::getNodeAttribute(id, key);
 
 	if (attribute == NULL)
@@ -378,7 +396,8 @@ static PyObject* addLink(PyObject* self, PyObject* args)
 
 	(void)self;
 
-	PyArg_ParseTuple(args, "kk", &id1, &id2);
+	PROTECT_PARSE(PyArg_ParseTuple(args, "kk", &id1, &id2))
+
 	return PyLong_FromLong(API::Graph::addLink(id1, id2));
 }
 static PyObject* removeLink(PyObject* self, PyObject* args)
@@ -387,7 +406,8 @@ static PyObject* removeLink(PyObject* self, PyObject* args)
 
 	(void)self;
 
-	PyArg_ParseTuple(args, "k", &id);
+	PROTECT_PARSE(PyArg_ParseTuple(args, "k", &id))
+
 	API::Graph::removeLink(id);
 	return Py_BuildValue("");
 }
@@ -427,7 +447,8 @@ static PyObject* getLinkNode1(PyObject* self, PyObject* args)
 
 	(void)self;
 
-	PyArg_ParseTuple(args, "k", &id);
+	PROTECT_PARSE(PyArg_ParseTuple(args, "k", &id))
+
 	return PyLong_FromLong(API::Graph::getLinkNode1(id));
 }
 static PyObject* getLinkNode2(PyObject* self, PyObject* args)
@@ -436,7 +457,8 @@ static PyObject* getLinkNode2(PyObject* self, PyObject* args)
 
 	(void)self;
 
-	PyArg_ParseTuple(args, "k", &id);
+	PROTECT_PARSE(PyArg_ParseTuple(args, "k", &id))
+
 	return PyLong_FromLong(API::Graph::getLinkNode2(id));
 }
 static PyObject* setLinkAttribute(PyObject* self, PyObject* args)
@@ -448,8 +470,10 @@ static PyObject* setLinkAttribute(PyObject* self, PyObject* args)
 
 	(void) self;
 
-	PyArg_ParseTuple(args, "ksss", &id, &name, &type, &value);
+	PROTECT_PARSE(PyArg_ParseTuple(args, "ksss", &id, &name, &type, &value))
+
 	API::Graph::setLinkAttribute(id, name, type, value);
+
 	return Py_BuildValue("");
 }
 static PyObject* getLinkAttribute(PyObject* self, PyObject* args)
@@ -459,7 +483,8 @@ static PyObject* getLinkAttribute(PyObject* self, PyObject* args)
 
 	(void) self;
 
-	PyArg_ParseTuple(args, "ks", &id, &key);
+	PROTECT_PARSE(PyArg_ParseTuple(args, "ks", &id, &key))
+
 	IVariable* attribute = API::Graph::getLinkAttribute(id, key);
 
 	if (attribute == NULL)
@@ -482,7 +507,8 @@ static PyObject* addSphere(PyObject* self, PyObject* args)
 
 	(void)self;
 
-	PyArg_ParseTuple(args, "s", &label);
+	PROTECT_PARSE(PyArg_ParseTuple(args, "s", &label))
+
 	return PyLong_FromLong(API::Graph::addSphere(label));
 }
 
@@ -495,7 +521,8 @@ static PyObject* addNeighbor(PyObject* self, PyObject* args)
 
 	(void)self;
 
-	PyArg_ParseTuple(args, "sk", &label, &neighbor);
+	PROTECT_PARSE(PyArg_ParseTuple(args, "sk", &label, &neighbor))
+
 	return PyLong_FromLong(API::Graph::addNeighbor(label, neighbor).first);
 }
 
@@ -513,7 +540,7 @@ static PyObject* getSelectedNode(PyObject* self, PyObject* args)
 
 	unsigned int index;
 
-	PyArg_ParseTuple(args, "I", &index);
+	PROTECT_PARSE(PyArg_ParseTuple(args, "I", &index))
 
 	return PyLong_FromLong(API::Graph::getSelectedNode(index));
 }
@@ -529,7 +556,7 @@ static PyObject* sendCommand(PyObject* self, PyObject* args)
     PyObject* dict;
     Timecode timecode;
 
-    PyArg_ParseTuple(args, "ksO", &timecode, &name, &dict);
+    PROTECT_PARSE(PyArg_ParseTuple(args, "ksO", &timecode, &name, &dict))
 
     Variables* vars = convertPyDictToVariables(dict);
     if (vars == NULL)
@@ -560,8 +587,10 @@ static PyObject* registerScript(PyObject* self, PyObject* args)
 
     (void)self;
 
-    PyArg_ParseTuple(args, "ss", &name, &source);
+    PROTECT_PARSE(PyArg_ParseTuple(args, "ss", &name, &source))
+
     API::registerScript(name, source);
+
     return Py_BuildValue("");
 }
 
@@ -571,8 +600,10 @@ static PyObject* unregisterScript(PyObject* self, PyObject* args)
 
     (void)self;
 
-    PyArg_ParseTuple(args, "s", &name);
+    PROTECT_PARSE(PyArg_ParseTuple(args, "s", &name))
+
     API::unregisterScript(name);
+
     return Py_BuildValue("");
 }
 

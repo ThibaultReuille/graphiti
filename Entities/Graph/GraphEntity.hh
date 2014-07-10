@@ -119,8 +119,6 @@ public:
         Node::Data data;
 
         data.Label = std::string(label);
-        data.Weight = 1.0;
-        data.Mark = 0;
 
         id = m_GraphModel->addNode(Node::DISK, data);
 
@@ -395,8 +393,6 @@ public:
         Node::Data ndata;
 
         ndata.Label = std::string(label);
-        ndata.Weight = 1.0;
-        ndata.Mark = 0;
 
         Link::Data ldata;
 

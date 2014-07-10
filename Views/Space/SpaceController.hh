@@ -156,19 +156,16 @@ public:
 				}
 				else if (m_ToolMode == MARKER)
 				{
-					Node::Data data = m_GraphModel->node(m_PickNode)->data();
+				    SpaceNode::ID id = m_GraphView->getNodeMap().getRemoteID(m_PickNode);
+				    SpaceNode* node = static_cast<SpaceNode*>(m_GraphView->getNodes()[id]->getDrawable());
+
 					unsigned int marker = m_Menu->getMarkerWidget()->marker();
-
-					if (data.Mark != marker)
-						data.Mark = marker;
-					else
-						data.Mark = 0;
-
-					m_GraphModel->node(m_GraphView->getNodeMap().getRemoteID(m_PickNode))->data(data);
+					unsigned int mark = node->getMark() != marker ? marker : 0;
+					node->setMark(mark);
 
 					std::ostringstream smark;
-					smark << data.Mark;
-					m_GraphView->onSetNodeAttribute(m_GraphView->getNodeMap().getRemoteID(m_PickNode), "space:mark", INT, smark.str());
+					smark << mark;
+					m_GraphView->onSetNodeAttribute(id, "space:mark", INT, smark.str());
 				}
 
 				m_SphericalCameraController.onMouseClick(x, y);
@@ -268,19 +265,16 @@ public:
 		{
 			GraphTargetNodeMessage* msg = static_cast<GraphTargetNodeMessage*>(message);
 
-			Node::ID id = m_GraphView->getNodeMap().getRemoteID(msg->ID);
+			Scene::Node* node = m_GraphView->getNodes()[msg->ID];
 
 			// NOTE : Find the zoom distance according to the node size so that it always has the same screen size.
 			float zoomAngle = M_PI / 20;
-			float nodeSize = m_GraphView->computeNodeSize(*m_GraphModel->node(id));
-			float zoomDistance = nodeSize / (2 * tan(zoomAngle / 2));
+			float zoomDistance = static_cast<SpaceNode*>(node->getDrawable())->getScreenSize() / (2 * tan(zoomAngle / 2));
 
 			if (m_HasTarget)
-			{
-				m_SphericalCameraController.playZoomSequence(m_GraphView->getNodes()[msg->ID]->getPosition(), zoomDistance, 250);
-			}
+				m_SphericalCameraController.playZoomSequence(node->getPosition(), zoomDistance, 250);
 			else
-				m_FirstPersonCameraController.sequence(m_GraphView->getNodes()[msg->ID]->getPosition(), zoomDistance, 250);
+				m_FirstPersonCameraController.sequence(node->getPosition(), zoomDistance, 250);
 		}
 		else if (type == IMessage::SCRIPT)
 		{

@@ -43,7 +43,7 @@ public:
                 color.a = 1.0;
         }
 
-        float nodeSize = g_SpaceResources->NodeIconSize * m_Size;
+        float nodeSize = getScreenSize();
         glm::mat4 billboard = Geometry::billboard(view * model);
 
         if (g_SpaceResources->ShowNodeShapes == SpaceResources::ALL || g_SpaceResources->ShowNodeShapes == SpaceResources::COLORS)
@@ -92,7 +92,7 @@ public:
 
     inline void setLabel(const char* label) { m_Label.set(label, g_SpaceResources->NodeFont); }
 
-    inline void setMark(unsigned int mark) { m_Mark = mark; }
+    inline void setMark(unsigned long mark) { m_Mark = static_cast<unsigned int>(mark); }
     inline unsigned int getMark() { return m_Mark; }
 
     inline void setLOD(float lod) { m_LOD = lod; }
@@ -100,6 +100,7 @@ public:
 
     inline void setSize(float size) { m_Size = size; }
     inline float getSize() { return m_Size; }
+    inline float getScreenSize() { return g_SpaceResources->NodeIconSize * m_Size; }
 
     inline void setActivity(float activity) { m_Activity = activity; }
     inline float getActivity() { return m_Activity; }
