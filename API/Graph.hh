@@ -109,50 +109,6 @@ extern "C"
         return static_cast<GraphEntity*>(entity)->getNodeLabel(id);
     };
 
-    void setNodeMark(Node::ID id, unsigned int mark)
-    {
-        // LOG("[API] setNodeMark(%lu, %u)\n", id, mark);
-
-        Entity* entity = g_Graphiti.getEntityManager().active();
-        if (entity->type() != Entity::GRAPH)
-            throw;
-
-        return static_cast<GraphEntity*>(entity)->setNodeMark(id, mark);
-    }
-
-    unsigned int getNodeMark(Node::ID id)
-    {
-        // LOG("[API] getNodeMark(%lu)\n", id);
-
-        Entity* entity = g_Graphiti.getEntityManager().active();
-        if (entity->type() != Entity::GRAPH)
-            throw;
-
-        return static_cast<GraphEntity*>(entity)->getNodeMark(id);
-    }
-
-    void setNodeWeight(Node::ID id, const float weight)
-    {
-        // LOG("[API] setNodeWeight(%lu, %f)\n", id, weight);
-
-        Entity* entity = g_Graphiti.getEntityManager().active();
-        if (entity->type() != Entity::GRAPH)
-            throw;
-
-        return static_cast<GraphEntity*>(entity)->setNodeWeight(id, weight);
-    }
-
-    float getNodeWeight(Node::ID id)
-    {
-        // LOG("[API] getNodeWeight(%lu)\n", id);
-
-        Entity* entity = g_Graphiti.getEntityManager().active();
-        if (entity->type() != Entity::GRAPH)
-            throw;
-
-        return static_cast<GraphEntity*>(entity)->getNodeWeight(id);
-    }
-
     void setNodeAttribute(Node::ID id, const char* name, const char* type, const char* value)
     {
         // LOG("[API] setNodeAttribute(%lu, '%s', '%s', '%s')\n", id, name, type, value);
@@ -293,17 +249,6 @@ extern "C"
             throw;
 
         return static_cast<GraphEntity*>(entity)->addSphere(label);
-    }
-
-    void setSphereMark(Sphere::ID id, unsigned int mark)
-    {
-        // LOG("[API] markSphere(%lu, %u)\n", id, mark);
-
-        Entity* entity = g_Graphiti.getEntityManager().active();
-        if (entity->type() != Entity::GRAPH)
-            throw;
-
-        return static_cast<GraphEntity*>(entity)->setSphereMark(id, mark);
     }
 }
     // ----- Helpers -----

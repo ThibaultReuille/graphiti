@@ -157,6 +157,18 @@ public:
 			variable->set(static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->getActivity());
 			return variable;
 		}
+        else if (name == "mark")
+        {
+            IntVariable* variable = new IntVariable();
+            variable->set(static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->getMark());
+            return variable;
+        }
+        else if (name == "size")
+        {
+            FloatVariable* variable = new FloatVariable();
+            variable->set(static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->getSize());
+            return variable;
+        }
 
 		return NULL;
 	}
@@ -637,12 +649,6 @@ public:
                     m_Octree->insert(new Scene::OctreeNode(m_SpaceNodes[i]));
             }
         }
-        /*
-        else
-        {
-            LOG("[SPACEVIEW] '%s' node attribute ignored !\n", name.c_str());
-        }
-        */
     }
 
 	void onAddNode(Node::ID uid, const char* label)
@@ -685,6 +691,7 @@ public:
 		StringVariable vstring;
 		Vec3Variable vvec3;
 		Vec4Variable vvec4;
+		IntVariable vint;
 
 		checkNodeUID(uid);
 		SpaceNode::ID id = m_NodeMap.getLocalID(uid);
@@ -715,11 +722,6 @@ public:
             }
             static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->setColor(c);
         }
-        else if (name == "space:color" && type == VEC4)
-        {
-            vvec4.set(value);
-            static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->setColor(vvec4.value());
-        }
         else if (name == "space:lod" && type == FLOAT)
         {
             vfloat.set(value);
@@ -735,6 +737,16 @@ public:
             vstring.set(value);
             static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->setIcon(vstring.value());
         }
+        else if (name == "space:mark" && type == INT)
+        {
+            vint.set(value);
+            static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->setMark(vint.value());
+        }
+        else if (name == "space:size" && type == FLOAT)
+        {
+            vfloat.set(value);
+            static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->setSize(vfloat.value());
+        }
 	}
 
 	void onSetNodeLabel(Node::ID uid, const char* label)
@@ -744,24 +756,6 @@ public:
 		SpaceNode::ID id = m_NodeMap.getLocalID(uid);
 
 		static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->setLabel(label);
-	}
-
-	void onSetNodeMark(Node::ID uid, unsigned int mark)
-	{
-		checkNodeUID(uid);
-
-		SpaceNode::ID id = m_NodeMap.getLocalID(uid);
-
-		static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->setMark(mark);
-	}
-
-	void onSetNodeWeight(Node::ID uid, float weight)
-	{
-		checkNodeUID(uid);
-
-		SpaceNode::ID id = m_NodeMap.getLocalID(uid);
-
-		static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->setSize(weight);
 	}
 
 	void onTagNode(Node::ID node, Sphere::ID sphere)
@@ -778,7 +772,6 @@ public:
 		SpaceNode::ID node1 = m_NodeMap.getLocalID(uid1);
 		SpaceNode::ID node2 = m_NodeMap.getLocalID(uid2);
 
-		// SpaceEdge::ID lid = m_SpaceEdges.add(new Scene::Node(new SpaceEdge(m_SpaceNodes[node1], m_SpaceNodes[node2]), true));
 		SpaceEdge::ID lid = m_SpaceEdges.add(new Scene::Node(new SpaceEdge(m_SpaceNodes[node1], m_SpaceNodes[node2]), true));
 
 		m_LinkMap.addRemoteID(uid, lid);

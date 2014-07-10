@@ -128,18 +128,6 @@ public:
 		(void) label;
 	}
 
-	void onSetNodeMark(Node::ID id, unsigned int mark)
-	{
-		(void) id;
-		(void) mark;
-	}
-
-	void onSetNodeWeight(Node::ID id, float weight)
-	{
-		(void) id;
-		(void) weight;
-	}
-
 	void onTagNode(Node::ID node, Sphere::ID sphere)
 	{
 		(void) node;
@@ -170,12 +158,6 @@ public:
 	{
 		(void) id;
 		(void) label;
-	}
-
-	void onSetSphereMark(Sphere::ID id, unsigned int mark)
-	{
-		(void) id;
-		(void) mark;
 	}
 
 	void onAddNeighbor(const std::pair<Node::ID, Link::ID>& element, const char* label, Node::ID neighbor)

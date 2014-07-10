@@ -45,8 +45,12 @@ def add_random_graph():
     nodes = []
     for i in range(node_count):
         id = graphiti.add_node(str(i))
-        graphiti.set_node_weight(id, float(1 + abs(math.sin(float(i)))))
+
         graphiti.set_node_attribute(id, "type", "string", str(i % 3))
+
+        size = 1 + abs(math.sin(float(i)))
+        graphiti.set_node_attribute(id, "og:space:size", "float", str(size))
+
         nodes.append(id)
 
     for j in range(edge_count):
@@ -177,11 +181,11 @@ def lock_unlock():
     locked = graphiti.get_node_attribute(selected, "graphiti:space:locked")
     if locked:
         graphiti.set_node_attribute(selected, "graphiti:space:locked", "bool", "False")
-        graphiti.set_node_mark(selected, 0)
+        graphiti.set_node_attribute(selected, "og:space:mark", "int", "0");
         print("Node " + str(selected) + " unlocked.")
     else:
         graphiti.set_node_attribute(selected, "graphiti:space:locked", "bool", "True")
-        graphiti.set_node_mark(selected, 2)
+        graphiti.set_node_attribute(selected, "og:space:mark", "int", "2");
         print("Node " + str(selected) + " locked.")
 
 def color_neighbors():
@@ -504,7 +508,7 @@ def depth_circle_layout():
         graphiti.set_node_attribute(id, "graphiti:space:position", "vec3", str(x) + " " + str(y) + " " + str(z))
         graphiti.set_node_attribute(id, "graphiti:space:locked", "bool", "True")
         graphiti.set_node_attribute(id, "graphiti:space:activity", "float", "2.0")
-        graphiti.set_node_mark(id, 2)
+        graphiti.set_node_attribute(id, "og:space:mark", "int", "2")
         count += 1
 
 def globe_coordinates(latitude, longitude, delta = 0.0):
@@ -529,16 +533,16 @@ def globe_layout():
 
 def randomize_timeline():
     ids = graphiti.get_node_ids()
-    time = 1000
+    time = 0
     for nid in ids:
-        r = 1.0
-        g = 0.0
-        b = 0.0
-        a = 1.0
-        color = str(r) + " " + str(g) + " " + str(b) + " " + str(a)
-        graphiti.send_command(time, "graph:set_node_attribute",
-                        { "id" : int(random.choice(ids)), "type" : "vec4", "name" : "graphiti:space:color", "value" : color }) 
         time += 500
+        graphiti.send_command(time, "graph:set_node_attribute",
+                              {
+                                  "id" : int(random.choice(ids)),
+                                  "type" : "vec4",
+                                  "name" : "graphiti:space:color",
+                                  "value" : "1.0 0.0 0.0 1.0"
+                              }) 
 
 def search_by_attribute(node_flag, edge_flag):
     pattern = raw_input("Expression : ")

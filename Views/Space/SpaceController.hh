@@ -6,6 +6,7 @@
 #include <raindance/Core/Camera/Sequences.hh>
 #include <raindance/Core/HUD/Hud.hh>
 #include <raindance/Core/Controller.hh>
+#include <raindance/Core/Variables.hh>
 
 #include "Entities/MVC.hh"
 
@@ -165,8 +166,9 @@ public:
 
 					m_GraphModel->node(m_GraphView->getNodeMap().getRemoteID(m_PickNode))->data(data);
 
-					m_GraphView->onSetNodeMark(m_GraphView->getNodeMap().getRemoteID(m_PickNode), data.Mark);
-					// m_GraphContext->messages().push(new GraphNodeMarkSetMessage(m_PickNode, data.Mark));
+					std::ostringstream smark;
+					smark << data.Mark;
+					m_GraphView->onSetNodeAttribute(m_GraphView->getNodeMap().getRemoteID(m_PickNode), "space:mark", INT, smark.str());
 				}
 
 				m_SphericalCameraController.onMouseClick(x, y);
@@ -393,18 +395,6 @@ public:
         (void) label;
     }
 
-    virtual void onSetNodeMark(Node::ID id, unsigned int mark)
-    {
-        (void) id;
-        (void) mark;
-    }
-
-    virtual void onSetNodeWeight(Node::ID id, float weight)
-    {
-        (void) id;
-        (void) weight;
-    }
-
     virtual void onTagNode(Node::ID node, Sphere::ID sphere)
     {
         (void) node;
@@ -442,12 +432,6 @@ public:
     {
         (void) id;
         (void) label;
-    }
-
-    virtual void onSetSphereMark(Sphere::ID id, unsigned int mark)
-    {
-        (void) id;
-        (void) mark;
     }
 
 private:

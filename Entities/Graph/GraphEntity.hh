@@ -19,10 +19,6 @@ public:
 
     virtual void onSetNodeLabel(Node::ID id, const char* label) = 0;
 
-    virtual void onSetNodeMark(Node::ID id, unsigned int mark) = 0;
-
-    virtual void onSetNodeWeight(Node::ID id, float weight) = 0;
-
     virtual void onTagNode(Node::ID node, Sphere::ID sphere) = 0;
 
     virtual void onAddLink(Link::ID uid, Node::ID uid1, Node::ID uid2) = 0;
@@ -34,8 +30,6 @@ public:
     virtual void onAddNeighbor(const std::pair<Node::ID, Link::ID>& element, const char* label, Node::ID neighbor) = 0;
 
     virtual void onAddSphere(Sphere::ID id, const char* label) = 0;
-
-    virtual void onSetSphereMark(Sphere::ID id, unsigned int mark) = 0;
 };
 
 class GraphView : public EntityView, public GraphListener
@@ -177,30 +171,6 @@ public:
     }
 
     const char* getNodeLabel(Node::ID id) { return m_GraphModel->node(id)->data().Label.c_str(); };
-
-    void setNodeMark(Node::ID id, unsigned int mark)
-    {
-        Node::Data data = m_GraphModel->node(id)->data();
-        data.Mark = mark;
-        m_GraphModel->node(id)->data(data);
-
-        for (auto l : listeners())
-            static_cast<GraphListener*>(l)->onSetNodeMark(id, mark);
-    }
-
-    unsigned int getNodeMark(Node::ID id) { return m_GraphModel->node(id)->data().Mark; }
-
-    void setNodeWeight(Node::ID id, const float weight)
-    {
-        Node::Data data = m_GraphModel->node(id)->data();
-        data.Weight = weight;
-        m_GraphModel->node(id)->data(data);
-
-        for (auto l : listeners())
-            static_cast<GraphListener*>(l)->onSetNodeWeight(id, weight);
-    }
-
-    float getNodeWeight(Node::ID id) { return m_GraphModel->node(id)->data().Weight; }
 
     void setNodeAttribute(Node::ID id, const char* name, const char* type, const char* value)
     {
@@ -414,16 +384,6 @@ public:
             static_cast<GraphListener*>(l)->onAddSphere(id, label);
 
         return id;
-    }
-
-    void setSphereMark(Sphere::ID id, unsigned int mark)
-    {
-        Sphere::Data data = m_GraphModel->sphere(id).data();
-        data.Mark = mark;
-        m_GraphModel->sphere(id).data(data);
-
-        for (auto l : listeners())
-            static_cast<GraphListener*>(l)->onSetSphereMark(id, mark);
     }
 
     // ----- Helpers -----

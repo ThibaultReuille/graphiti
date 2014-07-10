@@ -239,7 +239,6 @@ public:
         m_EdgeMap.addRemoteID(uid, id);
     }
 
-
     virtual void onSetAttribute(const std::string& name, VariableType type, const std::string& value)
     {
         (void) name;
@@ -290,18 +289,6 @@ public:
         (void) label;
     }
 
-    virtual void onSetNodeMark(Node::ID id, unsigned int mark)
-    {
-        (void) id;
-        (void) mark;
-    }
-
-    virtual void onSetNodeWeight(Node::ID id, float weight)
-    {
-        (void) id;
-        (void) weight;
-    }
-
     virtual void onTagNode(Node::ID node, Sphere::ID sphere)
     {
         (void) node;
@@ -332,12 +319,6 @@ public:
     {
         (void) id;
         (void) label;
-    }
-
-    virtual void onSetSphereMark(Sphere::ID id, unsigned int mark)
-    {
-        (void) id;
-        (void) mark;
     }
 
     // ----- Accessors / Helpers -----

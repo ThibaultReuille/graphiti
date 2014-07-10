@@ -334,46 +334,6 @@ static PyObject* getNodeLabel(PyObject* self, PyObject* args)
 	PyArg_ParseTuple(args, "k", &id);
 	return PyString_FromString(API::Graph::getNodeLabel(id));
 }
-static PyObject* setNodeMark(PyObject* self, PyObject* args)
-{
-	Node::ID id;
-	unsigned int mark;
-
-	(void)self;
-
-	PyArg_ParseTuple(args, "kI", &id, &mark);
-	API::Graph::setNodeMark(id, mark);
-	return Py_BuildValue("");
-}
-static PyObject* getNodeMark(PyObject* self, PyObject* args)
-{
-	Node::ID id;
-
-	(void)self;
-
-	PyArg_ParseTuple(args, "k", &id);
-	return PyLong_FromLong(API::Graph::getNodeMark(id));
-}
-static PyObject* setNodeWeight(PyObject* self, PyObject* args)
-{
-	Node::ID id;
-	float weight;
-
-	(void)self;
-
-	PyArg_ParseTuple(args, "kf", &id, &weight);
-	API::Graph::setNodeWeight(id, weight);
-	return Py_BuildValue("");
-}
-static PyObject* getNodeWeight(PyObject* self, PyObject* args)
-{
-	Node::ID id;
-
-	(void)self;
-
-	PyArg_ParseTuple(args, "k", &id);
-	return PyLong_FromLong(API::Graph::getNodeWeight(id));
-}
 static PyObject* setNodeAttribute(PyObject* self, PyObject* args)
 {
 	Node::ID id;
@@ -525,17 +485,6 @@ static PyObject* addSphere(PyObject* self, PyObject* args)
 	PyArg_ParseTuple(args, "s", &label);
 	return PyLong_FromLong(API::Graph::addSphere(label));
 }
-static PyObject* setSphereMark(PyObject* self, PyObject* args)
-{
-	Sphere::ID id;
-	unsigned int mark;
-
-	(void)self;
-
-	PyArg_ParseTuple(args, "kk", &id, &mark);
-	API::Graph::setSphereMark(id, mark);
-	return Py_BuildValue("");
-}
 
 // ----- Helpers -----
 
@@ -651,10 +600,6 @@ static PyMethodDef g_Module[] =
         {"get_node_ids",          API::Python::Graph::getNodeIDs,          METH_VARARGS, "Get node IDs" },
         {"set_node_label",        API::Python::Graph::setNodeLabel,        METH_VARARGS, "Set node label" },
         {"get_node_label",        API::Python::Graph::getNodeLabel,        METH_VARARGS, "Get node label" },
-        {"set_node_mark",         API::Python::Graph::setNodeMark,         METH_VARARGS, "Set node mark"},
-        {"get_node_mark",         API::Python::Graph::getNodeMark,         METH_VARARGS, "Get node mark"},
-        {"set_node_weight",       API::Python::Graph::setNodeWeight,       METH_VARARGS, "Set node weight"},
-        {"get_node_weight",       API::Python::Graph::getNodeWeight,       METH_VARARGS, "Get node weight"},
         {"set_node_attribute",    API::Python::Graph::setNodeAttribute,    METH_VARARGS, "Set node attribute"},
         {"get_node_attribute",    API::Python::Graph::getNodeAttribute,    METH_VARARGS, "Get node attribute"},
         // ----- Links -----
@@ -668,7 +613,6 @@ static PyMethodDef g_Module[] =
         {"get_link_attribute",    API::Python::Graph::getLinkAttribute,    METH_VARARGS, "Get link attribute"},
         // ----- Spheres -----
         {"add_sphere",            API::Python::Graph::addSphere,           METH_VARARGS, "Add sphere to the graph"},
-        {"set_sphere_mark",       API::Python::Graph::setSphereMark,       METH_VARARGS, "Set sphere mark"},
         // ----- Helpers -----
         {"add_neighbor",          API::Python::Graph::addNeighbor,         METH_VARARGS, "Add neighbor to a graph node"},
         {"count_selected_nodes",  API::Python::Graph::countSelectedNodes,  METH_VARARGS, "Count selected nodes"},

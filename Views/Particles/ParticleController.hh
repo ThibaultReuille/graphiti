@@ -115,18 +115,6 @@ public:
         (void) label;
     }
 
-    virtual void onSetNodeMark(Node::ID id, unsigned int mark)
-    {
-        (void) id;
-        (void) mark;
-    }
-
-    virtual void onSetNodeWeight(Node::ID id, float weight)
-    {
-        (void) id;
-        (void) weight;
-    }
-
     virtual void onTagNode(Node::ID node, Sphere::ID sphere)
     {
         (void) node;
@@ -166,11 +154,6 @@ public:
         (void) label;
     }
 
-    virtual void onSetSphereMark(Sphere::ID id, unsigned int mark)
-    {
-        (void) id;
-        (void) mark;
-    }
 private:
     GraphContext* m_GraphContext;
     GraphModel* m_GraphModel;

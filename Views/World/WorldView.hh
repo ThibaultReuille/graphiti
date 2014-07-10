@@ -781,18 +781,6 @@ public:
 		(void) label;
 	}
 
-	void onSetNodeMark(Node::ID uid, unsigned int mark)
-	{
-		(void) uid;
-		(void) mark;
-	}
-
-	void onSetNodeWeight(Node::ID uid, float weight)
-	{
-	    m_Earth->onSetNodeWeight(uid, weight);
-	    m_WorldMap->onSetNodeWeight(uid, weight);
-	}
-
 	void onAddLink(Link::ID uid, Node::ID uid1, Node::ID uid2)
 	{
 	    m_Earth->onAddLink(uid, uid1, uid2);
@@ -815,12 +803,6 @@ public:
 	{
 		(void) id;
 		(void) label;
-	}
-
-	void onSetSphereMark(Sphere::ID id, unsigned int mark)
-	{
-		(void) id;
-		(void) mark;
 	}
 
     void onTagNode(Node::ID node, Sphere::ID sphere)

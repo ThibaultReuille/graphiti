@@ -28,28 +28,35 @@ graph_attributes = [
 ]
 
 node_attributes = [
-    { 'name' : "type",                         'type' : 'string' },
+    { 'name' : "type",                         'type' : "string" },
     { 'name' : "depth",                        'type' : "float" },
+    { 'name' : "label",                        'type' : "string"},
 
     { 'name' : "sgraph:score",                 'type' : "float" },
     { 'name' : "sgraph:infected",              'type' : "int" },
     { 'name' : "sgraph:dga:score",             'type' : "float" },
     { 'name' : "sgraph:dga:perplexity",        'type' : "float" },
     { 'name' : "sgraph:dga:entropy",           'type' : "float" },
-    { 'name' : "sgraph:first_seen",            'type' : 'string' },
-    { 'name' : "sgraph:last_seen",             'type' : 'string' },
+    { 'name' : "sgraph:first_seen",            'type' : "string" },
+    { 'name' : "sgraph:last_seen",             'type' : "string" },
 
     { 'name' : "world:geolocation",            'type' : "vec2" },
     { 'name' : "world:country",                 'type' : "string" },
 
-    { 'name' : "raindance:space:position",     'type' : "vec3" },
-    { 'name' : "raindance:space:color",        'type' : "vec3" },
-    { 'name' : "raindance:space:locked",       'type' : "bool" },
-    { 'name' : "raindance:space:activity",      'type' : 'float' },
-    { 'name' : "raindance:world:geolocation",  'type' : "vec2" },
-    { 'name' : "raindance:world:color",        'type' : "vec4" },
-    { 'name' : "raindance:world:size",         'type' : "float" },
-    { 'name' : "raindance:particles:position", 'type' : "vec3" }
+    { 'name' : "og:space:position",     'type' : "vec3" },
+    { 'name' : "og:space:color",        'type' : "vec4" },
+    { 'name' : "og:space:locked",       'type' : "bool" },
+    { 'name' : "og:space:lod",          'type' : "float" },
+    { 'name' : "og:space:activity",     'type' : "float" },
+    { 'name' : "og:space:mark",         'type' : "int" },
+    { 'name' : "og:space:size",         'type' : "float" },
+    # TODO : { 'name' : "og:space:icon",         'type' : "string" },
+
+    { 'name' : "og:world:geolocation",  'type' : "vec2" },
+    { 'name' : "og:world:color",        'type' : "vec4" },
+    { 'name' : "og:world:size",         'type' : "float" },
+
+    { 'name' : "og:particles:position", 'type' : "vec3" }
 ]
 
 edge_attributes = [
@@ -59,10 +66,14 @@ edge_attributes = [
     { 'name' : "sgraph:first_seen",        'type' : 'string' },
     { 'name' : "sgraph:last_seen",         'type' : 'string' },
 
-    { 'name' : "raindance:space:activity", 'type' : 'float' },
-    { 'name' : "raindance:space:color1",   'type' : "vec4" },
-    { 'name' : "raindance:space:color2",   'type' : "vec4" },
-    { 'name' : "raindance:world:color",    'type' : "vec4" }
+    { 'name' : "og:space:activity", 'type' : 'float' },
+    { 'name' : "og:space:color1",   'type' : "vec4" },
+    { 'name' : "og:space:color2",   'type' : "vec4" },
+    { 'name' : "og:space:width",    'type' : "float" },
+    { 'name' : "og:space:lod",      'type' : "float" },
+    # TODO : { 'name' : "og:space:icon", 'type' : "string" }
+
+    { 'name' : "og:world:color",    'type' : "vec4" }
 ]
 
 def info():
@@ -122,12 +133,6 @@ def load_json(json_filename):
         nid = graphiti.add_node(label)
         nodes[n["id"]] = nid
 
-        # TODO : Should disappear
-        if "raindance:model:weight" in n:
-            graphiti.set_node_weight(nid, float(n["raindance:model:weight"]))
-        if "raindance:model:mark" in n:
-            graphiti.set_node_mark(nid, int(n["raindance:model:mark"]))
-
         for key in n.keys():
             if key in reserved_attributes:
                 continue
@@ -150,7 +155,6 @@ def load_json(json_filename):
                 print("Error: Couldn't parse key '" + key + "' with value '" + str(n[key]) + "'!")
                 continue
             graphiti.set_link_attribute(eid, key, att_info[0], att_info[1])
-
 
     if "timeline" in data:
         print(". Loading timeline ...")
@@ -176,13 +180,6 @@ def save_json(filename):
         node = dict()
         node["id"] = id
         node["label"] = graphiti.get_node_label(id)
-
-        weight = graphiti.get_node_weight(id)
-        if weight is not None:
-            node["raindance:model:weight"] = weight
-        mark = graphiti.get_node_mark(id)
-        if mark is not None:
-            node["raindance:model:mark"] = mark
 
         for attribute in node_attributes:
             name = attribute['name']

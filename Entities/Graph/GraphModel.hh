@@ -60,8 +60,6 @@ public:
 	struct Data
 	{
 		std::string Label;
-		unsigned int Mark;
-		float Weight;
 	};
 
 	Node()
