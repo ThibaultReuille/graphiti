@@ -11,3 +11,4 @@ import graphiti as graphiti
 import standard as std
 
 import demo as demo
+import diff
