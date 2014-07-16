@@ -259,6 +259,28 @@ static PyObject* setAttribute(PyObject* self, PyObject* args)
 	return Py_BuildValue("");
 }
 
+static PyObject* getAttribute(PyObject* self, PyObject* args)
+{
+    char* key = NULL;
+
+    (void) self;
+
+    PROTECT_PARSE(PyArg_ParseTuple(args, "s", &key))
+
+    IVariable* attribute = API::Graph::getAttribute(key);
+
+    if (attribute == NULL)
+        return Py_BuildValue("");
+    else
+    {
+        PyObject* result = convertVariableToPyObject(attribute);
+
+        delete attribute;
+        //Py_DECREF(result);
+        return result;
+    }
+}
+
 // ----- Nodes -----
 
 static PyObject* addNode(PyObject* self, PyObject* args)
@@ -621,8 +643,8 @@ static PyMethodDef g_Module[] =
     {"unregister_script",     API::Python::unregisterScript,    METH_VARARGS, "Unregister a script"},
 
 	// ----- Graph -----
-
-	    {"set_attribute",         API::Python::Graph::setAttribute,        METH_VARARGS, "Set graph attribute"},
+    {"set_attribute",         API::Python::Graph::setAttribute,        METH_VARARGS, "Set graph attribute"},
+    {"get_attribute",         API::Python::Graph::getAttribute,        METH_VARARGS, "Get graph attribute"},
         // ----- Nodes -----
         {"add_node",              API::Python::Graph::addNode,             METH_VARARGS, "Add node to the graph"},
         {"remove_node",           API::Python::Graph::removeNode,          METH_VARARGS, "Remove node from the graph"},

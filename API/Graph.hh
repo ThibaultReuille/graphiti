@@ -16,6 +16,17 @@ extern "C" {
         return static_cast<GraphEntity*>(entity)->setAttribute(name, type, value);
     }
 
+    IVariable* getAttribute(const char* name)
+    {
+        // LOG("[API] getAttribute('%s')\n", name);
+
+        Entity* entity = g_Graphiti.getEntityManager().active();
+        if (entity->type() != Entity::GRAPH)
+            throw;
+
+        return static_cast<GraphEntity*>(entity)->getAttribute(name);
+    }
+
     // ----- Nodes -----
 
     Node::ID addNode(const char* label)
@@ -295,6 +306,7 @@ extern "C"
     {
         Sequence* command = NULL;
         std::string sname = std::string(name);
+
         // LOG("[API] sendCommand(%lu, '%s', %p)\n", timecode, name, &variables);
 
         // variables.dump();

@@ -157,7 +157,7 @@ public:
 				else if (m_ToolMode == MARKER)
 				{
 				    SpaceNode::ID id = m_GraphView->getNodeMap().getRemoteID(m_PickNode);
-				    SpaceNode* node = static_cast<SpaceNode*>(m_GraphView->getNodes()[id]->getDrawable());
+				    SpaceNode* node = static_cast<SpaceNode*>(m_GraphView->getNodes()[id]);
 
 					unsigned int marker = m_Menu->getMarkerWidget()->marker();
 					unsigned int mark = node->getMark() != marker ? marker : 0;
@@ -271,7 +271,7 @@ public:
 
 			// NOTE : Find the zoom distance according to the node size so that it always has the same screen size.
 			float zoomAngle = M_PI / 20;
-			float zoomDistance = static_cast<SpaceNode*>(node->getDrawable())->getScreenSize() / (2 * tan(zoomAngle / 2));
+			float zoomDistance = static_cast<SpaceNode*>(node)->getScreenSize() / (2 * tan(zoomAngle / 2));
 
 			if (m_HasTarget)
 				m_SphericalCameraController.playZoomSequence(node->getPosition(), zoomDistance, 250);
@@ -310,21 +310,21 @@ public:
 				else
 					m_ToolMode = MARKER;
 			}
-			else if (msg->Message == "show node all")
+			else if (msg->Message == "space:nodes:all")
 				m_Menu->getNodeTextWidget()->text().set("All", m_Menu->getFont());
-			else if (msg->Message == "show node colors+labels")
-				m_Menu->getNodeTextWidget()->text().set("Colors + Labels", m_Menu->getFont());
-			else if (msg->Message == "show node marks+labels")
+			else if (msg->Message == "space:nodes:shapes+labels")
+				m_Menu->getNodeTextWidget()->text().set("Shapes + Labels", m_Menu->getFont());
+			else if (msg->Message == "space:nodes:marks+labels")
 				m_Menu->getNodeTextWidget()->text().set("Marks + Labels", m_Menu->getFont());
-			else if (msg->Message == "show node colors+marks")
-				m_Menu->getNodeTextWidget()->text().set("Colors + Marks", m_Menu->getFont());
-			else if (msg->Message == "show node colors")
-				m_Menu->getNodeTextWidget()->text().set("Colors", m_Menu->getFont());
-			else if (msg->Message == "show node marks")
+			else if (msg->Message == "space:nodes:shapes+marks")
+				m_Menu->getNodeTextWidget()->text().set("Shapes + Marks", m_Menu->getFont());
+			else if (msg->Message == "space:nodes:shapes")
+				m_Menu->getNodeTextWidget()->text().set("Shapes", m_Menu->getFont());
+			else if (msg->Message == "space:nodes:marks")
 				m_Menu->getNodeTextWidget()->text().set("Marks", m_Menu->getFont());
-			else if (msg->Message == "show node labels")
+			else if (msg->Message == "space:nodes:labels")
 				m_Menu->getNodeTextWidget()->text().set("Labels", m_Menu->getFont());
-			else if (msg->Message == "show node none")
+			else if (msg->Message == "space:nodes:off")
 				m_Menu->getNodeTextWidget()->text().set("Off", m_Menu->getFont());
 
 			else if (msg->Message == "space:edges:lines")

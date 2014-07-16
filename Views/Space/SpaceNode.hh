@@ -1,16 +1,18 @@
 #pragma once
 
+#include <raindance/Core/Scene/Node.hh>
+
 #include "Views/Space/SpaceResources.hh"
 #include "Views/Space/SpaceWidgets.hh"
 
-class SpaceNode : public Scene::IDrawable
+class SpaceNode : public Scene::Node
 {
 public:
     typedef unsigned long ID;
 
-    SpaceNode(ID id, const char* label)
+    SpaceNode(const char* label)
     {
-        m_ID = id;
+        m_ID = 0;
         m_TextureID = 0;
         m_Color = glm::vec4(1.0, 1.0, 1.0, 1.0);
         m_Size = 1.0f;
@@ -44,7 +46,7 @@ public:
         }
 
         float nodeSize = getScreenSize();
-        glm::mat4 billboard = Geometry::billboard(view * model);
+        glm::mat4 billboard = Geometry::billboard(view * model * getModelMatrix());
 
         if (g_SpaceResources->ShowNodeShapes == SpaceResources::ALL || g_SpaceResources->ShowNodeShapes == SpaceResources::COLORS)
         {
@@ -86,6 +88,11 @@ public:
         }
     }
 
+    bool isOverlap (const glm::vec3& min, const glm::vec3& max) const
+    {
+        return Intersection::PointBox(getPosition(), min, max);
+    }
+
     inline void setColor(const glm::vec3& color) { m_Color = glm::vec4(color, 1.0); }
     inline void setColor(const glm::vec4& color) { m_Color = color; }
     inline const glm::vec4& getColor() const { return m_Color; }
@@ -117,6 +124,7 @@ public:
         m_TextureID = static_cast<unsigned int>(id);
     }
 
+    inline void setID(ID id) { m_ID = id; }
     inline ID getID() { return m_ID; }
 
 private:

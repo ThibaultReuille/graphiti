@@ -3,7 +3,7 @@
 #include "Views/Space/SpaceResources.hh"
 #include "Views/Space/SpaceWidgets.hh"
 
-class SpaceSphere : public Scene::IDrawable
+class SpaceSphere : public Scene::Node
 {
 public:
     typedef unsigned long ID;
@@ -28,10 +28,19 @@ public:
         g_SpaceResources->SphereIcon->draw
         (
             context,
-            projection * glm::scale(Geometry::billboard(view * model), glm::vec3(radius, radius, radius)),
+            projection * glm::scale(Geometry::billboard(view * model * getModelMatrix()), glm::vec3(radius, radius, radius)),
             m_Color,
             0
         );
+    }
+
+    bool isOverlap (const glm::vec3& min, const glm::vec3& max) const
+    {
+        (void) min;
+        (void) max;
+
+        // TODO : SpaceSphere::isOverlap
+        return false;
     }
 
     inline void setLOD(float lod) { m_LOD = lod; }

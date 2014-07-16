@@ -80,6 +80,12 @@ public:
 	{
 	}
 
+    virtual IVariable* getAttribute(std::string& name)
+    {
+        (void) name;
+        return NULL;
+    }
+
 	virtual IVariable* getNodeAttribute(Node::ID id, std::string& name)
 	{
 		LOG("[MESHVIEW] getNodeAttribute(%lu, %s)\n", id, name.c_str());

@@ -3,7 +3,7 @@
 #include "Views/Space/SpaceResources.hh"
 #include "Views/Space/SpaceWidgets.hh"
 
-class SpaceEdge : public Scene::IDrawable
+class SpaceEdge : public Scene::Node
 {
 public:
     typedef unsigned long ID;
@@ -55,7 +55,7 @@ public:
 
                     g_SpaceResources->EdgeShader->use();
                     g_SpaceResources->EdgeShader->uniform("u_Mode").set(0.0f);
-                    g_SpaceResources->EdgeShader->uniform("u_ModelViewProjection").set(projection * view * model);
+                    g_SpaceResources->EdgeShader->uniform("u_ModelViewProjection").set(projection * view * model * getModelMatrix());
                     g_SpaceResources->EdgeShader->uniform("u_StartPosition").set(m_WideLine.getPosition(0));
                     g_SpaceResources->EdgeShader->uniform("u_EndPosition").set(m_WideLine.getPosition(1));
                     g_SpaceResources->EdgeShader->uniform("u_Tint").set(color);
@@ -71,7 +71,7 @@ public:
 
                     g_SpaceResources->EdgeShader->use();
                     g_SpaceResources->EdgeShader->uniform("u_Mode").set(1.0f);
-                    g_SpaceResources->EdgeShader->uniform("u_ModelViewProjection").set(projection * view * model);
+                    g_SpaceResources->EdgeShader->uniform("u_ModelViewProjection").set(projection * view * model * getModelMatrix());
                     g_SpaceResources->EdgeShader->uniform("u_StartPosition").set(m_WideLine.getPosition(0));
                     g_SpaceResources->EdgeShader->uniform("u_EndPosition").set(m_WideLine.getPosition(1));
                     g_SpaceResources->EdgeShader->uniform("u_ExtrudeDirection").set(extrusion);
@@ -98,10 +98,15 @@ public:
             c.a *= color.a;
 
             float iconSize = 2.0 * g_SpaceResources->EdgeSize;
-            glm::mat4 billboard = Geometry::billboard(view * glm::translate(model, v));
+            glm::mat4 billboard = Geometry::billboard(view * glm::translate(model * getModelMatrix(), v));
 
             g_SpaceResources->EdgeActivityIcon->draw(context, projection * glm::scale(billboard, glm::vec3(iconSize, iconSize, iconSize)), c, 0);
         }
+    }
+
+    bool isOverlap (const glm::vec3& min, const glm::vec3& max) const
+    {
+        return Intersection::SegmentBox(m_WideLine.getPosition(0), m_WideLine.getPosition(1), min, max);
     }
 
     void update()
@@ -141,8 +146,8 @@ public:
 
             glm::vec4 nodeColor[2];
 
-            nodeColor[0] = static_cast<SpaceNode*>(m_Node1->getDrawable())->getColor();
-            nodeColor[1] = static_cast<SpaceNode*>(m_Node2->getDrawable())->getColor();
+            nodeColor[0] = static_cast<SpaceNode*>(m_Node1)->getColor();
+            nodeColor[1] = static_cast<SpaceNode*>(m_Node2)->getColor();
 
             bool needsColorUpdate = false;
             if (lineColor[0] != nodeColor[0] || lineColor[1] != nodeColor[1])
@@ -161,8 +166,8 @@ public:
         m_Dirty = false;
     }
 
-    inline SpaceNode::ID getNode1() { return static_cast<SpaceNode*>(m_Node1->getDrawable())->getID(); }
-    inline SpaceNode::ID getNode2() { return static_cast<SpaceNode*>(m_Node2->getDrawable())->getID(); }
+    inline SpaceNode::ID getNode1() { return static_cast<SpaceNode*>(m_Node1)->getID(); }
+    inline SpaceNode::ID getNode2() { return static_cast<SpaceNode*>(m_Node2)->getID(); }
 
     inline void setWidth(float width) { m_WideLine.setWidth(width); }
     inline float getWidth() { return m_WideLine.getWidth(); }
