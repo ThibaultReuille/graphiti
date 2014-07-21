@@ -246,6 +246,12 @@ public:
         (void) value;
     }
 
+    virtual IVariable* getAttribute(std::string& name)
+    {
+        (void) name;
+        return NULL;
+    }
+
     virtual IVariable* getNodeAttribute(Node::ID uid, std::string& name)
     {
         checkNodeUID(uid);

@@ -10,7 +10,7 @@
 #include <raindance/Core/Camera/Frustrum.hh>
 #include <raindance/Core/Transformation.hh>
 #include <raindance/Core/Variables.hh>
-#include <raindance/Core/Scene.hh>
+#include <raindance/Core/Scene/NodeVector.hh>
 #include <raindance/Core/Physics.hh>
 #include <raindance/Core/Environment.hh>
 #include <raindance/Core/Bezier.hh>
@@ -32,6 +32,38 @@ typedef TranslationMap<SpaceEdge::ID, Link::ID> LinkTranslationMap;
 #include "Views/Space/SpaceForces.hh"
 
 #include "Pack.hh"
+
+class SpaceRenderer : public OctreeFunctor
+{
+public:
+    SpaceRenderer(GraphContext* context, Camera* camera, Transformation* transformation, int pass)
+    : m_Context(context), m_Camera(camera), m_Transformation(transformation), m_Pass(pass)
+    {
+        m_DrawCount = 0;
+    }
+
+    virtual ~SpaceRenderer() {}
+
+    virtual void apply(OctreeElement* element)
+    {
+        Scene::Node* node = static_cast<Scene::Node*>(element);
+        if (node->getMark() != m_Pass)
+        {
+            node->draw(m_Context, m_Camera->getProjectionMatrix(), m_Camera->getViewMatrix(), m_Transformation->state());
+            node->setMark(m_Pass);
+            m_DrawCount++;
+        }
+    }
+
+    inline int getDrawCount() { return m_DrawCount; }
+
+private:
+    GraphContext* m_Context;
+    Camera* m_Camera;
+    Transformation* m_Transformation;
+    int m_Pass;
+    int m_DrawCount;
+};
 
 class SpaceView : public GraphView
 {
@@ -65,6 +97,8 @@ public:
 
 	virtual ~SpaceView()
 	{
+	    SAFE_DELETE(m_Octree);
+
 		delete g_SpaceResources;
 	}
 
@@ -104,7 +138,7 @@ public:
 			if (*itl == NULL)
 				continue;
 
-			SpaceEdge* link = static_cast<SpaceEdge*>((*itl)->getDrawable());
+			SpaceEdge* link = static_cast<SpaceEdge*>(*itl);
 
 			SpaceNode::ID node1 = link->getNode1();
 			SpaceNode::ID node2 = link->getNode2();
@@ -125,9 +159,21 @@ public:
 
 			float tint = maxDegree == 0 ? 1.0 : 0.3 + 0.7 * (float) nodeDegrees[n] / (float) maxDegree;
 
-			SpaceNode* node = static_cast<SpaceNode*>(m_SpaceNodes[n]->getDrawable());
+			SpaceNode* node = static_cast<SpaceNode*>(m_SpaceNodes[n]);
 			node->setColor(tint * node->getColor());
 		}
+	}
+
+	virtual IVariable* getAttribute(std::string& name)
+	{
+        if (name == "debug")
+        {
+            BooleanVariable* variable = new BooleanVariable();
+            variable->set(g_SpaceResources->ShowDebug);
+            return variable;
+        }
+
+        return NULL;
 	}
 
 	virtual IVariable* getNodeAttribute(Node::ID uid, std::string& name)
@@ -143,7 +189,7 @@ public:
 		else if (name == "color")
 		{
 			Vec4Variable* variable = new Vec4Variable();
-			variable->set(static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->getColor());
+			variable->set(static_cast<SpaceNode*>(m_SpaceNodes[id])->getColor());
 			return variable;
 		}
 		else if (name == "locked")
@@ -155,19 +201,19 @@ public:
 		else if (name == "activity")
 		{
 			FloatVariable* variable = new FloatVariable();
-			variable->set(static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->getActivity());
+			variable->set(static_cast<SpaceNode*>(m_SpaceNodes[id])->getActivity());
 			return variable;
 		}
         else if (name == "mark")
         {
             IntVariable* variable = new IntVariable();
-            variable->set(static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->getMark());
+            variable->set(static_cast<SpaceNode*>(m_SpaceNodes[id])->getMark());
             return variable;
         }
         else if (name == "size")
         {
             FloatVariable* variable = new FloatVariable();
-            variable->set(static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->getSize());
+            variable->set(static_cast<SpaceNode*>(m_SpaceNodes[id])->getSize());
             return variable;
         }
 
@@ -181,19 +227,19 @@ public:
 		if (name == "activity")
 		{
 			FloatVariable* variable = new FloatVariable();
-			variable->set(static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->getActivity());
+			variable->set(static_cast<SpaceEdge*>(m_SpaceEdges[id])->getActivity());
 			return variable;
 		}
 		else if (name == "color1")
 		{
 		    Vec4Variable* variable = new Vec4Variable();
-		    variable->set(static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->getColor(0));
+		    variable->set(static_cast<SpaceEdge*>(m_SpaceEdges[id])->getColor(0));
 		    return variable;
 		}
 		else if (name == "color2")
 		{
             Vec4Variable* variable = new Vec4Variable();
-            variable->set(static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->getColor(1));
+            variable->set(static_cast<SpaceEdge*>(m_SpaceEdges[id])->getColor(1));
             return variable;
 		}
 
@@ -217,47 +263,50 @@ public:
 
 		Transformation transformation;
 
-		// Draw Edges
-		if (g_SpaceResources->ShowEdges || g_SpaceResources->ShowEdgeActivity)
-		{
-#ifndef EMSCRIPTEN
-			// NOTE : Not supported by WebGL
-			glEnable(GL_LINE_SMOOTH);
-			glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-#endif
-			m_SpaceEdges.draw(context(), m_Camera.getProjectionMatrix(), m_Camera.getViewMatrix(), transformation.state());
-		}
-
 		// Draw Nodes
 		{
             if (m_Octree == NULL || m_DirtyOctree)
             {
                 m_SpaceNodes.draw(context(), m_Camera.getProjectionMatrix(), m_Camera.getViewMatrix(), transformation.state());
+
+                // Draw Edges
+                if (g_SpaceResources->ShowEdges || g_SpaceResources->ShowEdgeActivity)
+                {
+        #ifndef EMSCRIPTEN
+                    // NOTE : Not supported by WebGL
+                    glEnable(GL_LINE_SMOOTH);
+                    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+        #endif
+                    m_SpaceEdges.draw(context(), m_Camera.getProjectionMatrix(), m_Camera.getViewMatrix(), transformation.state());
+                }
             }
             else
             {
-                static std::vector<OctreeElement*> elements;
-                elements.clear();
+                static int pass = 0;
+                pass = (pass + 1) % 2;
+                SpaceRenderer renderer(context(), &m_Camera, &transformation, pass);
                 Frustrum frustrum(m_Camera.getViewProjectionMatrix());
-                m_Octree->findElementsInsideFrustrum(frustrum, elements);
+                m_Octree->foreachElementsInsideFrustrum(frustrum, &renderer);
 
-                for (auto e : elements)
+                static int drawCount = 0;
+                if (drawCount != renderer.getDrawCount())
                 {
-                    Scene::Node* node = static_cast<Scene::OctreeNode*>(e)->getNode();
-                    if (node != NULL)
-                        node->draw(context(), m_Camera.getProjectionMatrix(), m_Camera.getViewMatrix(), transformation.state());
+                    drawCount  = renderer.getDrawCount();
+                    if (g_SpaceResources->ShowDebug)
+                    {
+                        LOG("[DEBUG] %i elements drawn.\n", drawCount);
+                    }
                 }
 
-                // TODO : Reimplement octree rendering with a proper traversal
-                // if (g_SpaceResources->ShowDebug)
-                //     m_Octree->draw(context(), m_Camera.getProjectionMatrix(), m_Camera.getViewMatrix(), transformation.state());
+                if (g_SpaceResources->ShowDebug)
+                    m_Octree->draw(context(), m_Camera.getProjectionMatrix(), m_Camera.getViewMatrix(), transformation.state());
             }
 
             std::set<Node::ID>::iterator iti;
             for (iti = model()->selectedNodes_begin(); iti != model()->selectedNodes_end(); ++iti)
             {
                 SpaceNode::ID selectedID = m_NodeMap.getLocalID(*iti);
-                SpaceNode* selectedNode = static_cast<SpaceNode*>(m_SpaceNodes[selectedID]->getDrawable());
+                SpaceNode* selectedNode = static_cast<SpaceNode*>(m_SpaceNodes[selectedID]);
 
                 float iconSize = 2.0f * selectedNode->getSize() * g_SpaceResources->NodeIconSize;
                 glm::mat4 modelView = m_Camera.getViewMatrix() * glm::translate(transformation.state(), m_SpaceNodes[selectedID]->getPosition());
@@ -298,11 +347,9 @@ public:
 		float rnd2 = (float) rand();
 		float rnd3 = 0.8f + ((float) rand() / RAND_MAX) / 5;
 
-		Scene::Node* node = new Scene::Node(NULL, false);
+		SpaceNode* node = new SpaceNode(label);
 		unsigned long vid = m_SpaceNodes.add(node);
-
-		SpaceNode* spaceNode = new SpaceNode(vid, label);
-		node->setDrawable(spaceNode, true);
+		node->setID(vid);
 		node->setPosition(position + glm::vec3(radius * rnd3 * sin(rnd1) * cos(rnd2),
 											   radius * rnd3 * cos(rnd1),
 											   radius * rnd3 * sin(rnd1) * sin(rnd2)));
@@ -329,42 +376,42 @@ public:
 			{
 				m_PhysicsMode = PAUSE;
 			}
-			else if (msg->Message == "show node all")
+			else if (msg->Message == "space:nodes:all")
 			{
 				g_SpaceResources->ShowNodeShapes = SpaceResources::ALL;
 				g_SpaceResources->ShowNodeLabels = true;
 			}
-			else if (msg->Message == "show node colors+labels")
+			else if (msg->Message == "space:nodes:shapes+labels")
 			{
 				g_SpaceResources->ShowNodeShapes = SpaceResources::COLORS;
 				g_SpaceResources->ShowNodeLabels = true;
 			}
-			else if (msg->Message == "show node marks+labels")
+			else if (msg->Message == "space:nodes:marks+labels")
 			{
 				g_SpaceResources->ShowNodeShapes = SpaceResources::MARKS;
 				g_SpaceResources->ShowNodeLabels = true;
 			}
-			else if (msg->Message == "show node colors+marks")
+			else if (msg->Message == "space:nodes:shapes+marks")
 			{
 				g_SpaceResources->ShowNodeShapes = SpaceResources::ALL;
 				g_SpaceResources->ShowNodeLabels = false;
 			}
-			else if (msg->Message == "show node colors")
+			else if (msg->Message == "space:nodes:shapes")
 			{
 				g_SpaceResources->ShowNodeShapes = SpaceResources::COLORS;
 				g_SpaceResources->ShowNodeLabels = false;
 			}
-			else if (msg->Message == "show node marks")
+			else if (msg->Message == "space:nodes:marks")
 			{
 				g_SpaceResources->ShowNodeShapes = SpaceResources::MARKS;
 				g_SpaceResources->ShowNodeLabels = false;
 			}
-			else if (msg->Message == "show node labels")
+			else if (msg->Message == "space:nodes:labels")
 			{
 				g_SpaceResources->ShowNodeShapes = SpaceResources::NONE;
 				g_SpaceResources->ShowNodeLabels = true;
 			}
-			else if (msg->Message == "show node none")
+			else if (msg->Message == "space:nodes:off")
 			{
 				g_SpaceResources->ShowNodeShapes = SpaceResources::NONE;
 				g_SpaceResources->ShowNodeLabels = false;
@@ -404,7 +451,7 @@ public:
 			if (m_SpaceNodes[i] == NULL)
 				continue;
 
-			SpaceNode* spaceNode = static_cast<SpaceNode*>(m_SpaceNodes[i]->getDrawable());
+			SpaceNode* spaceNode = static_cast<SpaceNode*>(m_SpaceNodes[i]);
 
             if (spaceNode->getLOD() == 0.0)
                 continue;
@@ -484,42 +531,6 @@ public:
 		m_DustAttractor.apply(m_SpaceNodes);
 		// m_GravitationForce.apply(m_SpaceNodes);
 
-		// Compute Sphere Attraction Force
-		// TODO : Find a nice way to factorize this code in its own Force class
-		/*
-		{
-			const float c_MinNodeDistance = 10.0f;
-			const float volume = 20 * 20 * 20; // NOTE : Graph should fit in this cube
-			float k = pow(volume / m_GraphModel->countNodes(), 1.0 / 3.0);
-
-			glm::vec3 pos1, dir1;
-			glm::vec3 barycenter;
-			float radius;
-
-			std::vector<Sphere>::iterator its;
-			std::vector<Node::ID>::iterator itid;
-			for (its = m_GraphModel->spheres_begin(); its != m_GraphModel->spheres_end(); ++its)
-			{
-				computeBoundingSphere(*its, &barycenter, &radius);
-
-				for (itid = its->data().Nodes.begin(); itid != its->data().Nodes.end(); ++itid)
-				{
-					pos1 = m_SpaceNodes[*itid]->getPosition();
-					dir1 = m_SpaceNodes[*itid]->getDirection();
-
-					glm::vec3 dir = pos1 - barycenter;
-					float d = glm::length(dir);
-					if (d < c_MinNodeDistance)
-						continue;
-
-					// Attractive Force : fa(x) = x * x / k
-					dir1 = dir1 - 3.0f * (dir / d) * (d * d / k);
-
-					m_SpaceNodes[*itid]->setDirection(dir1, false);
-				}
-			}
-		}
-		*/
 		m_SpaceNodes.normalizeDirections();
 		m_SpaceNodes.randomizeDirections();
 		m_SpaceNodes.update();
@@ -540,7 +551,7 @@ public:
         {
             for (auto it : m_SpaceEdges)
                 if (it != NULL)
-                    static_cast<SpaceEdge*>(it->getDrawable())->update();
+                    static_cast<SpaceEdge*>(it)->update();
         }
     }
 
@@ -556,7 +567,7 @@ public:
             {
                 computeBoundingSphere(*its, &position, &radius);
                 m_SpaceSpheres[its->id()]->setPosition(position);
-                static_cast<SpaceSphere*>(m_SpaceSpheres[its->id()]->getDrawable())->setRadius(radius);
+                static_cast<SpaceSphere*>(m_SpaceSpheres[its->id()])->setRadius(radius);
             }
         }
     }
@@ -566,9 +577,11 @@ public:
         if (!m_DirtyOctree)
             return;
 
-        LOG("[SPACE] Updating octree ...\n");
-
-        // LOG("[SPACE] . Calculating bounding box ...\n");
+        if (g_SpaceResources->ShowDebug)
+        {
+            LOG("[SPACE] Updating octree ...\n");
+            LOG("[SPACE] . Calculating bounding box ...\n");
+        }
 
         glm::vec3 min;
         glm::vec3 max;
@@ -601,22 +614,31 @@ public:
 
         if (count == 0)
         {
-            LOG("[SPACE] . Graph is empty! Aborting.\n");
+            if (g_SpaceResources->ShowDebug)
+            {
+                LOG("[SPACE] . Graph is empty! Aborting.\n");
+            }
             m_DirtyOctree = false;
             return;
         }
 
-        // LOG("[SPACE]   . Min : (%f, %f, %f)\n", min.x, min.y, min.z);
-        // LOG("[SPACE]   . Max : (%f, %f, %f)\n", max.x, max.y, max.z);
+        if (g_SpaceResources->ShowDebug)
+        {
+            LOG("[SPACE]   . Min : (%f, %f, %f)\n", min.x, min.y, min.z);
+            LOG("[SPACE]   . Max : (%f, %f, %f)\n", max.x, max.y, max.z);
+        }
 
-        m_Octree = new Octree(0.5f * (min + max), max - min);
-
-        // LOG("[SPACE] . Inserting %lu elements in octree ...\n", count);
+        m_Octree = new Octree(min, max);
 
         for (unsigned long i = 0; i < m_SpaceNodes.size(); i++)
         {
             if (m_SpaceNodes[i] != NULL)
-                m_Octree->insert(new Scene::OctreeNode(m_SpaceNodes[i]));
+                m_Octree->insert(m_SpaceNodes[i]);
+        }
+        for (unsigned long i = 0; i < m_SpaceEdges.size(); i++)
+        {
+            if (m_SpaceEdges[i] != NULL)
+                m_Octree->insert(m_SpaceEdges[i]);
         }
 
         m_DirtyOctree = false;
@@ -671,6 +693,11 @@ public:
             else if (value == "link_color")
                 g_SpaceResources->m_LinkMode = SpaceResources::LINK_COLOR;
         }
+        else if (name == "space:debug" && type == BOOLEAN)
+        {
+            vbool.set(value);
+            g_SpaceResources->ShowDebug = vbool.value();
+        }
     }
 
 	void onAddNode(Node::ID uid, const char* label)
@@ -689,14 +716,12 @@ public:
 		{
 			if (m_SpaceEdges[i] != NULL)
 			{
-				SpaceEdge* link = static_cast<SpaceEdge*>(m_SpaceEdges[i]->getDrawable());
+				SpaceEdge* link = static_cast<SpaceEdge*>(m_SpaceEdges[i]);
 
 				if (link->getNode1() == vid || link->getNode2() == vid)
 				{
 					m_SpaceEdges.remove(i);
 					m_LinkMap.removeLocalID(i);
-
-					LOG("Link %i removed with node\n", i);
 				}
 			}
 		}
@@ -746,32 +771,32 @@ public:
                 vvec4.set(value);
                 c = vvec4.value();
             }
-            static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->setColor(c);
+            static_cast<SpaceNode*>(m_SpaceNodes[id])->setColor(c);
         }
         else if (name == "space:lod" && type == FLOAT)
         {
             vfloat.set(value);
-            static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->setLOD(vfloat.value());
+            static_cast<SpaceNode*>(m_SpaceNodes[id])->setLOD(vfloat.value());
         }
         else if (name == "space:activity" && type == FLOAT)
         {
             vfloat.set(value);
-            static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->setActivity(vfloat.value());
+            static_cast<SpaceNode*>(m_SpaceNodes[id])->setActivity(vfloat.value());
         }
         else if (name == "space:icon" && type == STRING)
         {
             vstring.set(value);
-            static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->setIcon(vstring.value());
+            static_cast<SpaceNode*>(m_SpaceNodes[id])->setIcon(vstring.value());
         }
         else if (name == "space:mark" && type == INT)
         {
             vint.set(value);
-            static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->setMark(vint.value());
+            static_cast<SpaceNode*>(m_SpaceNodes[id])->setMark(vint.value());
         }
         else if (name == "space:size" && type == FLOAT)
         {
             vfloat.set(value);
-            static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->setSize(vfloat.value());
+            static_cast<SpaceNode*>(m_SpaceNodes[id])->setSize(vfloat.value());
         }
 	}
 
@@ -781,7 +806,7 @@ public:
 
 		SpaceNode::ID id = m_NodeMap.getLocalID(uid);
 
-		static_cast<SpaceNode*>(m_SpaceNodes[id]->getDrawable())->setLabel(label);
+		static_cast<SpaceNode*>(m_SpaceNodes[id])->setLabel(label);
 	}
 
 	void onTagNode(Node::ID node, Sphere::ID sphere)
@@ -798,7 +823,7 @@ public:
 		SpaceNode::ID node1 = m_NodeMap.getLocalID(uid1);
 		SpaceNode::ID node2 = m_NodeMap.getLocalID(uid2);
 
-		SpaceEdge::ID lid = m_SpaceEdges.add(new Scene::Node(new SpaceEdge(m_SpaceNodes[node1], m_SpaceNodes[node2]), true));
+		SpaceEdge::ID lid = m_SpaceEdges.add(new SpaceEdge(m_SpaceNodes[node1], m_SpaceNodes[node2]));
 
 		m_LinkMap.addRemoteID(uid, lid);
 		m_DirtyOctree = true;
@@ -844,45 +869,45 @@ public:
                 c = vvec4.value();
             }
 
-            static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setColor(0, c);
-            static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setColor(1, c);
-            static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setDirty(true);
+            static_cast<SpaceEdge*>(m_SpaceEdges[id])->setColor(0, c);
+            static_cast<SpaceEdge*>(m_SpaceEdges[id])->setColor(1, c);
+            static_cast<SpaceEdge*>(m_SpaceEdges[id])->setDirty(true);
         }
 		else if (name == "space:color1" && type == VEC4)
 		{
 			checkLinkUID(uid);
 			SpaceEdge::ID id = m_LinkMap.getLocalID(uid);
 			vvec4.set(value);
-			static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setColor(0, vvec4.value());
-            static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setDirty(true);
+			static_cast<SpaceEdge*>(m_SpaceEdges[id])->setColor(0, vvec4.value());
+            static_cast<SpaceEdge*>(m_SpaceEdges[id])->setDirty(true);
 		}
 		else if (name == "space:color2" && type == VEC4)
 		{
 			checkLinkUID(uid);
 			SpaceEdge::ID id = m_LinkMap.getLocalID(uid);
 			vvec4.set(value);
-			static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setColor(1, vvec4.value());
-            static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setDirty(true);
+			static_cast<SpaceEdge*>(m_SpaceEdges[id])->setColor(1, vvec4.value());
+            static_cast<SpaceEdge*>(m_SpaceEdges[id])->setDirty(true);
 		}
 		else if (name == "space:width" && type == FLOAT)
 		{
 		    vfloat.set(value);
-		    static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setWidth(vfloat.value());
+		    static_cast<SpaceEdge*>(m_SpaceEdges[id])->setWidth(vfloat.value());
 		}
         else if (name == "space:activity" && type == FLOAT)
         {
             vfloat.set(value);
-            static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setActivity(vfloat.value());
+            static_cast<SpaceEdge*>(m_SpaceEdges[id])->setActivity(vfloat.value());
         }
         else if (name == "space:lod" && type == FLOAT)
         {
             vfloat.set(value);
-            static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setLOD(vfloat.value());
+            static_cast<SpaceEdge*>(m_SpaceEdges[id])->setLOD(vfloat.value());
         }
         else if (name == "space:icon" && type == STRING)
         {
             vstring.set(value);
-            static_cast<SpaceEdge*>(m_SpaceEdges[id]->getDrawable())->setIcon(vstring.value());
+            static_cast<SpaceEdge*>(m_SpaceEdges[id])->setIcon(vstring.value());
         }
 	}
 
@@ -890,12 +915,12 @@ public:
 	{
 		(void) id;
 		(void) label;
-		m_SpaceSpheres.add(new Scene::Node(new SpaceSphere(), true));
+		m_SpaceSpheres.add(new SpaceSphere());
 	}
 
 	void onSetSphereMark(Sphere::ID id, unsigned int mark)
 	{
-		static_cast<SpaceSphere*>(m_SpaceSpheres[id]->getDrawable())->setColor(MarkerWidget::color(mark));
+		static_cast<SpaceSphere*>(m_SpaceSpheres[id])->setColor(MarkerWidget::color(mark));
 	}
 
 	void onAddNeighbor(const std::pair<Node::ID, Link::ID>& element, const char* label, Node::ID neighbor)
@@ -905,10 +930,7 @@ public:
 		SpaceNode::ID nid = m_NodeMap.getLocalID(neighbor);
 
 		SpaceNode::ID vid = pushNodeVertexAround(element.first, label, m_SpaceNodes[nid]->getPosition(), 2);
-
-		Scene::Node* node = new Scene::Node(NULL, false);
-		SpaceEdge::ID lid = m_SpaceEdges.add(node);
-		node->setDrawable(new SpaceEdge(m_SpaceNodes[nid], m_SpaceNodes[vid]), true);
+		SpaceEdge::ID lid = m_SpaceEdges.add(new SpaceEdge(m_SpaceNodes[nid], m_SpaceNodes[vid]));
 
 		m_LinkMap.addRemoteID(element.second, lid);
 

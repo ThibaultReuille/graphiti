@@ -35,6 +35,8 @@ public:
 class GraphView : public EntityView, public GraphListener
 {
 public:
+    virtual IVariable* getAttribute(std::string& name) = 0;
+
     virtual IVariable* getNodeAttribute(Node::ID id, std::string& name) = 0;
 
     virtual IVariable* getLinkAttribute(Link::ID id, std::string& name) = 0;
@@ -111,6 +113,38 @@ public:
 
         for (auto l : listeners())
             static_cast<GraphListener*>(l)->onSetAttribute(sname, vtype, svalue);
+    }
+
+    IVariable* getAttribute(const char* name)
+    {
+        std::string sname(name);
+
+        unsigned long pos1 = sname.find(":");
+        std::string category = sname.substr (0, pos1);
+
+        // TODO : Remove 'raindance' attribute namespace whenever possible.
+        if (category == "raindance" || category == "graphiti" || category == "og")
+        {
+            std::string rest = sname.substr(pos1 + 1);
+            unsigned long pos2 = rest.find(":");
+            std::string view = rest.substr(0, pos2);
+            rest = rest.substr(pos2 + 1);
+
+            for (auto v : views())
+            {
+                if (view == std::string(v->name()))
+                    return static_cast<GraphView*>(v)->getAttribute(rest);
+            }
+            return NULL;
+        }
+        else
+        {
+            IVariable* attribute = m_GraphModel->attributes().get(sname);
+            if (attribute)
+                return attribute->duplicate();
+            else
+                return NULL;
+        }
     }
 
     Node::ID addNode(const char* label)

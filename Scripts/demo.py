@@ -27,11 +27,11 @@ def clear_icons():
     for n in graphiti.get_node_ids():
         graphiti.set_node_attribute(n, "graphiti:space:icon", "string", "shapes/disk")
 
-def clear_lod():
+def set_lod(value):
     for id in graphiti.get_node_ids():
-        graphiti.set_node_attribute(id, "graphiti:space:lod", "float", "1.0")
+        graphiti.set_node_attribute(id, "graphiti:space:lod", "float", str(value))
     for id in graphiti.get_link_ids():
-        graphiti.set_link_attribute(id, "graphiti:space:lod", "float", "1.0")
+        graphiti.set_link_attribute(id, "graphiti:space:lod", "float", str(value))
 
 def add_random_graph():
     node_count = int(raw_input("Number of nodes : "))
@@ -98,6 +98,10 @@ def randomize_edge_icons():
     for id in graphiti.get_link_ids():
         icon = "styles/" + random.choice(icons).split("/")[-1][:-4].lower()
         graphiti.set_link_attribute(id, "graphiti:space:icon", "string", icon)
+
+def show_debug():
+    flag = graphiti.get_attribute("og:space:debug")
+    graphiti.set_attribute("og:space:debug", "bool", str(not flag))
 
 def reset_icons():
     for nid in graphiti.get_node_ids():
@@ -280,7 +284,6 @@ def color_by_node_degree():
         graphiti.set_node_attribute(nid, "graphiti:space:color", "vec4", std.vec4_to_str(m[t]))
 
 def sphere_layout(radius):
-
     ids = graphiti.get_node_ids()
     for nid in ids:
         r1 = random.random() * 2 * math.pi
@@ -296,10 +299,8 @@ def sphere_layout(radius):
         graphiti.set_node_attribute(nid, "graphiti:space:position", "vec3", std.vec3_to_str(pos))
 
 def cube_layout():
-
     ids = graphiti.get_node_ids()
     size = int(len(ids) ** (1.0 / 3.0))
-
     count = 0
     for nid in ids:
         pos = [
@@ -657,8 +658,8 @@ def start():
             ["Clear Graph", "demo.clear_graph()"],
             ["Clear Colors", "demo.clear_colors()"],
             ["Clear Icons", "demo.clear_icons()"],
-            ["Clear LOD", "demo.clear_lod()"],
-            ["Add Random Graph", "demo.add_random_graph()"],
+            ["Clear LOD", "demo.set_lod(1.0)"],
+            ["Zero LOD", "demo.set_lod(0.0)"],
             ["Node Type", "demo.color_nodes_by_type()"],
             ["Edge Type", "demo.color_edges_by_type()"],   
             ["Country Icons", "demo.countries_to_icons()"],
@@ -704,6 +705,7 @@ def start():
             ["DGA Score", "demo.color_nodes_by_dga_score()"],
         ]],
         ["Test / Debug", [
+            ["Add Random Graph", "demo.add_random_graph()"],
             ["Randomize Node Activity", "demo.randomize_node_activity()"],
             ["Randomize Node Icons", "demo.randomize_node_icons()"],
             ["Randomize Node Size", "demo.randomize_node_size()"],
@@ -711,6 +713,7 @@ def start():
             ["Randomize Edge Icons", "demo.randomize_edge_icons()"],
             ["Randomize Edge Width", "demo.randomize_edge_width()"],
             ["Randomize Timeline", "demo.randomize_timeline()"],
+            ["Debug On/Off", "demo.show_debug()"]
         ]],
     ]
 

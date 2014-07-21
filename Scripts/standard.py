@@ -159,7 +159,15 @@ def load_json(json_filename):
     if "timeline" in data:
         print(". Loading timeline ...")
         for c in data["timeline"]:
-            print(c)
+            # TODO : Get rid of this translation phase when possible.
+            if c[1].startswith("graph:"):
+                if c[1] in ["graph:remove_node", "graph:set_node_attribute"]:
+                    c[2]["id"] = nodes[c[2]["id"]]
+                elif c[1] in ["graph:remove_link", "graph:set_link_attribute"]:
+                    c[2]["id"] = links[c[2]["id"]]
+                elif c[1] in ["graph:add_link"]:
+                    c[2]["src"] = nodes[c[2]["src"]]
+                    c[2]["dst"] = nodes[c[2]["dst"]]
             graphiti.send_command(c[0], c[1], c[2])
 
     print("Done.")

@@ -5,7 +5,6 @@
 #include <raindance/Core/Camera/Camera.hh>
 #include <raindance/Core/Bezier.hh>
 #include <raindance/Core/PointCloud.hh>
-#include <raindance/Core/Scene.hh>
 #include <raindance/Core/Primitives/Line.hh>
 #include <raindance/Core/Primitives/Cube.hh>
 #include <raindance/Core/Material.hh>
@@ -19,7 +18,7 @@
 typedef TranslationMap<SpaceNode::ID, Node::ID> NodeTranslationMap;
 typedef TranslationMap<SpaceEdge::ID, Link::ID> LinkTranslationMap;
 
-class WorldMapGeoPoint : public Scene::IDrawable
+class WorldMapGeoPoint : public Scene::Node
 {
 public:
 	WorldMapGeoPoint()
@@ -38,6 +37,15 @@ public:
 		g_WorldResources->WorldMapNodeIcon->draw(context, projection * view * glm::scale(model, glm::vec3(size, size, 1.0)), m_Color, 0);
 	}
 
+    bool isOverlap (const glm::vec3& min, const glm::vec3& max) const
+    {
+        (void) min;
+        (void) max;
+
+        // TODO : WorldMapGeoPoint::isOverlap
+        return false;
+    }
+
     inline void setColor(const glm::vec4& color) { m_Color = color; }
 
     inline void setSize(float size) { m_Size = size; }
@@ -47,13 +55,13 @@ private:
 	float m_Size;
 };
 
-class EarthGeoPoint : public Scene::IDrawable
+class EarthGeoPoint : public Scene::Node
 {
 public:
     typedef unsigned long ID;
 
-	EarthGeoPoint(ID id, const char* label)
-		: m_ID(id), m_Color(glm::vec4(1.0, 1.0, 1.0, 0.5)), m_Size(1.0)
+	EarthGeoPoint(const char* label)
+		: m_ID(0), m_Color(glm::vec4(1.0, 1.0, 1.0, 0.5)), m_Size(1.0)
 	{
 	    (void) label;
 	}
@@ -94,7 +102,17 @@ public:
 		context->geometry().unbind(g_WorldResources->EarthGeoCube->getVertexBuffer());
 	}
 
-	inline ID id() { return m_ID; }
+	bool isOverlap (const glm::vec3& min, const glm::vec3& max) const
+    {
+        (void) min;
+        (void) max;
+
+        // TODO : EarthGeoPoint::isOverlap
+        return false;
+    }
+
+	inline ID getID() { return m_ID; }
+	inline void setID(ID id) { m_ID = id; }
 
 	inline void setColor(const glm::vec4& color) { m_Color = color; }
 	inline void setSize(float size) { m_Size = size; }
@@ -105,7 +123,7 @@ private:
     float m_Size;
 };
 
-class EarthGeoLink : public Scene::IDrawable
+class EarthGeoLink : public Scene::Node
 {
 public:
     typedef unsigned long ID;
@@ -153,8 +171,8 @@ public:
         m_Curve.update();
     }
 
-    inline SpaceNode::ID getNode1() { return static_cast<SpaceNode*>(m_Node1->getDrawable())->getID(); }
-    inline SpaceNode::ID getNode2() { return static_cast<SpaceNode*>(m_Node2->getDrawable())->getID(); }
+    inline EarthGeoPoint::ID getNode1() { return static_cast<EarthGeoPoint*>(m_Node1)->getID(); }
+    inline EarthGeoPoint::ID getNode2() { return static_cast<EarthGeoPoint*>(m_Node2)->getID(); }
 
     void draw(Context* context, const glm::mat4& projection, const glm::mat4& view, const glm::mat4& model)
     {
@@ -166,6 +184,15 @@ public:
         context->geometry().bind(vertexBuffer, *g_WorldResources->EarthGeoLinkShader);
         context->geometry().drawArrays(GL_LINE_STRIP, 0, vertexBuffer.size() / sizeof(BezierCurve::Vertex));
         context->geometry().unbind(vertexBuffer);
+    }
+
+    bool isOverlap (const glm::vec3& min, const glm::vec3& max) const
+    {
+        (void) min;
+        (void) max;
+
+        // TODO : EarthGeoLink::isOverlap
+        return false;
     }
 
     inline void setCurve(const BezierCurve& curve) { m_Curve = curve; }
@@ -294,7 +321,7 @@ public:
 	void onAddNode(Node::ID uid, const char* label)
     {
         (void) label;
-        unsigned long vid = m_GeoNodes.add(new Scene::Node(new WorldMapGeoPoint(), true));
+        unsigned long vid = m_GeoNodes.add(new WorldMapGeoPoint());
         m_NodeMap.addRemoteID(uid, vid);
     }
 
@@ -336,12 +363,12 @@ public:
         else if (name == "world:color" && type == VEC3)
         {
             vvec3.set(value);
-            static_cast<WorldMapGeoPoint*>(m_GeoNodes[vid]->getDrawable())->setColor(glm::vec4(vvec3.value(), 1.0));
+            static_cast<WorldMapGeoPoint*>(m_GeoNodes[vid])->setColor(glm::vec4(vvec3.value(), 1.0));
         }
         else if (name == "world:color" && type == VEC4)
         {
             vvec4.set(value);
-            static_cast<WorldMapGeoPoint*>(m_GeoNodes[vid]->getDrawable())->setColor(vvec4.value());
+            static_cast<WorldMapGeoPoint*>(m_GeoNodes[vid])->setColor(vvec4.value());
         }
         else
         {
@@ -493,11 +520,9 @@ public:
 
     void onAddNode(Node::ID uid, const char* label)
     {
-        Scene::Node* node = new Scene::Node(NULL, false);
-        EarthGeoPoint::ID vid = m_GeoNodes.add(node);
-
-        EarthGeoPoint* geopoint = new EarthGeoPoint(vid, label);
-        node->setDrawable(geopoint, true);
+        EarthGeoPoint* geopoint = new EarthGeoPoint(label);
+        EarthGeoPoint::ID vid = m_GeoNodes.add(geopoint);
+        geopoint->setID(vid);
 
         m_NodeMap.addRemoteID(uid, vid);
     }
@@ -510,7 +535,7 @@ public:
         {
             if (m_GeoLinks[i] != NULL)
             {
-                EarthGeoLink* link = static_cast<EarthGeoLink*>(m_GeoLinks[i]->getDrawable());
+                EarthGeoLink* link = static_cast<EarthGeoLink*>(m_GeoLinks[i]);
 
                 if (link->getNode1() == vid || link->getNode2() == vid)
                 {
@@ -557,17 +582,17 @@ public:
         else if (name == "world:color" && type == VEC3)
         {
             vvec3.set(value);
-            static_cast<EarthGeoPoint*>(m_GeoNodes[vid]->getDrawable())->setColor(glm::vec4(vvec3.value(), 1.0));
+            static_cast<EarthGeoPoint*>(m_GeoNodes[vid])->setColor(glm::vec4(vvec3.value(), 1.0));
         }
         else if (name == "world:color" && type == VEC4)
         {
             vvec4.set(value);
-            static_cast<EarthGeoPoint*>(m_GeoNodes[vid]->getDrawable())->setColor(vvec4.value());
+            static_cast<EarthGeoPoint*>(m_GeoNodes[vid])->setColor(vvec4.value());
         }
         else if (name == "world:size" && type == FLOAT)
         {
             vfloat.set(value);
-            static_cast<EarthGeoPoint*>(m_GeoNodes[vid]->getDrawable())->setSize(vfloat.value());
+            static_cast<EarthGeoPoint*>(m_GeoNodes[vid])->setSize(vfloat.value());
         }
         else
         {
@@ -580,7 +605,7 @@ public:
         EarthGeoPoint::ID vid1 = m_NodeMap.getLocalID(uid1);
         EarthGeoPoint::ID vid2 = m_NodeMap.getLocalID(uid2);
 
-        EarthGeoLink::ID lid = m_GeoLinks.add(new Scene::Node(new EarthGeoLink(m_GeoNodes[vid1], m_GeoNodes[vid2]), true));
+        EarthGeoLink::ID lid = m_GeoLinks.add(new EarthGeoLink(m_GeoNodes[vid1], m_GeoNodes[vid2]));
 
         m_LinkMap.addRemoteID(uid, lid);
     }
@@ -603,12 +628,12 @@ public:
         if (name == "world:color" && type == VEC3)
         {
             vvec3.set(value);
-            static_cast<EarthGeoLink*>(m_GeoLinks[vid]->getDrawable())->setColor(glm::vec4(vvec3.value(), 1.0));
+            static_cast<EarthGeoLink*>(m_GeoLinks[vid])->setColor(glm::vec4(vvec3.value(), 1.0));
         }
         else if (name == "world:color" && type == VEC4)
         {
             vvec4.set(value);
-            static_cast<EarthGeoLink*>(m_GeoLinks[vid]->getDrawable())->setColor(vvec4.value());
+            static_cast<EarthGeoLink*>(m_GeoLinks[vid])->setColor(vvec4.value());
         }
         else
         {
@@ -731,6 +756,12 @@ public:
 		(void) type;
 		LOG("[WORLDVIEW] setAttribute(%s, %s)\n", name.c_str(), value.c_str());
 	}
+
+    virtual IVariable* getAttribute(std::string& name)
+    {
+        (void) name;
+        return NULL;
+    }
 
 	virtual IVariable* getNodeAttribute(Node::ID id, std::string& name)
 	{

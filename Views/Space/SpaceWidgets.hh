@@ -227,28 +227,28 @@ public:
 		switch(m_State)
 		{
 		case 0:
-			messages.push(static_cast<IMessage*>(new WidgetMessage("show node all")));
+			messages.push(static_cast<IMessage*>(new WidgetMessage("space:nodes:all")));
 			break;
 		case 1:
-			messages.push(static_cast<IMessage*>(new WidgetMessage("show node colors+marks")));
+			messages.push(static_cast<IMessage*>(new WidgetMessage("space:nodes:shapes+marks")));
 			break;
 		case 2:
-			messages.push(static_cast<IMessage*>(new WidgetMessage("show node colors+labels")));
+			messages.push(static_cast<IMessage*>(new WidgetMessage("space:nodes:shapes+labels")));
 			break;
 		case 3:
-			messages.push(static_cast<IMessage*>(new WidgetMessage("show node colors")));
+			messages.push(static_cast<IMessage*>(new WidgetMessage("space:nodes:shapes")));
 			break;
 		case 4:
-			messages.push(static_cast<IMessage*>(new WidgetMessage("show node marks+labels")));
+			messages.push(static_cast<IMessage*>(new WidgetMessage("space:nodes:marks+labels")));
 			break;
 		case 5:
-			messages.push(static_cast<IMessage*>(new WidgetMessage("show node marks")));
+			messages.push(static_cast<IMessage*>(new WidgetMessage("space:nodes:marks")));
 			break;
 		case 6:
-			messages.push(static_cast<IMessage*>(new WidgetMessage("show node labels")));
+			messages.push(static_cast<IMessage*>(new WidgetMessage("space:nodes:labels")));
 			break;
 		case 7:
-			messages.push(static_cast<IMessage*>(new WidgetMessage("show node none")));
+			messages.push(static_cast<IMessage*>(new WidgetMessage("space:nodes:off")));
 			break;
 		default:
 			break;
