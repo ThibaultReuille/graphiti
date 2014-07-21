@@ -27,11 +27,11 @@ def clear_icons():
     for n in graphiti.get_node_ids():
         graphiti.set_node_attribute(n, "graphiti:space:icon", "string", "shapes/disk")
 
-def clear_lod():
+def set_lod(value):
     for id in graphiti.get_node_ids():
-        graphiti.set_node_attribute(id, "graphiti:space:lod", "float", "1.0")
+        graphiti.set_node_attribute(id, "graphiti:space:lod", "float", str(value))
     for id in graphiti.get_link_ids():
-        graphiti.set_link_attribute(id, "graphiti:space:lod", "float", "1.0")
+        graphiti.set_link_attribute(id, "graphiti:space:lod", "float", str(value))
 
 def add_random_graph():
     node_count = int(raw_input("Number of nodes : "))
@@ -658,7 +658,8 @@ def start():
             ["Clear Graph", "demo.clear_graph()"],
             ["Clear Colors", "demo.clear_colors()"],
             ["Clear Icons", "demo.clear_icons()"],
-            ["Clear LOD", "demo.clear_lod()"],
+            ["Clear LOD", "demo.set_lod(1.0)"],
+            ["Zero LOD", "demo.set_lod(0.0)"],
             ["Node Type", "demo.color_nodes_by_type()"],
             ["Edge Type", "demo.color_edges_by_type()"],   
             ["Country Icons", "demo.countries_to_icons()"],
