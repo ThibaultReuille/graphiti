@@ -8,6 +8,7 @@ import sys
 colors = {
     "removed": "1.0 0.4 0.4",
     "added": "0.7 1.0 0.4",
+    "modified": "1.0 1.0 0.4",
     "same": "1.0 1.0 1.0"
 }
 
