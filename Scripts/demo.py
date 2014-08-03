@@ -67,6 +67,8 @@ def remove_selected_node():
 
 def randomize_node_activity():
     for id in graphiti.get_node_ids():
+        if random.uniform(0.0, 1.0) > 0.10:
+            continue
         activity = random.uniform(0.0, 5.0)
         graphiti.set_node_attribute(id, "graphiti:space:activity", "float", str(activity))
 
@@ -98,6 +100,10 @@ def randomize_edge_icons():
     for id in graphiti.get_link_ids():
         icon = "styles/" + random.choice(icons).split("/")[-1][:-4].lower()
         graphiti.set_link_attribute(id, "graphiti:space:icon", "string", icon)
+
+def show_edge_direction():
+    for id in graphiti.get_link_ids():
+        graphiti.set_link_attribute(id, "og:space:icon", "string", "styles/triangles")
 
 def show_debug():
     flag = graphiti.get_attribute("og:space:debug")
@@ -260,11 +266,12 @@ def color_by_node_degree():
 
     print("Randomizing color map ...")
     m = dict()
-    m["isolated"] = std.random_vec4([0, 1], [0, 1], [0, 1], [1, 1])
-    m["leaf"] = std.random_vec4([0, 1], [0, 1], [0, 1], [1, 1])
-    m["source"] = std.random_vec4([0, 1], [0, 1], [0, 1], [1, 1])
-    m["sink"] = std.random_vec4([0, 1], [0, 1], [0, 1], [1, 1])
-    m["other"] = std.random_vec4([0, 1], [0, 1], [0, 1], [1, 1])
+    m["isolated"] = [0.95, 0.98, 0.36, 1.0]
+    m["leaf"] = [0.06, 0.94, 0.61, 1.0]
+    m["source"] = [0.91, 0.18, 0.17, 1.0]
+    m["sink"] = [0.03, 0.65, 0.94, 1.0]
+    m["other"] = [0.77, 0.78, 0.75, 1.0]
+
     print(m)
 
     print("Coloring ...")
@@ -620,27 +627,18 @@ def detect_spn():
                 source_map[src] = [(dst, eid)]
             elif dst not in source_map[src]:
                 source_map[src].append((dst, eid))
-    
-    colors = [
-        std.vec4_to_str(std.random_vec4([0, 1], [0, 1], [0, 1], [1, 1])),     # Source
-        std.vec4_to_str(std.random_vec4([0, 1], [0, 1], [0, 1], [1, 1])),     # Source Successors
-        std.vec4_to_str(std.random_vec4([0, 1], [0, 1], [0, 1], [0.1, 0.5]))  # Others
-    ]
 
     for nid in graphiti.get_node_ids():
         graphiti.set_node_attribute(nid, "graphiti:space:lod", "float", "0.0")
-        graphiti.set_node_attribute(nid, "graphiti:space:color", "vec4", colors[2])
         
     for eid in graphiti.get_link_ids():
         graphiti.set_link_attribute(eid, "graphiti:space:lod", "float", "0.0")
 
     for source in source_map.keys():
         graphiti.set_node_attribute(source, "graphiti:space:lod", "float", "1.0")
-        graphiti.set_node_attribute(source, "graphiti:space:color", "vec4", colors[0])
 
         for successor in source_map[source]:
             graphiti.set_node_attribute(successor[0], "graphiti:space:lod", "float", "1.0")
-            graphiti.set_node_attribute(successor[0], "graphiti:space:color", "vec4", colors[1])
             graphiti.set_link_attribute(successor[1], "graphiti:space:lod", "float", "1.0")
 
     print("SPN detection results :")
@@ -690,6 +688,7 @@ def start():
         ["Topology", [
             ["Neighbors", "demo.color_neighbors()"],
             ["Connected Components", "demo.show_connected_components()"],
+            ["Edge Directions", "demo.show_edge_direction()"],
             ["High Degrees", "demo.show_high_degrees()"],
             ["Low Degrees", "demo.show_low_degrees()"],
             ["Node Connections", "demo.color_by_node_degree()"],

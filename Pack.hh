@@ -8,22 +8,22 @@ namespace RaindanceResources
     #include <raindance/Pack/Textures/Shapes/triangle.png>
 }
 
-#include "Pack/HUD/pointer.png"
-#include "Pack/HUD/play.png"
-#include "Pack/HUD/pause.png"
-#include "Pack/HUD/expand.png"
-#include "Pack/HUD/graph.png"
-#include "Pack/HUD/text.png"
-#include "Pack/HUD/node.png"
-#include "Pack/HUD/label.png"
-#include "Pack/HUD/loupe.png"
-#include "Pack/HUD/flag.png"
-#include "Pack/HUD/marker.png"
-#include "Pack/HUD/bug.png"
-#include "Pack/HUD/spheres.png"
+#include "Pack/Hud/pointer.png"
+#include "Pack/Hud/play.png"
+#include "Pack/Hud/pause.png"
+#include "Pack/Hud/expand.png"
+#include "Pack/Hud/graph.png"
+#include "Pack/Hud/text.png"
+#include "Pack/Hud/node.png"
+#include "Pack/Hud/label.png"
+#include "Pack/Hud/loupe.png"
+#include "Pack/Hud/flag.png"
+#include "Pack/Hud/marker.png"
+#include "Pack/Hud/bug.png"
+#include "Pack/Hud/spheres.png"
 
-#include "Pack/HUD/eye.png"
-#include "Pack/HUD/white-disk.png"
+#include "Pack/Hud/eye.png"
+#include "Pack/Hud/white-disk.png"
 
 #include "Pack/background.png"
 

@@ -589,11 +589,13 @@ public:
             float logoSize = 64;
 
             glm::vec3 br = glm::vec3(-m_WidgetSpacing - logoSize - timelineDimension.x - m_WidgetSpacing, m_WidgetSpacing + timelineDimension.y, 0);
-            m_BottomRightWidgetGroup->add(m_TimelineWidget = new TimelineWidget("timeline", NULL, br, timelineDimension));
+            m_TimelineWidget = new TimelineWidget("timeline", NULL, br, timelineDimension);
+            m_BottomRightWidgetGroup->add(m_TimelineWidget);
 
             br.y += m_WidgetSpacing + m_WidgetDimension.y - 5;
 
-            m_BottomRightWidgetGroup->add(m_ClockWidget = new ClockWidget("clock", NULL, br, m_WidgetDimension));
+			m_ClockWidget = new ClockWidget("clock", NULL, br, m_WidgetDimension);
+            m_BottomRightWidgetGroup->add(m_ClockWidget);
 
 		}
 	}
@@ -649,17 +651,17 @@ public:
 	inline TextWidget* getNodeTextWidget() { return m_NodeTextWidget; }
 	inline TextWidget* getEdgeTextWidget() { return m_EdgeTextWidget; }
 	inline TextWidget* getSpheresTextWidget() { return m_SpheresTextWidget; }
-    inline SliderWidget* getSlider1() { return m_Slider1; }
-    inline SliderWidget* getSlider2() { return m_Slider2; }
-    inline SliderWidget* getSlider3() { return m_Slider3; }
-    inline CheckBoxWidget* getCheckBox1() { return m_CheckBox1; }
-    inline CheckBoxWidget* getCheckBox2() { return m_CheckBox2; }
-    inline CheckBoxWidget* getCheckBox3() { return m_CheckBox3; }
-    inline CheckBoxWidget* getCheckBox4() { return m_CheckBox4; }
-    inline SliderWidget* getLODSlider() { return m_LODSlider; }
+        inline SliderWidget* getSlider1() { return m_Slider1; }
+        inline SliderWidget* getSlider2() { return m_Slider2; }
+        inline SliderWidget* getSlider3() { return m_Slider3; }
+        inline CheckBoxWidget* getCheckBox1() { return m_CheckBox1; }
+        inline CheckBoxWidget* getCheckBox2() { return m_CheckBox2; }
+        inline CheckBoxWidget* getCheckBox3() { return m_CheckBox3; }
+        inline CheckBoxWidget* getCheckBox4() { return m_CheckBox4; }
+        inline SliderWidget* getLODSlider() { return m_LODSlider; }
 	inline TextWidget* getTitle() { return m_TitleWidget; }
-    inline TimelineWidget* getTimeline() { return m_TimelineWidget; }
-    inline ClockWidget* getClock() { return m_ClockWidget; }
+        inline TimelineWidget* getTimeline() { return m_TimelineWidget; }
+        inline ClockWidget* getClock() { return m_ClockWidget; }
 
 private:
 	int m_WindowHeight;
@@ -669,8 +671,8 @@ private:
 	glm::vec2 m_WidgetDimension;
 	float m_WidgetSpacing;
 	WidgetGroup* m_TopLeftWidgetGroup;
-    WidgetGroup* m_BottomLeftWidgetGroup;
-    WidgetGroup* m_BottomRightWidgetGroup;
+        WidgetGroup* m_BottomLeftWidgetGroup;
+        WidgetGroup* m_BottomRightWidgetGroup;
 
 	PointerWidget* m_PointerWidget;
 	MarkerWidget* m_MarkerWidget;
