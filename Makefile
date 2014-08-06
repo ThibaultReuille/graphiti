@@ -46,7 +46,7 @@ pack:
 	@echo "--- Packing Resources ---"
 
 	mkdir -p Pack
-	mkdir -p Pack/hud
+	mkdir -p Pack/Hud
 
 	xxd -i Resources/Hud/pointer.png > Pack/Hud/pointer.png
 	xxd -i Resources/Hud/play.png > Pack/Hud/play.png
