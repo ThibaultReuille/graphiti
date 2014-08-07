@@ -5,7 +5,7 @@ CFLAGS=-W -Wall -ansi -Wno-missing-field-initializers -m64 -O2 -Wno-deprecated -
 DUETTO_CC=../duetto/bin/clang++
 DUETTO_CFLAGS=-O3
 
-EM_CC=../emscripten/1.16.0/em++
+EM_CC=$(EMSCRIPTEN)/em++
 EM_CFLAGS=-std=c++11
 
 INCLUDES=-I./ -I../ -I../raindance -I../raindance/Lib -I../raindance/Lib/glm-0.9.5.4
@@ -29,8 +29,6 @@ JS_EXPORT="\
 	\
 	'_addNode', '_removeNode', '_countNodes', '_getNodeID',\
 	'_setNodeLabel', '_getNodeLabel',\
-	'_setNodeMark', '_getNodeMark',\
-	'_setNodeWeight', '_getNodeWeight',\
 	'_setNodeAttribute',\
 	\
 	'_addLink', '_removeLink', '_countLinks', '_getLinkID',\
