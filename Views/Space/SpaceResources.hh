@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Pack.hh"
-
 class SpaceResources
 {
 public:

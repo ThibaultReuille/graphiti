@@ -5,6 +5,8 @@
 #include <raindance/Core/Canvas.hh> // TODO : Should disappear (Move window logic to RainDance.hh)
 #include <raindance/Core/Wallpaper.hh>
 
+#include "Pack.hh"
+
 #include "Core/Console.hh"
 
 #include "Entities/MVC.hh"
