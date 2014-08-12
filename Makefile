@@ -83,7 +83,7 @@ clean:
 	rm -rf *~
 	rm -rf */*~
 	rm -rf *.pyc */*.pyc
-	rm -rf Pack
+	rm -rf Pack.hh
 	rm -rf Web/$(BINARY).js
 	rm -rf Web/$(BINARY).map
 	rm -rf $(BINARY)
