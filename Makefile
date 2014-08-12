@@ -61,7 +61,7 @@ all: native
 pack:
 	( cd ../raindance && make )
 	@echo "--- Packing Resources ---"
-	. pack.sh
+	./pack.sh
 
 native: pack
 	@echo "--- Compiling release version for $(UNAME) ---"

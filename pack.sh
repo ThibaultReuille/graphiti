@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 rm -rf Pack.hh
 echo "/*" >> Pack.hh
