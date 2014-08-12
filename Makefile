@@ -1,12 +1,12 @@
-G_CFLAGS=-W -Wall -ansi -Wno-missing-field-initializers -O3 -Wno-deprecated -std=c++11
-G_LDFLAGS=
-G_INCLUDES=-I./ -I../ -I../raindance -I../raindance/Lib/glm-0.9.5.4
+G_CFLAGS := -W -Wall -ansi -Wno-missing-field-initializers -O3 -Wno-deprecated -std=c++11
+G_LDFLAGS :=
+G_INCLUDES := -I./ -I../ -I../raindance -I../raindance/Lib/glm-0.9.5.4
 
-PYTHON_CFLAGS = `python2.7-config --cflags | sed s/"-mno-fused-madd"//g`
-PYTHON_LDFLAGS = `python2.7-config --ldflags`
+PYTHON_CFLAGS := `python2.7-config --cflags | sed s/"-mno-fused-madd"//g`
+PYTHON_LDFLAGS := `python2.7-config --ldflags`
 
-BINARY=graphiti
-DIST=$(binary)-$(shell date +"%Y%m%d")
+BINARY := graphiti
+DIST := $(binary)-$(shell date +"%Y%m%d")
 
 ifeq ($(OS), Windows_NT)
 	CC=g++
@@ -29,12 +29,12 @@ else
 	endif
 endif
 
-DUETTO_CC=../duetto/bin/clang++
-DUETTO_CFLAGS=-O3
+DUETTO_CC := ../duetto/bin/clang++
+DUETTO_CFLAGS := -O3
 
-EMS_CC=../emscripten/1.16.0/em++
-EMS_CFLAGS=-std=c++11
-EMS_INCLUDES=
+EMS_CC := $(EMSCRIPTEN)/em++
+EMS_CFLAGS := -std=c++11
+EMS_INCLUDES := $(G_INCLUDES)
 
 JS_EXPORT="\
 [\
@@ -45,8 +45,6 @@ JS_EXPORT="\
 	\
 	'_addNode', '_removeNode', '_countNodes', '_getNodeID',\
 	'_setNodeLabel', '_getNodeLabel',\
-	'_setNodeMark', '_getNodeMark',\
-	'_setNodeWeight', '_getNodeWeight',\
 	'_setNodeAttribute',\
 	\
 	'_addLink', '_removeLink', '_countLinks', '_getLinkID',\
@@ -56,7 +54,16 @@ JS_EXPORT="\
 	'_countSelectedNodes', '_getSelectedNode',\
 ]"
 
-all: pack
+.PHONY: all pack native debug web duetto clean dist
+
+all: native
+
+pack:
+	( cd ../raindance && make )
+	@echo "--- Packing Resources ---"
+	. pack.sh
+
+native: pack
 	@echo "--- Compiling release version for $(UNAME) ---"
 	$(CC) $(CFLAGS) $(INCLUDES) Main.cc -o $(BINARY) $(LDFLAGS)
 
@@ -64,13 +71,9 @@ debug: pack
 	@echo "--- Compiling debug version for $(UNAME) ---"
 	$(CC) $(CFLAGS) -g $(INCLUDES) Main.cc -o $(BINARY) $(LDFLAGS)
 
-pack:
-	( cd ../raindance && make )
-	@echo "--- Packing Resources ---"
-	. pack.sh
-
-web:
+web: pack
 	@echo "--- Compiling web version with Emscripten ---"
+	mkdir -p Web
 	$(EMS_CC) $(EMS_CFLAGS) $(EMS_INCLUDES) Main.cc -s FULL_ES2=1 -s TOTAL_MEMORY=268435456 -o Web/$(BINARY).js -s EXPORTED_FUNCTIONS=$(JS_EXPORT)
 
 duetto:
