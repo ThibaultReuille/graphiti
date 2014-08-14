@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Scheduler.hh"
-#include "Core/Variables.hh"
+#include <raindance/Core/Scheduler.hh>
+#include <raindance/Core/Variables.hh>
 
 enum GraphMessage
 {
