@@ -631,11 +631,11 @@ static PyObject* unregisterScript(PyObject* self, PyObject* args)
 
 static PyMethodDef g_Module[] =
 {
-	{"start",                 API::Python::start,               METH_VARARGS, "Start Gaia engine"},
+	{"start",                 API::Python::start,               METH_VARARGS, "Start engine"},
 	{"screenshot",            API::Python::screenshot,          METH_VARARGS, "Take a screenshot"},
     // ----- Entities -----
     {"create_entity",         API::Python::createEntity,        METH_VARARGS, "Create an entity"},
-    {"bind_entity",           API::Python::bindEntity,          METH_VARARGS, "Create an entity"},
+    {"bind_entity",           API::Python::bindEntity,          METH_VARARGS, "Bind an entity"},
     {"send",                  API::Python::send,                METH_VARARGS, "Send message to an entity"},
     {"destroy_entity",        API::Python::destroyEntity,       METH_VARARGS, "Destroy an entity"},
     // ----- Scripts -----

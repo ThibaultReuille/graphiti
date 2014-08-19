@@ -176,8 +176,8 @@ public:
     {
         if (m_Physics)
         {
-            unsigned long numParticles = m_Nodes.size();
-            unsigned long numForces = m_Edges.size();
+            size_t numParticles = m_Nodes.size();
+            size_t numForces = m_Edges.size();
 
             m_OpenCL.enqueueWriteBuffer(*m_Queue, *m_InputNodeBuffer, CL_TRUE, 0, m_Nodes.size() * sizeof(ParticleNode), m_Nodes.data(), 0, NULL, NULL);
             m_OpenCL.enqueueWriteBuffer(*m_Queue, *m_InputEdgeBuffer, CL_TRUE, 0, m_Edges.size() * sizeof(ParticleEdge), m_Edges.data(), 0, NULL, NULL);
