@@ -30,4 +30,12 @@
     #include "API/C.hh"
     #include "API/Graph.hh"
 
+    int main(void)
+    {
+    	API::create();
+    	API::initialize();
+    	API::start("space");
+    	API::destroy();
+    }
+
 #endif

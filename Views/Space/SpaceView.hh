@@ -252,7 +252,9 @@ public:
         glClearColor(bgcolor.r, bgcolor.g, bgcolor.b, bgcolor.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        g_SpaceResources->m_Wallpaper->draw(context());
+		#ifndef EMSCRIPTEN // NOTE : WebGL doesn't like rectangle images
+        	g_SpaceResources->m_Wallpaper->draw(context());
+        #endif
 
         glDisable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
@@ -272,11 +274,12 @@ public:
                 // Draw Edges
                 if (g_SpaceResources->ShowEdges || g_SpaceResources->ShowEdgeActivity)
                 {
-        #ifndef EMSCRIPTEN
-                    // NOTE : Not supported by WebGL
-                    glEnable(GL_LINE_SMOOTH);
-                    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-        #endif
+        			#ifndef EMSCRIPTEN
+	                    // NOTE : Not supported by WebGL
+	                    glEnable(GL_LINE_SMOOTH);
+	                    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+        			#endif
+
                     m_SpaceEdges.draw(context(), m_Camera.getProjectionMatrix(), m_Camera.getViewMatrix(), transformation.state());
                 }
             }

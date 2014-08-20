@@ -327,29 +327,31 @@ public:
 		}
 
 		// Others
-		{
+		#ifndef EMSCRIPTEN // NOTE : WebGL doesn't like rectangle images
 		    m_WallpaperTexture = ResourceManager::getInstance().loadTexture("background", Resources_background_png, sizeof(Resources_background_png));
 		    m_Wallpaper = new Wallpaper();
 		    m_Wallpaper->setTexture(m_WallpaperTexture);
-		}
+		#endif
 	}
 
 	~SpaceResources()
 	{
-		delete NodeIcon;
-		delete NodeMarkIcon;
-		delete NodeTargetIcon;
-		delete NodeFont;
-		delete NodeActivityIcon;
+		SAFE_DELETE(NodeIcon);
+		SAFE_DELETE(NodeMarkIcon);
+		SAFE_DELETE(NodeTargetIcon);
+		SAFE_DELETE(NodeFont);
+		SAFE_DELETE(NodeActivityIcon);
 
         ResourceManager::getInstance().unload(EdgeShader);
-        delete EdgeStyleIcon;
-        delete EdgeActivityIcon;
+        SAFE_DELETE(EdgeStyleIcon);
+        SAFE_DELETE(EdgeActivityIcon);
 
-		delete SphereIcon;
+		SAFE_DELETE(SphereIcon);
 
-        delete m_Wallpaper;
-		ResourceManager::getInstance().unload(m_WallpaperTexture);
+		#ifndef EMSCRIPTEN // NOTE : WebGL doesn't like rectangle images
+        	SAFE_DELETE(m_Wallpaper);
+			ResourceManager::getInstance().unload(m_WallpaperTexture);
+		#endif
 	}
 
 	float getTentFilter(float t, float amplitude, float CurrentLOD, float LODSlice)
@@ -398,8 +400,10 @@ public:
 	Icon* SphereIcon;
 
 	// Other
-	Wallpaper* m_Wallpaper;
-	Texture* m_WallpaperTexture;
+	#ifndef EMSCRIPTEN
+		Wallpaper* m_Wallpaper;
+		Texture* m_WallpaperTexture;
+	#endif
 };
 
 SpaceResources* g_SpaceResources = NULL;

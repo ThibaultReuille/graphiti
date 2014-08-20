@@ -101,8 +101,18 @@ public:
 
 	virtual void start(const char* view)
 	{
-		// addWindow("OpenGraphiti : Data Visualization Engine", 1024, 728);
-		addWindow("OpenGraphiti : Data Visualization Engine", 1920, 1080); // TODO : Make resolution adjustable
+		#ifndef EMSCRIPTEN
+			addWindow("OpenGraphiti : Data Visualization Engine", 1920, 1080); // TODO : Make resolution adjustable
+		#else
+			int canvasWidth, canvasHeight, isFullscreen;
+			emscripten_run_script("for (i = 0; i < 5; i++) { document.body.children[i].style.display = 'None'; }");
+			emscripten_run_script("document.getElementById('output').style.display ='None'");
+			emscripten_run_script("document.getElementById('canvas').style.display ='block'");
+			canvasWidth = emscripten_run_script_int("window.innerWidth - 10");
+			canvasHeight = emscripten_run_script_int("window.innerHeight - 10");
+			addWindow("OpenGraphiti : Data Visualization Engine", canvasWidth, canvasHeight);
+		#endif
+
 		auto entity = static_cast<GraphEntity*>(m_EntityManager.active());
 
 		m_HUD = new HUD();

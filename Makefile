@@ -29,16 +29,14 @@ else
 	endif
 endif
 
-DUETTO_CC := ../duetto/bin/clang++
-DUETTO_CFLAGS := -O3
-
 EMS_CC := $(EMSCRIPTEN)/em++
 EMS_CFLAGS := -std=c++11
 EMS_INCLUDES := $(G_INCLUDES)
 
 JS_EXPORT="\
 [\
-    '_create', '_destroy', '_initialize', '_start',\
+	'_main',\
+    	'_create', '_destroy', '_initialize', '_start',\
 	'_registerScript',\
 	\
 	'_setAttribute',\
@@ -54,7 +52,7 @@ JS_EXPORT="\
 	'_countSelectedNodes', '_getSelectedNode',\
 ]"
 
-.PHONY: all pack native debug web duetto clean dist
+.PHONY: all pack native debug js html clean dist
 
 all: native
 
@@ -72,13 +70,9 @@ debug: pack
 	$(CC) $(CFLAGS) -g $(INCLUDES) Main.cc -o $(BINARY) $(LDFLAGS)
 
 web: pack
-	@echo "--- Compiling web version with Emscripten ---"
+	@echo "--- Compiling HTML version with Emscripten ---"
 	mkdir -p Web
-	$(EMS_CC) $(EMS_CFLAGS) $(EMS_INCLUDES) Main.cc -s FULL_ES2=1 -s TOTAL_MEMORY=268435456 -o Web/$(BINARY).js -s EXPORTED_FUNCTIONS=$(JS_EXPORT)
-
-duetto:
-	@echo "--- Compiling for Web with Duetto ---"
-	$(DUETTO_CC) $(DUETTO_CFLAGS) $(INCLUDES) -target duetto Main.cc -o Web/$(WEB_OUT)
+	$(EMS_CC) $(EMS_CFLAGS) $(EMS_INCLUDES) Main.cc -s FULL_ES2=1 -s TOTAL_MEMORY=268435456 -o Web/$(BINARY).html -s EXPORTED_FUNCTIONS=$(JS_EXPORT)
 
 clean:
 	@echo "--- Cleaning ---"
@@ -87,8 +81,7 @@ clean:
 	rm -rf */*~
 	rm -rf *.pyc */*.pyc
 	rm -rf Pack.hh
-	rm -rf Web/$(BINARY).js
-	rm -rf Web/$(BINARY).map
+	rm -rf Web/
 	rm -rf $(BINARY)
 	rm -rf $(BINARY).dSYM
 
