@@ -60,7 +60,7 @@ all: native
 
 pack:
 	( cd ../raindance && make )
-	@echo "--- Packing Resources ---"
+	@echo "--- Packing OpenGraphiti resources ---"
 	./pack.sh
 
 native: pack

@@ -65,15 +65,18 @@ public:
 
         if (g_SpaceResources->ShowNodeLabels)
         {
-            float textSize = 0.03 * (0.1 + nodeSize);
-            float fontHeight = 18.0; // TODO : Find the font value
+            float labelRatio = 0.66;
 
-            glm::mat4 textMatrix;
-            textMatrix = glm::translate(billboard, glm::vec3(0.1 + nodeSize / 2, 0.0, 0));
-            textMatrix = glm::scale(textMatrix, glm::vec3(textSize, textSize, textSize));
-            textMatrix = glm::translate(textMatrix, glm::vec3(0.0, fontHeight / 2, 0.0));
+            float fontSize = m_Label.getFont()->getSize();
+            float textSize = labelRatio * nodeSize / (fontSize * m_Label.getFont()->getHeight());
+
+            Transformation transformation;
+            transformation.set(billboard);
+            transformation.translate(glm::vec3(nodeSize / 2 + 0.1, -nodeSize * (1 - labelRatio) / 2, 0.0));
+            transformation.scale(glm::vec3(textSize, textSize, 1.0));
+
             m_Label.setColor(color);
-            m_Label.draw(context, projection * textMatrix);
+            m_Label.draw(context, projection * transformation.state());
         }
 
         if (g_SpaceResources->ShowNodeActivity && m_Activity > 0.0f)
