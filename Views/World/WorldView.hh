@@ -271,33 +271,37 @@ public:
 	// NOTE : http://en.wikipedia.org/wiki/Miller_projection
 	glm::vec2 miller(float latitude, float longitude)
 	{
-		float radLatitude = latitude * M_PI / 180.0;
-		float radLongitude = longitude * M_PI / 180.0;
+		float pi = static_cast<float>(M_PI);
+
+		float radLatitude = latitude * pi / 180.0;
+		float radLongitude = longitude * pi / 180.0;
 
 		glm::vec2 pos = glm::vec2
 		(
 			radLongitude,
-			(5.0f / 4.0f) * log(tan(M_PI / 4.0f + 2.0f * radLatitude / 5.0f))
+			(5.0f / 4.0f) * log(tan(pi / 4.0f + 2.0f * radLatitude / 5.0f))
 		);
 
-		float range = (5.0f / 4.0f) * log(tan(9.0f * M_PI / 20.0f));
+		float range = (5.0f / 4.0f) * log(tan(9.0f * pi / 20.0f));
 		// NOTE : Scale to screen
 		return glm::vec2
 		(
-			(float) m_Width / 2 + m_Width * pos.x / (2 * M_PI),
+			(float) m_Width / 2 + m_Width * pos.x / (2 * pi),
 			(float) m_Height / 2 + m_Height * pos.y / (2 * range)
 		);
 	}
 
 	glm::vec2 customProjection(float latitude, float longitude)
 	{
-		float radLatitude = latitude * M_PI / 180.0;
-		float radLongitude = longitude * M_PI / 180.0;
+		float pi = static_cast<float>(M_PI);
+
+		float radLatitude = latitude * pi / 180.0;
+		float radLongitude = longitude * pi / 180.0;
 
 		glm::vec2 pos = glm::vec2
 		(
 			radLongitude,
-			(5.0f / 4.0f) * log(tan(M_PI / 4.0f + 2.0f * radLatitude / 5.0f))
+			(5.0f / 4.0f) * log(tan(pi / 4.0f + 2.0f * radLatitude / 5.0f))
 		);
 
 		float xfactor = (675.0f / 702.0f);
@@ -305,11 +309,11 @@ public:
 
 		pos.x = xfactor * pos.x;
 
-		float range = (5.0f / 4.0f) * log(tan(9.0f * M_PI / 20.0f)) * yfactor;
+		float range = (5.0f / 4.0f) * log(tan(9.0f * pi / 20.0f)) * yfactor;
 		// NOTE : Scale to screen
 		return glm::vec2
 		(
-			(float) m_Width / 2 - 10 + m_Width * pos.x / (2 * M_PI),
+			(float) m_Width / 2 - 10 + m_Width * pos.x / (2 * pi),
 			(float) m_Height / 2 - 73 + m_Height * pos.y / (2 * range)
 		);
 	}
@@ -354,18 +358,18 @@ public:
         Vec3Variable vvec3;
         Vec4Variable vvec4;
 
-        if (name == "world:geolocation" && type == VEC2)
+        if (name == "world:geolocation" && type == RD_VEC2)
         {
            vvec2.set(value);
            // TODO : Update links when position changes
            m_GeoNodes[vid]->setPosition(glm::vec3(miller(vvec2.value()[0], vvec2.value()[1]), 0));
         }
-        else if (name == "world:color" && type == VEC3)
+        else if (name == "world:color" && type == RD_VEC3)
         {
             vvec3.set(value);
             static_cast<WorldMapGeoPoint*>(m_GeoNodes[vid])->setColor(glm::vec4(vvec3.value(), 1.0));
         }
-        else if (name == "world:color" && type == VEC4)
+        else if (name == "world:color" && type == RD_VEC4)
         {
             vvec4.set(value);
             static_cast<WorldMapGeoPoint*>(m_GeoNodes[vid])->setColor(vvec4.value());
@@ -569,7 +573,7 @@ public:
         Vec3Variable vvec3;
         Vec4Variable vvec4;
 
-        if (name == "world:geolocation" && type == VEC2)
+        if (name == "world:geolocation" && type == RD_VEC2)
         {
            vvec2.set(value);
            // TODO : Update links when position changes
@@ -579,17 +583,17 @@ public:
            rotation = glm::angleAxis(vvec2.value()[1], glm::vec3(0, 1, 0)) * rotation;
            m_GeoNodes[vid]->setOrientation(rotation);
         }
-        else if (name == "world:color" && type == VEC3)
+        else if (name == "world:color" && type == RD_VEC3)
         {
             vvec3.set(value);
             static_cast<EarthGeoPoint*>(m_GeoNodes[vid])->setColor(glm::vec4(vvec3.value(), 1.0));
         }
-        else if (name == "world:color" && type == VEC4)
+        else if (name == "world:color" && type == RD_VEC4)
         {
             vvec4.set(value);
             static_cast<EarthGeoPoint*>(m_GeoNodes[vid])->setColor(vvec4.value());
         }
-        else if (name == "world:size" && type == FLOAT)
+        else if (name == "world:size" && type == RD_FLOAT)
         {
             vfloat.set(value);
             static_cast<EarthGeoPoint*>(m_GeoNodes[vid])->setSize(vfloat.value());
@@ -625,12 +629,12 @@ public:
         Vec3Variable vvec3;
         Vec4Variable vvec4;
 
-        if (name == "world:color" && type == VEC3)
+        if (name == "world:color" && type == RD_VEC3)
         {
             vvec3.set(value);
             static_cast<EarthGeoLink*>(m_GeoLinks[vid])->setColor(glm::vec4(vvec3.value(), 1.0));
         }
-        else if (name == "world:color" && type == VEC4)
+        else if (name == "world:color" && type == RD_VEC4)
         {
             vvec4.set(value);
             static_cast<EarthGeoLink*>(m_GeoLinks[vid])->setColor(vvec4.value());

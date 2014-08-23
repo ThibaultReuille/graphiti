@@ -165,7 +165,7 @@ public:
 
 					std::ostringstream smark;
 					smark << mark;
-					m_GraphView->onSetNodeAttribute(id, "space:mark", INT, smark.str());
+					m_GraphView->onSetNodeAttribute(id, "space:mark", RD_INT, smark.str());
 				}
 
 				m_SphericalCameraController.onMouseClick(x, y);
@@ -359,7 +359,7 @@ public:
     {
         StringVariable vstring;
 
-        if (name == "space:title" && type == STRING)
+        if (name == "space:title" && type == RD_STRING)
         {
             vstring.set(value);
             m_Menu->getTitle()->text().set(vstring.value().c_str(), m_Menu->getFont());

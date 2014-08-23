@@ -8,25 +8,18 @@ PYTHON_LDFLAGS := `python2.7-config --ldflags`
 BINARY := graphiti
 DIST := $(binary)-$(shell date +"%Y%m%d")
 
-ifeq ($(OS), Windows_NT)
+UNAME := $(shell uname -s)
+ifeq ($(UNAME), Darwin)
+	CC=clang++
+	CFLAGS=$(G_CFLAGS) $(PYTHON_CFLAGS) -stdlib=libc++
+	INCLUDES=$(G_INCLUDES)
+	LDFLAGS=$(G_LDFLAGS) $(PYTHON_LDFLAGS) -framework GLUT -framework OpenGL -framework OpenCL
+endif
+ifeq ($(UNAME), Linux)
 	CC=g++
-	CFLAGS=$(G_CFLAGS) $(PYTHON_CFLAGS) -m32
-	INCLUDES=$(G_INCLUDES) -I/mingw32/include -L/mingw32/bin -L/mingw32/lib
-	LDFLAGS=$(G_LDFLAGS) $(PYTHON_LDFLAGS) -lm -lfreeglut -lopengl32 -lglu32 -lglew32
-else
-	UNAME := $(shell uname -s)
-	ifeq ($(UNAME), Darwin)
-		CC=clang++
-		CFLAGS=$(G_CFLAGS) $(PYTHON_CFLAGS) -stdlib=libc++
-		INCLUDES=$(G_INCLUDES)
-		LDFLAGS=$(G_LDFLAGS) $(PYTHON_LDFLAGS) -framework GLUT -framework OpenGL -framework OpenCL
-	endif
-	ifeq ($(UNAME), Linux)
-		CC=g++
-		CFLAGS=$(G_CFLAGS) $(PYTHON_CFLAGS)
-		INCLUDES=$(G_INCLUDES)
-		LDFLAGS=$(G_LDFLAGS) $(PYTHON_LDFLAGS) -lm -lglut -lGL -lGLU -lGLEW -lOpenCL
-	endif
+	CFLAGS=$(G_CFLAGS) $(PYTHON_CFLAGS)
+	INCLUDES=$(G_INCLUDES)
+	LDFLAGS=$(G_LDFLAGS) $(PYTHON_LDFLAGS) -lm -lglut -lGL -lGLU -lGLEW -lOpenCL
 endif
 
 EMS_CC := $(EMSCRIPTEN)/em++
@@ -36,7 +29,7 @@ EMS_INCLUDES := $(G_INCLUDES)
 JS_EXPORT="\
 [\
 	'_main',\
-    	'_create', '_destroy', '_initialize', '_start',\
+    '_create', '_destroy', '_initialize', '_start',\
 	'_registerScript',\
 	\
 	'_setAttribute',\

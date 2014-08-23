@@ -79,19 +79,19 @@ public:
         VariableType vtype;
 
         if (stype == "float")
-            vtype = FLOAT;
+            vtype = RD_FLOAT;
         else if (stype == "string")
-            vtype = STRING;
+            vtype = RD_STRING;
         else if (stype == "int")
-            vtype = INT;
+            vtype = RD_INT;
         else if (stype == "bool")
-            vtype = BOOLEAN;
+            vtype = RD_BOOLEAN;
         else if (stype == "vec2")
-            vtype = VEC2;
+            vtype = RD_VEC2;
         else if (stype == "vec3")
-            vtype = VEC3;
+            vtype = RD_VEC3;
         else if (stype == "vec4")
-            vtype = VEC4;
+            vtype = RD_VEC4;
         else
         {
             std::cout << "Unknown attribute type \"" << stype << "\" !" << std::endl;
@@ -213,19 +213,19 @@ public:
         VariableType vtype;
 
         if (stype == "float")
-            vtype = FLOAT;
+            vtype = RD_FLOAT;
         else if (stype == "string")
-            vtype = STRING;
+            vtype = RD_STRING;
         else if (stype == "int")
-            vtype = INT;
+            vtype = RD_INT;
         else if (stype == "bool")
-            vtype = BOOLEAN;
+            vtype = RD_BOOLEAN;
         else if (stype == "vec2")
-            vtype = VEC2;
+            vtype = RD_VEC2;
         else if (stype == "vec3")
-            vtype = VEC3;
+            vtype = RD_VEC3;
         else if (stype == "vec4")
-            vtype = VEC4;
+            vtype = RD_VEC4;
         else
         {
             std::cout << "Unknown attribute type \"" << stype << "\" !" << std::endl;
@@ -333,19 +333,19 @@ public:
         VariableType vtype;
 
         if (stype == "float")
-            vtype = FLOAT;
+            vtype = RD_FLOAT;
         else if (stype == "string")
-            vtype = STRING;
+            vtype = RD_STRING;
         else if (stype == "int")
-            vtype = INT;
+            vtype = RD_INT;
         else if (stype == "bool")
-            vtype = BOOLEAN;
+            vtype = RD_BOOLEAN;
         else if (stype == "vec2")
-            vtype = VEC2;
+            vtype = RD_VEC2;
         else if (stype == "vec3")
-            vtype = VEC3;
+            vtype = RD_VEC3;
         else if (stype == "vec4")
-            vtype = VEC4;
+            vtype = RD_VEC4;
         else
         {
             std::cout << "Unknown attribute type \"" << stype << "\" !" << std::endl;
@@ -428,7 +428,7 @@ public:
 
         ndata.Label = std::string(label);
 
-        Link::Data ldata;
+        Link::Data ldata = Link::Data();
 
         element = m_GraphModel->addNeighbor(ntype, ndata, Link::DEFAULT, ldata, neighbor);
 

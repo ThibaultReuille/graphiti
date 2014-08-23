@@ -16,23 +16,23 @@ static PyObject* convertVariableToPyObject(IVariable* attribute)
 	switch(attribute->type())
 	{
 
-	case STRING:
+	case RD_STRING:
 		result = PyBytes_FromString(static_cast<StringVariable*>(attribute)->value().c_str());
 		break;
 
-	case INT:
+	case RD_INT:
 		result = PyLong_FromLong(static_cast<IntVariable*>(attribute)->value());
 		break;
 
-	case FLOAT:
+	case RD_FLOAT:
 		result = PyFloat_FromDouble((double)static_cast<FloatVariable*>(attribute)->value());
 		break;
 
-	case BOOLEAN:
+	case RD_BOOLEAN:
 		result = PyBool_FromLong(static_cast<BooleanVariable*>(attribute)->value() ? 1 : 0);
 		break;
 
-	case VEC2:
+	case RD_VEC2:
 		result = PyList_New(2);
 		if (result)
 		{
@@ -44,7 +44,7 @@ static PyObject* convertVariableToPyObject(IVariable* attribute)
 		}
 		break;
 
-    case VEC3:
+    case RD_VEC3:
         result = PyList_New(3);
         if (result)
         {
@@ -58,7 +58,7 @@ static PyObject* convertVariableToPyObject(IVariable* attribute)
         }
         break;
 
-    case VEC4:
+    case RD_VEC4:
         result = PyList_New(4);
         if (result)
         {
@@ -631,11 +631,11 @@ static PyObject* unregisterScript(PyObject* self, PyObject* args)
 
 static PyMethodDef g_Module[] =
 {
-	{"start",                 API::Python::start,               METH_VARARGS, "Start engine"},
+	{"start",                 API::Python::start,               METH_VARARGS, "Start Gaia engine"},
 	{"screenshot",            API::Python::screenshot,          METH_VARARGS, "Take a screenshot"},
     // ----- Entities -----
     {"create_entity",         API::Python::createEntity,        METH_VARARGS, "Create an entity"},
-    {"bind_entity",           API::Python::bindEntity,          METH_VARARGS, "Bind an entity"},
+    {"bind_entity",           API::Python::bindEntity,          METH_VARARGS, "Create an entity"},
     {"send",                  API::Python::send,                METH_VARARGS, "Send message to an entity"},
     {"destroy_entity",        API::Python::destroyEntity,       METH_VARARGS, "Destroy an entity"},
     // ----- Scripts -----

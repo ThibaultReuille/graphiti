@@ -218,7 +218,7 @@ public:
 	{
 		LOG("[CLOUDVIEW] setAttribute(%s, %s)\n", name.c_str(), value.c_str());
 
-		if (name == "cloud:update" && type == BOOLEAN)
+		if (name == "cloud:update" && type == RD_BOOLEAN)
 		{
 			m_PointCloud->update();
 		}
@@ -286,15 +286,15 @@ public:
 			m_SliceTexture->update();
 			m_SliceTexture->dump("voronoi.tga");
 		}
-		else if (name == "cloud:x:label" && type == STRING)
+		else if (name == "cloud:x:label" && type == RD_STRING)
 		{
 			m_AxisLabels[0].set(value.c_str(), m_Font);
 		}
-		else if (name == "cloud:y:label" && type == STRING)
+		else if (name == "cloud:y:label" && type == RD_STRING)
 		{
 			m_AxisLabels[1].set(value.c_str(), m_Font);
 		}
-		else if (name == "cloud:z:label" && type == STRING)
+		else if (name == "cloud:z:label" && type == RD_STRING)
 		{
 			m_AxisLabels[2].set(value.c_str(), m_Font);
 		}
@@ -318,7 +318,7 @@ public:
 	    Vec3Variable vvec3;
 	    Vec4Variable vvec4;
 
-		if (name == "cloud:position" && type == VEC3)
+		if (name == "cloud:position" && type == RD_VEC3)
 		{
 			vvec3.set(value);
 			PointCloud::PointVertex point;
@@ -326,7 +326,7 @@ public:
 			point.Position = vvec3.value();
 			m_PointCloud->setPoint(id, &point);
 		}
-        else if (name == "cloud:color" && type == VEC3)
+        else if (name == "cloud:color" && type == RD_VEC3)
         {
             vvec3.set(value);
             PointCloud::PointVertex point;
@@ -334,7 +334,7 @@ public:
             point.Color = glm::vec4(vvec3.value(), 1.0);
             m_PointCloud->setPoint(id, &point);
         }
-        else if (name == "cloud:color" && type == VEC4)
+        else if (name == "cloud:color" && type == RD_VEC4)
         {
             vvec4.set(value);
             PointCloud::PointVertex point;

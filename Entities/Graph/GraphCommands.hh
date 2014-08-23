@@ -209,9 +209,9 @@ public:
 
     static GraphCommand_SetAttribute* SetAttribute(GraphEntity* graph, const Variables& variables)
     {
-        IVariable* name = getVariable("name", STRING, variables);
-        IVariable* type = getVariable("type", STRING, variables);
-        IVariable* value = getVariable("value", STRING, variables);
+        IVariable* name = getVariable("name", RD_STRING, variables);
+        IVariable* type = getVariable("type", RD_STRING, variables);
+        IVariable* value = getVariable("value", RD_STRING, variables);
         if (name == NULL || type == NULL || value == NULL)
             return NULL;
 
@@ -225,7 +225,7 @@ public:
 
     static GraphCommand_AddNode* AddNode(GraphEntity* graph, const Variables& variables)
     {
-        IVariable* label = getVariable("label", STRING, variables);
+        IVariable* label = getVariable("label", RD_STRING, variables);
         if (label == NULL)
             return NULL;
 
@@ -234,7 +234,7 @@ public:
 
     static GraphCommand_RemoveNode* RemoveNode(GraphEntity* graph, const Variables& variables)
     {
-        IVariable* id = getVariable("id", INT, variables);
+        IVariable* id = getVariable("id", RD_INT, variables);
         if (id == NULL)
             return NULL;
 
@@ -243,10 +243,10 @@ public:
 
     static GraphCommand_SetNodeAttribute* SetNodeAttribute(GraphEntity* graph, const Variables& variables)
     {
-        IVariable* id = getVariable("id", INT, variables);
-        IVariable* name = getVariable("name", STRING, variables);
-        IVariable* type = getVariable("type", STRING, variables);
-        IVariable* value = getVariable("value", STRING, variables);
+        IVariable* id = getVariable("id", RD_INT, variables);
+        IVariable* name = getVariable("name", RD_STRING, variables);
+        IVariable* type = getVariable("type", RD_STRING, variables);
+        IVariable* value = getVariable("value", RD_STRING, variables);
         if (id == NULL || name == NULL || type == NULL || value == NULL)
             return NULL;
 
@@ -261,8 +261,8 @@ public:
 
     static GraphCommand_AddLink* AddLink(GraphEntity* graph, const Variables& variables)
     {
-        IVariable* src = getVariable("src", INT, variables);
-        IVariable* dst = getVariable("dst", INT, variables);
+        IVariable* src = getVariable("src", RD_INT, variables);
+        IVariable* dst = getVariable("dst", RD_INT, variables);
         if (src == NULL || dst == NULL)
             return NULL;
 
@@ -273,7 +273,7 @@ public:
 
     static GraphCommand_RemoveLink* RemoveLink(GraphEntity* graph, const Variables& variables)
     {
-        IVariable* id = getVariable("id", INT, variables);
+        IVariable* id = getVariable("id", RD_INT, variables);
         if (id == NULL)
             return NULL;
 
@@ -282,10 +282,10 @@ public:
 
     static GraphCommand_SetLinkAttribute* SetLinkAttribute(GraphEntity* graph, const Variables& variables)
     {
-        IVariable* id = getVariable("id", INT, variables);
-        IVariable* name = getVariable("name", STRING, variables);
-        IVariable* type = getVariable("type", STRING, variables);
-        IVariable* value = getVariable("value", STRING, variables);
+        IVariable* id = getVariable("id", RD_INT, variables);
+        IVariable* name = getVariable("name", RD_STRING, variables);
+        IVariable* type = getVariable("type", RD_STRING, variables);
+        IVariable* value = getVariable("value", RD_STRING, variables);
         if (id == NULL || name == NULL || type == NULL || value == NULL)
             return NULL;
 

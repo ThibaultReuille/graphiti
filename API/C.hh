@@ -9,7 +9,7 @@ extern "C" {
 
 	void create_with_args(int argc, char** argv)
     {
-		// LOG("[API] create(%d, %p)\n", argc, argv);
+		LOG("[API] create(%d, %p)\n", argc, argv);
 		g_Graphiti.create(argc, argv);
 	}
 
