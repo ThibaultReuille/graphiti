@@ -102,7 +102,9 @@ public:
 	virtual void start(const char* view)
 	{
 		#ifndef EMSCRIPTEN
-			addWindow("OpenGraphiti : Data Visualization Engine", 1920, 1080); // TODO : Make resolution adjustable
+			int screenWidth = glutGet(GLUT_SCREEN_WIDTH);
+			int screenHeight = glutGet(GLUT_SCREEN_HEIGHT);
+			addWindow("OpenGraphiti : Data Visualization Engine", screenWidth, screenHeight);
 		#else
 			int canvasWidth, canvasHeight, isFullscreen;
 			emscripten_run_script("for (i = 0; i < 5; i++) { document.body.children[i].style.display = 'None'; }");
