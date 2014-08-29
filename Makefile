@@ -45,7 +45,7 @@ JS_EXPORT="\
 	'_countSelectedNodes', '_getSelectedNode',\
 ]"
 
-.PHONY: all pack native debug js html clean dist
+.PHONY: all pack native debug web clean dist
 
 all: native
 
@@ -63,7 +63,7 @@ debug: pack
 	$(CC) $(CFLAGS) -g $(INCLUDES) Main.cc -o $(BINARY) $(LDFLAGS)
 
 web: pack
-	@echo "--- Compiling HTML version with Emscripten ---"
+	@echo "--- Compiling web version with Emscripten ---"
 	mkdir -p Web
 	$(EMS_CC) $(EMS_CFLAGS) $(EMS_INCLUDES) Main.cc -s FULL_ES2=1 -s TOTAL_MEMORY=268435456 -o Web/$(BINARY).html -s EXPORTED_FUNCTIONS=$(JS_EXPORT)
 

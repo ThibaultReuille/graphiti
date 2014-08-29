@@ -29,6 +29,9 @@
 # include "Views/Particles/ParticleView.hh"
 # include "Views/Particles/ParticleController.hh"
 
+# include "Views/Stream/StreamView.hh"
+# include "Views/Stream/StreamController.hh"
+
 #endif
 
 class Graphiti : public RainDance

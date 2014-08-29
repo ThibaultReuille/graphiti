@@ -5,18 +5,41 @@
 #include <raindance/Core/Variables.hh>
 
 // Forward declarations
+
 class Entity;
 
-// Entity Context
+// ----- Entity Base -----
+
+class EntityBase
+{
+public:
+    inline Variables& attributes() { return m_Attributes; }
+
+protected:
+    Variables m_Attributes;
+};
+
+// ----- Entity Context -----
 
 class EntityContext : public Context
 {
 public:
 };
 
+// ----- Entity Model -----
+
+class EntityModel : public EntityBase
+{
+public:
+    virtual ~EntityModel() = 0;
+};
+
+EntityModel::~EntityModel() {}
+
+
 // ----- Entity View -----
 
-class EntityView
+class EntityView : public EntityBase
 {
 public:
     virtual ~EntityView() = 0;
@@ -24,13 +47,15 @@ public:
     virtual void draw() = 0;
     virtual void idle() = 0;
     virtual bool bind(Entity* entity) = 0;
+
+    virtual IVariable* getAttribute(const std::string& name) = 0;
 };
 
 EntityView::~EntityView() {}
 
 // ----- Entity Controller -----
 
-class EntityController : public Controller
+class EntityController : public EntityBase, public Controller
 {
 public:
     virtual ~EntityController() = 0;
@@ -42,24 +67,26 @@ EntityController::~EntityController() {}
 
 // ----- Entity Listener -----
 
-class EntityListener : public IListener
+class EntityListener : public EntityBase, public IListener
 {
 public:
     virtual ~EntityListener() = 0;
+    virtual void onSetAttribute(const std::string& name, VariableType type, const std::string& value) = 0;
 
 };
 EntityListener::~EntityListener() {}
 
 // ----- Entity -----
 
-class Entity
+class Entity : public EntityBase
 {
 public:
     typedef unsigned long ID;
 
     enum Type
     {
-        GRAPH
+        GRAPH,
+        TIME_SERIES
     };
 
     Entity(Type type)
@@ -82,7 +109,80 @@ public:
 
     virtual void send(const Variables& input, Variables& output) = 0;
 
+    void setAttribute(const std::string& name, const std::string& type, const std::string& value)
+    {
+        VariableType vtype;
+
+        if (type == "float")
+            vtype = RD_FLOAT;
+        else if (type == "string")
+            vtype = RD_STRING;
+        else if (type == "int")
+            vtype = RD_INT;
+        else if (type == "bool")
+            vtype = RD_BOOLEAN;
+        else if (type == "vec2")
+            vtype = RD_VEC2;
+        else if (type == "vec3")
+            vtype = RD_VEC3;
+        else if (type == "vec4")
+            vtype = RD_VEC4;
+        else
+        {
+            std::cout << "Unknown attribute type \"" << type << "\" !" << std::endl;
+            return;
+        }
+
+        unsigned long pos = name.find(":");
+        std::string category = name.substr (0, pos);
+        std::string sname = name;
+
+        // TODO : Remove 'raindance' attribute namespace whenever possible.
+        if (category == "raindance" || category == "graphiti" || category == "og")
+        {
+            sname = sname.substr(pos + 1);
+        }
+        else
+        {
+            model()->attributes().set(sname, vtype, value);
+        }
+
+        for (auto l : listeners())
+            l->onSetAttribute(sname, vtype, value);
+    }
+
+    IVariable* getAttribute(const std::string& name)
+    {
+        unsigned long pos1 = name.find(":");
+        std::string category = name.substr (0, pos1);
+
+        // TODO : Remove 'raindance' attribute namespace whenever possible.
+        if (category == "raindance" || category == "graphiti" || category == "og")
+        {
+            std::string rest = name.substr(pos1 + 1);
+            unsigned long pos2 = rest.find(":");
+            std::string view = rest.substr(0, pos2);
+            rest = rest.substr(pos2 + 1);
+
+            for (auto v : views())
+            {
+                if (view == std::string(v->name()))
+                    return v->getAttribute(rest);
+            }
+            return NULL;
+        }
+        else
+        {
+            IVariable* attribute = model()->attributes().get(name);
+            if (attribute)
+                return attribute->duplicate();
+            else
+                return NULL;
+        }
+    }
+
     virtual EntityContext* context() = 0;
+    virtual EntityModel* model() = 0;
     inline std::list<EntityView*>& views() { return m_Views; }
     inline std::list<EntityController*>& controllers() { return m_Controllers; }
     inline std::vector<EntityListener*>& listeners() { return m_Listeners; }

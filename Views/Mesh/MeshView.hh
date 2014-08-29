@@ -80,7 +80,7 @@ public:
 	{
 	}
 
-    virtual IVariable* getAttribute(std::string& name)
+    virtual IVariable* getAttribute(const std::string& name)
     {
         (void) name;
         return NULL;

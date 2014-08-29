@@ -761,7 +761,7 @@ public:
 		LOG("[WORLDVIEW] setAttribute(%s, %s)\n", name.c_str(), value.c_str());
 	}
 
-    virtual IVariable* getAttribute(std::string& name)
+    virtual IVariable* getAttribute(const std::string& name)
     {
         (void) name;
         return NULL;

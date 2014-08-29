@@ -1,10 +1,5 @@
 #pragma once
 
-// #include <stdlib.h>
-// #include <sstream>
-// #include <vector>
-// #include <set>
-
 #include <raindance/Core/Variables.hh>
 
 class Node;
@@ -200,7 +195,7 @@ private:
 	Variables m_Attributes;
 };
 
-class GraphModel
+class GraphModel : public EntityModel
 {
 public:
 

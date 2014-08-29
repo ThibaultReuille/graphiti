@@ -9,8 +9,6 @@ class GraphContext : public EntityContext
 class GraphListener : public EntityListener
 {
 public:
-    virtual void onSetAttribute(const std::string& name, VariableType type, const std::string& value) = 0;
-
     virtual void onAddNode(Node::ID id, const char* label) = 0;
 
     virtual void onRemoveNode(Node::ID id) = 0;
@@ -35,8 +33,6 @@ public:
 class GraphView : public EntityView, public GraphListener
 {
 public:
-    virtual IVariable* getAttribute(std::string& name) = 0;
-
     virtual IVariable* getNodeAttribute(Node::ID id, std::string& name) = 0;
 
     virtual IVariable* getLinkAttribute(Link::ID id, std::string& name) = 0;
@@ -68,83 +64,6 @@ public:
         (void) output;
         LOG("[GRAPH] Message :\n");
         input.dump();
-    }
-
-    void setAttribute(const char* name, const char* type, const char* value)
-    {
-        std::string sname(name);
-        std::string stype(type);
-        std::string svalue(value);
-
-        VariableType vtype;
-
-        if (stype == "float")
-            vtype = RD_FLOAT;
-        else if (stype == "string")
-            vtype = RD_STRING;
-        else if (stype == "int")
-            vtype = RD_INT;
-        else if (stype == "bool")
-            vtype = RD_BOOLEAN;
-        else if (stype == "vec2")
-            vtype = RD_VEC2;
-        else if (stype == "vec3")
-            vtype = RD_VEC3;
-        else if (stype == "vec4")
-            vtype = RD_VEC4;
-        else
-        {
-            std::cout << "Unknown attribute type \"" << stype << "\" !" << std::endl;
-            return;
-        }
-
-        unsigned long pos = sname.find(":");
-        std::string category = sname.substr (0, pos);
-
-        // TODO : Remove 'raindance' attribute namespace whenever possible.
-        if (category == "raindance" || category == "graphiti" || category == "og")
-        {
-            sname = sname.substr(pos + 1);
-        }
-        else
-        {
-            m_GraphModel->attributes().set(sname, vtype, svalue);
-        }
-
-        for (auto l : listeners())
-            static_cast<GraphListener*>(l)->onSetAttribute(sname, vtype, svalue);
-    }
-
-    IVariable* getAttribute(const char* name)
-    {
-        std::string sname(name);
-
-        unsigned long pos1 = sname.find(":");
-        std::string category = sname.substr (0, pos1);
-
-        // TODO : Remove 'raindance' attribute namespace whenever possible.
-        if (category == "raindance" || category == "graphiti" || category == "og")
-        {
-            std::string rest = sname.substr(pos1 + 1);
-            unsigned long pos2 = rest.find(":");
-            std::string view = rest.substr(0, pos2);
-            rest = rest.substr(pos2 + 1);
-
-            for (auto v : views())
-            {
-                if (view == std::string(v->name()))
-                    return static_cast<GraphView*>(v)->getAttribute(rest);
-            }
-            return NULL;
-        }
-        else
-        {
-            IVariable* attribute = m_GraphModel->attributes().get(sname);
-            if (attribute)
-                return attribute->duplicate();
-            else
-                return NULL;
-        }
     }
 
     Node::ID addNode(const char* label)

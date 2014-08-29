@@ -164,7 +164,7 @@
  		}
  	}
  
- 	virtual IVariable* getAttribute(std::string& name)
+ 	virtual IVariable* getAttribute(const std::string& name)
  	{
          if (name == "debug")
          {
