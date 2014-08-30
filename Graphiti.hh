@@ -102,22 +102,18 @@ public:
 		m_GraphConsole->initialize();
 	}
 
+	void createWindow(const char* title, int width, int height)
+	{
+		if (width <= 0 || height <= 0)
+		{
+			width = glutGet(GLUT_SCREEN_WIDTH);
+           	height = glutGet(GLUT_SCREEN_HEIGHT);
+		}
+		addWindow(title, width, height);
+	}
+
 	virtual void start(const char* view)
 	{
-		#ifndef EMSCRIPTEN
-			int screenWidth = glutGet(GLUT_SCREEN_WIDTH);
-			int screenHeight = glutGet(GLUT_SCREEN_HEIGHT);
-			addWindow("OpenGraphiti : Data Visualization Engine", screenWidth, screenHeight);
-		#else
-			int canvasWidth, canvasHeight, isFullscreen;
-			emscripten_run_script("for (i = 0; i < 5; i++) { document.body.children[i].style.display = 'None'; }");
-			emscripten_run_script("document.getElementById('output').style.display ='None'");
-			emscripten_run_script("document.getElementById('canvas').style.display ='block'");
-			canvasWidth = emscripten_run_script_int("window.innerWidth - 10");
-			canvasHeight = emscripten_run_script_int("window.innerHeight - 10");
-			addWindow("OpenGraphiti : Data Visualization Engine", canvasWidth, canvasHeight);
-		#endif
-
 		auto entity = static_cast<GraphEntity*>(m_EntityManager.active());
 
 		m_HUD = new HUD();

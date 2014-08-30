@@ -5,28 +5,6 @@ namespace Graph {
 
 extern "C" {
 
-    void setAttribute(const char* name, const char* type, const char* value)
-    {
-        // LOG("[API] setAttribute('%s', '%s', '%s')\n", name, type, value);
-
-        Entity* entity = g_Graphiti.getEntityManager().active();
-        if (entity->type() != Entity::GRAPH)
-            throw;
-
-        return static_cast<GraphEntity*>(entity)->setAttribute(name, type, value);
-    }
-
-    IVariable* getAttribute(const char* name)
-    {
-        // LOG("[API] getAttribute('%s')\n", name);
-
-        Entity* entity = g_Graphiti.getEntityManager().active();
-        if (entity->type() != Entity::GRAPH)
-            throw;
-
-        return static_cast<GraphEntity*>(entity)->getAttribute(name);
-    }
-
     // ----- Nodes -----
 
     Node::ID addNode(const char* label)

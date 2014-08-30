@@ -25,6 +25,12 @@ extern "C" {
 		g_Graphiti.initialize();
 	}
 
+	void createWindow(const char* title, int width, int height)
+	{
+		// LOG("[API] creating %ix%i window with title : %s ...\n", width, height, title);
+		g_Graphiti.createWindow(title, width, height);
+	}
+
 	void start(const char* view)
 	{
 	    // LOG("[API] start('%s')\n", view);
@@ -68,6 +74,22 @@ extern "C" {
 	    // LOG("[API] destroyEntity('%lu')\n", id);
 	    return g_Graphiti.getEntityManager().destroy(id);
 	}
+
+	// ----- Attributes -----
+
+    void setAttribute(const char* name, const char* type, const char* value)
+    {
+        // LOG("[API] setAttribute('%s', '%s', '%s')\n", name, type, value);
+
+        return g_Graphiti.getEntityManager().active()->setAttribute(name, type, value);
+    }
+
+    IVariable* getAttribute(const char* name)
+    {
+        // LOG("[API] getAttribute('%s')\n", name);
+
+        return g_Graphiti.getEntityManager().active()->getAttribute(name);
+    }
 
 	// ----- Scripts -----
 

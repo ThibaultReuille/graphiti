@@ -34,6 +34,13 @@ public:
         SAFE_DELETE(m_TimeSeriesContext);
     }
 
+    virtual void send(const Variables& input, Variables& output)
+    {
+        (void) output;
+        LOG("[TIMESERIES] Message :\n");
+        input.dump();
+    }
+
     virtual EntityModel* model() { return m_TimeSeriesModel; }
     virtual EntityContext* context() { return m_TimeSeriesContext; }
 private:

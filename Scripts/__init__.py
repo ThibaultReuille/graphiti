@@ -4,8 +4,6 @@ import sys
 import math as math
 import random as random
 
-print ("TEST")
-
 #import pygeoip as pygeoip
 import networkx as nx
 

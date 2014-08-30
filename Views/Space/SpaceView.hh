@@ -649,8 +649,8 @@
  
  	inline Camera* camera() { return &m_Camera; }
  
-     inline void setNodeSize(float size) { g_SpaceResources->NodeIconSize = size; }
-     inline void setEdgeSize(float size) { g_SpaceResources->EdgeSize = size; }
+    inline void setNodeSize(float size) { g_SpaceResources->NodeIconSize = size; }
+    inline void setEdgeSize(float size) { g_SpaceResources->EdgeSize = size; }
  	inline void setTemperature(float temperature) { LOG("Temperature : %f\n", temperature); m_Temperature = temperature; }
  
  	void checkNodeUID(Node::ID uid)

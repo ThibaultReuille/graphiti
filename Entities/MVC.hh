@@ -198,6 +198,7 @@ private:
 };
 
 #include "Graph/GraphEntity.hh"
+#include "TimeSeries/TimeSeriesEntity.hh"
 
 class EntityManager
 {
@@ -222,6 +223,8 @@ public:
 
         if (stype == "graph")
             m_Entities[id] = new GraphEntity();
+        else if (stype == "time_series")
+            m_Entities[id] = new TimeSeriesEntity();
         else
         {
             LOG("[ENTITY] '%s' : Unknown entity type!\n", type);

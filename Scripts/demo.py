@@ -737,7 +737,7 @@ def start():
             print("Unrecognized format <'" + sys.argv[2] + "'> !")
 
     # TODO : Add entity support in python scripts
-    #wid = graphiti.add_window("OpenGraphiti : Data Visualization Engine", 1024, 728)
+    graphiti.create_window("OpenGraphiti : Data Visualization Engine", 0, 0)
     #g = graphiti.create_entity("graph")
     #v = graphiti.create_view("graph:view", g)
     #c = graphiti.create_controller("graph:controller", g)

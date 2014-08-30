@@ -166,6 +166,20 @@ static PyObject* start(PyObject* self, PyObject* args)
 	return Py_BuildValue("");
 }
 
+static PyObject* createWindow(PyObject* self, PyObject* args)
+{
+	(void)self;
+
+	char* title = NULL;
+	int width, height;
+
+	PROTECT_PARSE(PyArg_ParseTuple(args, "sii", &title, &width, &height));
+
+	API::createWindow(title, width, height);
+	
+	return Py_BuildValue("");
+}
+
 static PyObject* screenshot(PyObject* self, PyObject* args)
 {
 	char* filename = NULL;
@@ -242,8 +256,6 @@ static PyObject* destroyEntity(PyObject* self, PyObject* args)
     return Py_BuildValue("");
 }
 
-namespace Graph {
-
 static PyObject* setAttribute(PyObject* self, PyObject* args)
 {
 	char* name = NULL;
@@ -254,7 +266,7 @@ static PyObject* setAttribute(PyObject* self, PyObject* args)
 
 	PROTECT_PARSE(PyArg_ParseTuple(args, "sss", &name, &type, &value))
 
-	API::Graph::setAttribute(name, type, value);
+	API::setAttribute(name, type, value);
 
 	return Py_BuildValue("");
 }
@@ -267,7 +279,7 @@ static PyObject* getAttribute(PyObject* self, PyObject* args)
 
     PROTECT_PARSE(PyArg_ParseTuple(args, "s", &key))
 
-    IVariable* attribute = API::Graph::getAttribute(key);
+    IVariable* attribute = API::getAttribute(key);
 
     if (attribute == NULL)
         return Py_BuildValue("");
@@ -280,6 +292,8 @@ static PyObject* getAttribute(PyObject* self, PyObject* args)
         return result;
     }
 }
+
+namespace Graph {
 
 // ----- Nodes -----
 
@@ -631,20 +645,23 @@ static PyObject* unregisterScript(PyObject* self, PyObject* args)
 
 static PyMethodDef g_Module[] =
 {
-	{"start",                 API::Python::start,               METH_VARARGS, "Start Gaia engine"},
+	{"start",                 API::Python::start,               METH_VARARGS, "Start engine"},
+	{"create_window",         API::Python::createWindow,        METH_VARARGS, "Create window"},
 	{"screenshot",            API::Python::screenshot,          METH_VARARGS, "Take a screenshot"},
     // ----- Entities -----
     {"create_entity",         API::Python::createEntity,        METH_VARARGS, "Create an entity"},
     {"bind_entity",           API::Python::bindEntity,          METH_VARARGS, "Create an entity"},
     {"send",                  API::Python::send,                METH_VARARGS, "Send message to an entity"},
     {"destroy_entity",        API::Python::destroyEntity,       METH_VARARGS, "Destroy an entity"},
+    // ----- Attributes -----
+    {"set_attribute",         API::Python::setAttribute,        METH_VARARGS, "Set entity attribute"},
+    {"get_attribute",         API::Python::getAttribute,        METH_VARARGS, "Get entity attribute"},
     // ----- Scripts -----
     {"register_script",       API::Python::registerScript,      METH_VARARGS, "Register a script"},
     {"unregister_script",     API::Python::unregisterScript,    METH_VARARGS, "Unregister a script"},
 
 	// ----- Graph -----
-    {"set_attribute",         API::Python::Graph::setAttribute,        METH_VARARGS, "Set graph attribute"},
-    {"get_attribute",         API::Python::Graph::getAttribute,        METH_VARARGS, "Get graph attribute"},
+
         // ----- Nodes -----
         {"add_node",              API::Python::Graph::addNode,             METH_VARARGS, "Add node to the graph"},
         {"remove_node",           API::Python::Graph::removeNode,          METH_VARARGS, "Remove node from the graph"},
