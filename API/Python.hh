@@ -156,13 +156,11 @@ namespace Python {
 
 static PyObject* start(PyObject* self, PyObject* args)
 {
-	char* view = NULL;
+	(void) self;
+	(void) args;
 
-	(void)self;
+	API::start();
 
-	PROTECT_PARSE(PyArg_ParseTuple(args, "s", &view))
-
-	API::start(view);
 	return Py_BuildValue("");
 }
 
@@ -176,6 +174,19 @@ static PyObject* createWindow(PyObject* self, PyObject* args)
 	PROTECT_PARSE(PyArg_ParseTuple(args, "sii", &title, &width, &height));
 
 	API::createWindow(title, width, height);
+	
+	return Py_BuildValue("");
+}
+
+static PyObject* createView(PyObject* self, PyObject* args)
+{
+	(void)self;
+
+	char* view = NULL;
+
+	PROTECT_PARSE(PyArg_ParseTuple(args, "s", &view));
+
+	API::createView(view);
 	
 	return Py_BuildValue("");
 }
@@ -203,7 +214,9 @@ static PyObject* createEntity(PyObject* self, PyObject* args)
 
     PROTECT_PARSE(PyArg_ParseTuple(args, "s", &type))
 
-    return PyLong_FromLong(API::createEntity(type));
+	API::createEntity(type);
+
+    return Py_BuildValue("");
 }
 
 static PyObject* bindEntity(PyObject* self, PyObject* args)
@@ -647,6 +660,7 @@ static PyMethodDef g_Module[] =
 {
 	{"start",                 API::Python::start,               METH_VARARGS, "Start engine"},
 	{"create_window",         API::Python::createWindow,        METH_VARARGS, "Create window"},
+	{"create_view",           API::Python::createView,          METH_VARARGS, "Create view"},
 	{"screenshot",            API::Python::screenshot,          METH_VARARGS, "Take a screenshot"},
     // ----- Entities -----
     {"create_entity",         API::Python::createEntity,        METH_VARARGS, "Create an entity"},

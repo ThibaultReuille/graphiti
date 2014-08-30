@@ -111,4 +111,7 @@ def start():
         else:
             print("Unrecognized format <'" + sys.argv[2] + "'> !")
 
-    graphiti.start("space")
+    graphiti.create_window("OpenGraphiti : Data Visualization Engine", 0, 0)
+    graphiti.create_entity("graph")
+    graphiti.create_view("space")
+    graphiti.start()

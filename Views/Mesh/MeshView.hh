@@ -103,14 +103,14 @@ public:
 		(void) message;
 	}
 
-	// ----- Graph Events -----
-
 	virtual void onSetAttribute(const std::string& name, VariableType type, const std::string& value)
 	{
 		(void) name;
 		(void) type;
 		(void) value;
 	}
+
+	// ----- Graph Events -----
 
 	void onAddNode(Node::ID id, const char* label)
 	{

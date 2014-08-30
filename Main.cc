@@ -32,7 +32,10 @@
 
     int main(void)
     {
+        LOG("--- Welcome in OpenGraphiti (" GRAPHITI_VERSION ") ---\n");
+        
     	API::create();
+
     	API::initialize();
 
         int canvasWidth, canvasHeight, isFullscreen;
@@ -43,7 +46,12 @@
         canvasHeight = emscripten_run_script_int("window.innerHeight - 10");
         API::createWindow("OpenGraphiti : Data Visualization Engine", canvasWidth, canvasHeight);
 
-    	API::start("space");
+        API::createEntity("graph");
+        
+        API::createView("space");
+
+    	API::start();
+
     	API::destroy();
     }
 

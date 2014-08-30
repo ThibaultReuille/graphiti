@@ -27,14 +27,20 @@ extern "C" {
 
 	void createWindow(const char* title, int width, int height)
 	{
-		// LOG("[API] creating %ix%i window with title : %s ...\n", width, height, title);
+		// LOG("[API] createWindow('%s', %i, %i);\n", title, width, height);
 		g_Graphiti.createWindow(title, width, height);
 	}
 
-	void start(const char* view)
+	void createView(const char* view)
 	{
-	    // LOG("[API] start('%s')\n", view);
-		g_Graphiti.start(view);
+		// LOG("[API] createView('%s')\n", view);
+		g_Graphiti.createView(view);
+	}
+
+	void start()
+	{
+	    // LOG("[API] start()\n");
+		g_Graphiti.start();
 	}
 
 	void destroy()
@@ -54,7 +60,7 @@ extern "C" {
 	Entity::ID createEntity(const char* type)
 	{
 	    // LOG("[API] createEntity('%s')\n", type);
-	    return g_Graphiti.getEntityManager().create(type);
+	    return g_Graphiti.createEntity(type);
 	}
 
 	void bindEntity(Entity::ID id)

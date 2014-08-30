@@ -39,8 +39,6 @@ class Graphiti : public RainDance
 public:
     Graphiti()
 	{
-		m_GraphConsole = NULL;
-
 		m_HUD = NULL;
 
 		m_Started = false;
@@ -60,29 +58,8 @@ public:
 	{
 	    RainDance::create(argc, argv);
 
-		if (m_EntityManager.active() == NULL)
-		{
-		    auto id = m_EntityManager.create("graph");
-		    m_EntityManager.bind(id);
-		    auto graph = static_cast<GraphEntity*>(m_EntityManager.entity(id));
-
-		    auto t1 = new Track("command");
-		    t1->setExternalClock(&graph->context()->sequencer().clock());
-		    t1->setSynchronization(Track::EXTERNAL);
-		    graph->context()->sequencer().add(t1);
-
-		    auto t2 = new Track("animation");
-		    t2->setSynchronization(Track::INTERNAL);
-		    graph->context()->sequencer().add(t2);
-		}
-
-		if (m_GraphConsole == NULL)
-		{
-		    auto graph = static_cast<GraphEntity*>(m_EntityManager.active());
-
-			m_GraphConsole = new GraphConsole(argc, argv);
-			graph->context()->messages().addListener(m_GraphConsole);
-		}
+		if (m_Console == NULL)
+			m_Console = new GraphitiConsole(argc, argv);
 	}
 
 	virtual void destroy()
@@ -90,7 +67,7 @@ public:
 		SAFE_DELETE(m_HUD);
 		SAFE_DELETE(m_FrameBuffer);
 
-		SAFE_DELETE(m_GraphConsole);
+		SAFE_DELETE(m_Console);
 
         RainDance::destroy();
 
@@ -99,7 +76,7 @@ public:
 
 	virtual void initialize()
 	{
-		m_GraphConsole->initialize();
+		m_Console->initialize();
 	}
 
 	void createWindow(const char* title, int width, int height)
@@ -112,15 +89,171 @@ public:
 		addWindow(title, width, height);
 	}
 
-	virtual void start(const char* view)
+	Entity::ID createEntity(const char* type)
 	{
-		auto entity = static_cast<GraphEntity*>(m_EntityManager.active());
+		std::string stype = type;
+
+	    auto id = m_EntityManager.create(type);
+	    m_EntityManager.bind(id);
+
+		if (stype == "graph")
+		{
+		    auto entity = m_EntityManager.entity(id);
+
+		    auto t1 = new Track("command");
+		    t1->setExternalClock(&entity->context()->sequencer().clock());
+		    t1->setSynchronization(Track::EXTERNAL);
+		    entity->context()->sequencer().add(t1);
+
+		    auto t2 = new Track("animation");
+		    t2->setSynchronization(Track::INTERNAL);
+		    entity->context()->sequencer().add(t2);
+				
+			entity->context()->messages().addListener(m_Console);
+		}
+
+		return id;
+	}
+
+	bool createView(const char* view)
+	{
+	    if (m_EntityManager.active() == NULL)
+	    	return false;
+
+	    std::string name = view;
+
+	    if (m_EntityManager.active()->type() == Entity::GRAPH)
+	    {
+	    	auto entity = static_cast<GraphEntity*>(m_EntityManager.active());
+
+	    	if (name == "space")
+	    	{
+		    	auto view = new SpaceView();
+	            if (!view->bind(entity))
+	            {
+	                SAFE_DELETE(view);
+	                return false;
+	            }
+	            entity->context()->messages().addListener(view);
+
+	            SpaceController* controller = new SpaceController();
+	            controller->bind(static_cast<GraphContext*>(entity->context()), entity->model(), view);
+	            entity->controllers().push_back(controller);
+	            entity->listeners().push_back(controller);
+	            entity->context()->messages().addListener(controller);
+
+	            return true;
+	        }
+#ifndef EMSCRIPTEN
+            else if (name == "world")
+            {
+                auto view = new WorldView();
+                if (!view->bind(entity))
+                {
+                    SAFE_DELETE(view);
+                    return false;
+                }
+                entity->context()->messages().addListener(view);
+
+                WorldController* controller = new WorldController();
+                controller->bind(static_cast<GraphContext*>(entity->context()), view);
+                entity->controllers().push_back(controller);
+                entity->context()->messages().addListener(controller);
+
+                return true;
+            }
+            else if (name == "cloud")
+            {
+                auto view = new CloudView();
+                if (!view->bind(entity))
+                {
+                    SAFE_DELETE(view);
+                    return false;
+                }
+                entity->context()->messages().addListener(view);
+
+                CloudController* controller = new CloudController();
+                controller->bind(static_cast<GraphContext*>(entity->context()), view);
+                entity->controllers().push_back(controller);
+                entity->context()->messages().addListener(controller);
+
+                return true;
+            }
+            else if (name == "mesh")
+            {
+                auto view = new MeshView();
+                if (!view->bind(entity))
+                {
+                    SAFE_DELETE(view);
+                    return false;
+                }
+                entity->context()->messages().addListener(view);
+
+                MeshController* controller = new MeshController();
+                controller->bind(entity->context(), view);
+                entity->controllers().push_back(controller);
+                entity->context()->messages().addListener(controller);
+
+                return true;
+            }
+            else if (name == "particles")
+            {
+                auto view = new ParticleView();
+                if (!view->bind(entity))
+                {
+                    SAFE_DELETE(view);
+                    return false;
+                }
+                entity->context()->messages().addListener(view);
+
+                ParticleController* controller = new ParticleController();
+                controller->bind(static_cast<GraphContext*>(entity->context()), entity->model(), view);
+                entity->controllers().push_back(controller);
+                entity->context()->messages().addListener(controller);
+
+                return true;
+            }
+#endif
+	    }
+	    else if (m_EntityManager.active()->type() == Entity::TIME_SERIES)
+	    {
+		    auto entity = static_cast<TimeSeriesEntity*>(m_EntityManager.active());
+		    
+		    if (name == "stream")
+		    {
+	            auto view = new StreamView();
+		        if (!view->bind(entity))
+		        {
+		            SAFE_DELETE(view);
+		            return false;
+		        }
+		        entity->context()->messages().addListener(view);
+
+		        auto controller = new StreamController();
+		        controller->bind(static_cast<TimeSeriesContext*>(entity->context()), view);
+		        entity->controllers().push_back(controller);
+		        entity->context()->messages().addListener(controller);
+
+		        return true;
+	    	}
+	    }
+	    
+        LOG("[GRAPHITI] Couldn't create view named '%s' !\n", view);
+        return false;
+	}
+
+	virtual void start()
+	{
+		auto entity = m_EntityManager.active();
+		if (entity == NULL)
+		{
+			LOG("[GRAPHITI] No active entity!\n");
+			return;
+		}
 
 		m_HUD = new HUD();
-		m_HUD->buildScriptWidgets(m_GraphConsole);
+		m_HUD->buildScriptWidgets(m_Console);
 		m_HUD->bind(entity->context());
-
-		addView(view);
 
 		// Initialize clocks
 		entity->context()->clock().reset();
@@ -137,100 +270,6 @@ public:
 		m_TextureVector.add(new Texture("Color 2", glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT), 4));
 
 		run();
-	}
-
-	void addView(const char* view)
-	{
-	    auto entity = m_EntityManager.active();
-
-	    // TODO : Remove this
-	    auto graph = static_cast<GraphEntity*>(entity);
-
-        if (entity != NULL)
-        {
-            std::string name = std::string(view);
-
-            if (name == "space")
-            {
-                SpaceView* view = new SpaceView();
-                if (!view->bind(entity))
-                {
-                    SAFE_DELETE(view);
-                    return;
-                }
-                entity->context()->messages().addListener(view);
-
-                SpaceController* controller = new SpaceController();
-                controller->bind(static_cast<GraphContext*>(graph->context()), graph->model(), view);
-                entity->controllers().push_back(controller);
-                entity->listeners().push_back(controller);
-                entity->context()->messages().addListener(controller);
-            }
-#ifndef EMSCRIPTEN
-            else if (name == "world")
-            {
-                WorldView* view = new WorldView();
-                if (!view->bind(entity))
-                {
-                    SAFE_DELETE(view);
-                    return;
-                }
-                entity->context()->messages().addListener(view);
-
-                WorldController* controller = new WorldController();
-                controller->bind(static_cast<GraphContext*>(graph->context()), view);
-                entity->controllers().push_back(controller);
-                entity->context()->messages().addListener(controller);
-            }
-            else if (name == "cloud")
-            {
-                CloudView* view = new CloudView();
-                if (!view->bind(entity))
-                {
-                    SAFE_DELETE(view);
-                    return;
-                }
-                entity->context()->messages().addListener(view);
-
-                CloudController* controller = new CloudController();
-                controller->bind(static_cast<GraphContext*>(graph->context()), view);
-                entity->controllers().push_back(controller);
-                entity->context()->messages().addListener(controller);
-            }
-            else if (name == "mesh")
-            {
-                MeshView* view = new MeshView();
-                if (!view->bind(entity))
-                {
-                    SAFE_DELETE(view);
-                    return;
-                }
-                entity->context()->messages().addListener(view);
-
-                MeshController* controller = new MeshController();
-                controller->bind(entity->context(), view);
-                entity->controllers().push_back(controller);
-                entity->context()->messages().addListener(controller);
-            }
-            else if (name == "particles")
-            {
-                ParticleView* view = new ParticleView();
-                if (!view->bind(entity))
-                {
-                    SAFE_DELETE(view);
-                    return;
-                }
-                entity->context()->messages().addListener(view);
-
-                ParticleController* controller = new ParticleController();
-                controller->bind(static_cast<GraphContext*>(graph->context()), graph->model(), view);
-                entity->controllers().push_back(controller);
-                entity->context()->messages().addListener(controller);
-            }
-#endif
-            else
-                LOG("[GRAPHITI] Unknown view name '%s' !\n", view);
-        }
 	}
 
 	void screenshot(const char* filename)
@@ -310,22 +349,21 @@ public:
 	{
 		if (!m_Started)
 		{
-			if (m_GraphConsole)
+			if (m_Console)
 			{
-				IScript* script = m_GraphConsole->getScript("#started");
+				IScript* script = m_Console->getScript("#started");
 				if (script)
-					m_GraphConsole->execute(script);
+					m_Console->execute(script);
 			}
 
 			m_Started = true;
 		}
 
-		auto entity = static_cast<GraphEntity*>(m_EntityManager.active());
-
-		entity->context()->sequencer().play();
+		if (m_EntityManager.active() != NULL)
+			m_EntityManager.active()->context()->sequencer().play();
 
 		m_HUD->idle();
-
+		
 		for (auto e : m_EntityManager.entities())
 		{
 		    for (auto c : e.second->controllers())
@@ -334,7 +372,8 @@ public:
 		        v->idle();
 		}
 
-        entity->context()->messages().process();
+		if (m_EntityManager.active() != NULL)
+        	m_EntityManager.active()->context()->messages().process();
 
 		glutPostRedisplay();
 	}
@@ -427,11 +466,11 @@ public:
 
 	void registerScript(const char* name, const char* source)
 	{
-		m_GraphConsole->registerScript(new StaticScript(std::string(name), std::string(source)));
+		m_Console->registerScript(new StaticScript(std::string(name), std::string(source)));
 
 		if (m_HUD != NULL)
 		{
-			m_HUD->buildScriptWidgets(m_GraphConsole);
+			m_HUD->buildScriptWidgets(m_Console);
 			// NOTE : Hack ! script menu needs to be reshaped
 			m_HUD->reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 		}
@@ -439,18 +478,18 @@ public:
 
 	void unregisterScript(const char* name)
 	{
-	    IScript* script = m_GraphConsole->getScript(name);
+	    IScript* script = m_Console->getScript(name);
 	    if (script == NULL)
 	    {
 	        LOG("[API] Script <%s> not found!\n", name);
 	        return;
 	    }
 
-		m_GraphConsole->unregisterScript(script);
+		m_Console->unregisterScript(script);
 
 		if (m_HUD != NULL)
 		{
-			m_HUD->buildScriptWidgets(m_GraphConsole);
+			m_HUD->buildScriptWidgets(m_Console);
 			// NOTE : Hack ! Script menu needs to be reshaped
 			m_HUD->reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 		}
@@ -461,7 +500,7 @@ public:
 	inline EntityManager& getEntityManager() { return m_EntityManager; }
 
 private:
-	GraphConsole* m_GraphConsole;
+	GraphitiConsole* m_Console;
 
 	EntityManager m_EntityManager;
 

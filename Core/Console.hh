@@ -10,23 +10,23 @@
 # include <raindance/Core/Console/PythonConsole.hh>
 #endif
 
-class GraphConsole :
+class GraphitiConsole :
 #ifdef EMSCRIPTEN
 	public JavascriptConsole, public IListener
 {
 public:
-	GraphConsole(int argc, char** argv) : JavascriptConsole(argc, argv) {}
+	GraphitiConsole(int argc, char** argv) : JavascriptConsole(argc, argv) {}
 #else
 # ifndef NO_PYTHON
 	public PythonConsole, public IListener
 	{
 	public:
-		GraphConsole(int argc, char** argv) : PythonConsole(argc, argv) {}
+		GraphitiConsole(int argc, char** argv) : PythonConsole(argc, argv) {}
 # else
 	public Console, public IListener
 	{
 	public:
-		GraphConsole(int argc, char** argv) { (void) argc; (void) argv; }
+		GraphitiConsole(int argc, char** argv) { (void) argc; (void) argv; }
 
 		void initialize() {}
 

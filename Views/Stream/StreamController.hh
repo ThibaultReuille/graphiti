@@ -18,7 +18,7 @@ public:
 
 		m_Font = new Font();
 
-        m_WidgetGroup = new WidgetGroup("TimeSeries/Controller/Widgets");
+        m_WidgetGroup = new WidgetGroup("Stream/Controller/Widgets");
         m_WidgetSpacing = 10;
 		m_WidgetDimension = glm::vec2(16, 16);
 	}
@@ -94,6 +94,13 @@ public:
 	{
 		(void) key;
 		(void) event;
+	}
+
+	virtual void onSetAttribute(const std::string& name, VariableType type, const std::string& value)
+	{
+		(void) name;
+		(void) type;
+		(void) value;
 	}
 
 	void notify(IMessage* message)
