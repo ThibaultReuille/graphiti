@@ -16,13 +16,14 @@ public:
 	{
 	}
 
-	void bind(GraphModel* model, NodeTranslationMap* nodeTranslationMap)
+	void bind(GraphModel* model, NodeTranslationMap* nodeTranslationMap, LinkTranslationMap* edgeTranslationMap)
 	{
 		m_GraphModel = model;
 		m_NodeTranslationMap = nodeTranslationMap;
+		m_EdgeTranslationMap = edgeTranslationMap;
 	}
 
-	void apply(Scene::NodeVector& nodes)
+	void apply(Scene::NodeVector& nodes, Scene::NodeVector& edges)
 	{
 		if (!m_GraphModel)
 		{
@@ -40,6 +41,10 @@ public:
 		std::vector<Link>::iterator itl;
 		for (itl = m_GraphModel->links_begin(); itl != m_GraphModel->links_end(); ++itl)
 		{
+			SpaceEdge::ID eid = m_EdgeTranslationMap->getLocalID(itl->id());
+			if (!g_SpaceResources->isEdgeVisible(edges[eid]->getLOD()))
+				continue;
+
 			SpaceNode::ID id1 = m_NodeTranslationMap->getLocalID(itl->data().Node1);
 			SpaceNode::ID id2 = m_NodeTranslationMap->getLocalID(itl->data().Node2);
 
@@ -65,6 +70,7 @@ public:
 private:
 	GraphModel* m_GraphModel;
 	NodeTranslationMap* m_NodeTranslationMap;
+	LinkTranslationMap* m_EdgeTranslationMap;
 
 	float m_MinNodeDistance;
 };
@@ -99,8 +105,7 @@ public:
 		const float volume = 20 * 20 * 20; // NOTE : Graph should fit in this cube
 		float k = pow(volume / m_GraphModel->countNodes(), 1.0 / 3.0);
 
-		// TODO / NOTE : It may be necessary to discard the linked nodes to remove the vibration glitch
-		// However it needs a better graph model to access the node neighbors quickly
+		// TODO : Need a better graph model to access the node neighbors quickly
 
 		glm::vec3 pos1, dir1;
 		glm::vec3 pos2, dir2;
@@ -112,6 +117,9 @@ public:
 		{
 			SpaceNode::ID id1 = m_NodeTranslationMap->getLocalID(itn1->id());
 
+			if (!g_SpaceResources->isNodeVisible(nodes[id1]->getLOD()))
+				continue;
+
 			pos1 = nodes[id1]->getPosition();
 			dir1 = nodes[id1]->getDirection();
 
@@ -121,6 +129,8 @@ public:
 					break;
 
 				SpaceNode::ID id2 = m_NodeTranslationMap->getLocalID(itn2->id());
+				if (!g_SpaceResources->isNodeVisible(nodes[id2]->getLOD()))
+					continue;
 
 				pos2 = nodes[id2]->getPosition();
 				dir2 = nodes[id2]->getDirection();

@@ -25,10 +25,9 @@ public:
 			ShowSpheres = true;
 			ShowDebug = false;
 
-			LODFrame = glm::vec2(0.0, 1.0);
-			LODSlice = 0.05;
+			LODSlice = glm::vec2(0.0, 1.0);
 			ShowNodeLOD = false;
-			ShowLinkLOD = false;
+			ShowEdgeLOD = false;
 
 			m_LinkMode = NODE_COLOR;
 		}
@@ -354,12 +353,18 @@ public:
 		#endif
 	}
 
-	float getTentFilter(float t, float amplitude, float CurrentLOD, float LODSlice)
+	inline bool isNodeVisible(float lod)
 	{
-        if (t < CurrentLOD)
-            return amplitude * ((1 / LODSlice) * t + (1 - CurrentLOD / LODSlice));
-        else
-            return amplitude * ((-1 / LODSlice) * t + (1 + CurrentLOD / LODSlice));
+		if (!ShowNodeLOD)
+			return true;
+		return (lod < LODSlice[0] || lod > LODSlice[1]) ? false : true;
+	}
+
+	inline bool isEdgeVisible(float lod)
+	{
+		if (!ShowEdgeLOD)
+			return true;
+		return (lod < LODSlice[0] || lod > LODSlice[1]) ? false : true;
 	}
 
 	// Parameters
@@ -377,9 +382,8 @@ public:
 	bool ShowDebug;
 
     bool ShowNodeLOD;
-    bool ShowLinkLOD;
-	glm::vec2 LODFrame;
-	float LODSlice;
+    bool ShowEdgeLOD;
+	glm::vec2 LODSlice;
 
 	GraphModel* Model;
 

@@ -18,7 +18,6 @@ public:
         m_Size = 1.0f;
         m_Mark = 0;
         m_Label.set(label, g_SpaceResources->NodeFont);
-        m_LOD = 1.0;
         m_Activity = 0.0;
     }
 
@@ -33,17 +32,8 @@ public:
 
         glm::vec4 color = m_Color;
 
-        if (g_SpaceResources->ShowNodeLOD)
-        {
-            if (m_LOD == 0.0)
-                return;
-
-            color.a = m_LOD;
-            // TODO : Smart LOD filters
-            // g_SpaceResources->getTentFilter(m_LOD, 1.0, g_SpaceResources->CurrentLOD, g_SpaceResources->LODSlice);
-            if (color.a > 1.0)
-                color.a = 1.0;
-        }
+        if (!g_SpaceResources->isNodeVisible(getLOD()))
+            return;
 
         float nodeSize = getScreenSize();
         glm::mat4 billboard = Geometry::billboard(view * model * getModelMatrix());
@@ -102,12 +92,6 @@ public:
 
     inline void setLabel(const char* label) { m_Label.set(label, g_SpaceResources->NodeFont); }
 
-    inline void setMark(unsigned long mark) { m_Mark = static_cast<unsigned int>(mark); }
-    inline unsigned int getMark() { return m_Mark; }
-
-    inline void setLOD(float lod) { m_LOD = lod; }
-    inline float getLOD() { return m_LOD; }
-
     inline void setSize(float size) { m_Size = size; }
     inline float getSize() { return m_Size; }
     inline float getScreenSize() { return g_SpaceResources->NodeIconSize * m_Size; }
@@ -137,6 +121,5 @@ private:
     float m_Size;
     unsigned int m_Mark;
     Text m_Label;
-    float m_LOD;
     float m_Activity;
 };

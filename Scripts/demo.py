@@ -101,6 +101,12 @@ def randomize_edge_icons():
         icon = "styles/" + random.choice(icons).split("/")[-1][:-4].lower()
         graphiti.set_link_attribute(id, "graphiti:space:icon", "string", icon)
 
+def randomize_lod():
+    for id in graphiti.get_node_ids():
+        graphiti.set_node_attribute(id, "og:space:lod", "float", str(random.random()))   
+    for id in graphiti.get_link_ids():
+        graphiti.set_link_attribute(id, "og:space:lod", "float", str(random.random()))   
+
 def show_edge_direction():
     for id in graphiti.get_link_ids():
         graphiti.set_link_attribute(id, "og:space:icon", "string", "styles/triangles")
@@ -712,6 +718,7 @@ def start():
             ["Randomize Edge Icons", "demo.randomize_edge_icons()"],
             ["Randomize Edge Width", "demo.randomize_edge_width()"],
             ["Randomize Timeline", "demo.randomize_timeline()"],
+            ["Randomize LOD", "demo.randomize_lod()"],
             ["Debug On/Off", "demo.show_debug()"]
         ]],
     ]

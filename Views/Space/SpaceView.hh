@@ -113,7 +113,7 @@
  	    }
  
          m_GraphEntity = static_cast<GraphEntity*>(entity);
-         m_LinkAttractionForce.bind(m_GraphEntity->model(), &m_NodeMap);
+         m_LinkAttractionForce.bind(m_GraphEntity->model(), &m_NodeMap, &m_LinkMap);
          m_NodeRepulsionForce.bind(m_GraphEntity->model(), &m_NodeMap);
  
          m_GraphEntity->views().push_back(this);
@@ -379,63 +379,6 @@
  			{
  				m_PhysicsMode = PAUSE;
  			}
- 			else if (msg->Message == "space:nodes:all")
- 			{
- 				g_SpaceResources->ShowNodeShapes = SpaceResources::ALL;
- 				g_SpaceResources->ShowNodeLabels = true;
- 			}
- 			else if (msg->Message == "space:nodes:shapes+labels")
- 			{
- 				g_SpaceResources->ShowNodeShapes = SpaceResources::COLORS;
- 				g_SpaceResources->ShowNodeLabels = true;
- 			}
- 			else if (msg->Message == "space:nodes:marks+labels")
- 			{
- 				g_SpaceResources->ShowNodeShapes = SpaceResources::MARKS;
- 				g_SpaceResources->ShowNodeLabels = true;
- 			}
- 			else if (msg->Message == "space:nodes:shapes+marks")
- 			{
- 				g_SpaceResources->ShowNodeShapes = SpaceResources::ALL;
- 				g_SpaceResources->ShowNodeLabels = false;
- 			}
- 			else if (msg->Message == "space:nodes:shapes")
- 			{
- 				g_SpaceResources->ShowNodeShapes = SpaceResources::COLORS;
- 				g_SpaceResources->ShowNodeLabels = false;
- 			}
- 			else if (msg->Message == "space:nodes:marks")
- 			{
- 				g_SpaceResources->ShowNodeShapes = SpaceResources::MARKS;
- 				g_SpaceResources->ShowNodeLabels = false;
- 			}
- 			else if (msg->Message == "space:nodes:labels")
- 			{
- 				g_SpaceResources->ShowNodeShapes = SpaceResources::NONE;
- 				g_SpaceResources->ShowNodeLabels = true;
- 			}
- 			else if (msg->Message == "space:nodes:off")
- 			{
- 				g_SpaceResources->ShowNodeShapes = SpaceResources::NONE;
- 				g_SpaceResources->ShowNodeLabels = false;
- 			}
- 			else if (msg->Message == "space:edges:lines")
- 				g_SpaceResources->m_EdgeMode = SpaceResources::LINES;
-             else if (msg->Message == "space:edges:widelines")
-                 g_SpaceResources->m_EdgeMode = SpaceResources::WIDE_LINES;
-             else if (msg->Message == "space:edges:off")
-                 g_SpaceResources->m_EdgeMode = SpaceResources::OFF;
- 
- 
- 			else if (msg->Message == "show spheres")
- 				g_SpaceResources->ShowSpheres = true;
- 			else if (msg->Message == "hide spheres")
- 				g_SpaceResources->ShowSpheres = false;
- 
- 			else if (msg->Message == "show debug")
- 				g_SpaceResources->ShowDebug = true;
- 			else if (msg->Message == "hide debug")
- 				g_SpaceResources->ShowDebug = false;
  		}
  	}
  
@@ -456,7 +399,7 @@
  
  			SpaceNode* spaceNode = static_cast<SpaceNode*>(m_SpaceNodes[i]);
  
-             if (spaceNode->getLOD() == 0.0)
+             if (!g_SpaceResources->isNodeVisible(spaceNode->getLOD()))
                  continue;
  
              position = m_SpaceNodes[i]->getPosition();
@@ -530,7 +473,7 @@
  
  		// Calculate graph forces
  		m_NodeRepulsionForce.apply(m_SpaceNodes);
- 		m_LinkAttractionForce.apply(m_SpaceNodes);
+ 		m_LinkAttractionForce.apply(m_SpaceNodes, m_SpaceEdges);
  		m_DustAttractor.apply(m_SpaceNodes);
  		// m_GravitationForce.apply(m_SpaceNodes);
  
@@ -779,7 +722,7 @@
         else if (name == "space:lod" && type == RD_FLOAT)
         {
              vfloat.set(value);
-             static_cast<SpaceNode*>(m_SpaceNodes[id])->setLOD(vfloat.value());
+             m_SpaceNodes[id]->setLOD(vfloat.value());
         }
         else if (name == "space:activity" && type == RD_FLOAT)
          {
@@ -794,7 +737,7 @@
         else if (name == "space:mark" && type == RD_INT)
          {
              vint.set(value);
-             static_cast<SpaceNode*>(m_SpaceNodes[id])->setMark(vint.value());
+             m_SpaceNodes[id]->setMark(static_cast<int>(vint.value()));
          }
         else if (name == "space:size" && type == RD_FLOAT)
          {
@@ -890,7 +833,7 @@
  			SpaceEdge::ID id = m_LinkMap.getLocalID(uid);
  			vvec4.set(value);
  			static_cast<SpaceEdge*>(m_SpaceEdges[id])->setColor(1, vvec4.value());
-             static_cast<SpaceEdge*>(m_SpaceEdges[id])->setDirty(true);
+            static_cast<SpaceEdge*>(m_SpaceEdges[id])->setDirty(true);
  		}
 		else if (name == "space:width" && type == RD_FLOAT)
  		{
@@ -905,7 +848,7 @@
         else if (name == "space:lod" && type == RD_FLOAT)
          {
              vfloat.set(value);
-             static_cast<SpaceEdge*>(m_SpaceEdges[id])->setLOD(vfloat.value());
+             m_SpaceEdges[id]->setLOD(vfloat.value());
          }
         else if (name == "space:icon" && type == RD_STRING)
          {

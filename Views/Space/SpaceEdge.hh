@@ -12,7 +12,6 @@ public:
     : m_Node1(node1), m_Node2(node2)
     {
         m_Activity = 0.0f;
-        m_LOD = 1.0f;
         m_TextureID = 0;
         update();
     }
@@ -25,17 +24,8 @@ public:
     {
         glm::vec4 color = glm::vec4(0.5, 0.5, 0.5, 1.0);
 
-        if (g_SpaceResources->ShowLinkLOD)
-        {
-            if (m_LOD == 0.0)
-                return;
-
-            color.a = m_LOD;
-            // TODO : Smart LOD filters
-            // g_SpaceResources->getTentFilter(m_LOD, 1.0, g_SpaceResources->CurrentLOD, g_SpaceResources->LODSlice);
-            if (color.a > 1.0)
-                color.a = 1.0;
-        }
+        if (!g_SpaceResources->isEdgeVisible(getLOD()))
+            return;
 
         if (g_SpaceResources->m_EdgeMode != SpaceResources::OFF)
         {
@@ -183,8 +173,6 @@ public:
 
     inline glm::vec4 getColor(unsigned int vertex) { return m_WideLine.getColor(vertex); }
 
-    inline void setLOD(float lod) { m_LOD = lod; }
-
     inline void setDirty(bool dirty) { m_Dirty = dirty; }
 
     void setIcon(const std::string& name)
@@ -206,5 +194,4 @@ private:
     unsigned int m_TextureID;
     bool m_Dirty;
     float m_Activity;
-    float m_LOD;
 };

@@ -74,7 +74,7 @@ public:
 			m_FirstPersonCameraController.updateCamera();
 
         g_SpaceResources->ShowNodeLOD = m_Menu->getCheckBox1()->value();
-        g_SpaceResources->ShowLinkLOD = m_Menu->getCheckBox2()->value();
+        g_SpaceResources->ShowEdgeLOD = m_Menu->getCheckBox2()->value();
         g_SpaceResources->ShowNodeActivity = m_Menu->getCheckBox3()->value();
         g_SpaceResources->ShowEdgeActivity = m_Menu->getCheckBox4()->value();
 	}
@@ -159,8 +159,8 @@ public:
 				    SpaceNode::ID id = m_GraphView->getNodeMap().getRemoteID(m_PickNode);
 				    SpaceNode* node = static_cast<SpaceNode*>(m_GraphView->getNodes()[id]);
 
-					unsigned int marker = m_Menu->getMarkerWidget()->marker();
-					unsigned int mark = node->getMark() != marker ? marker : 0;
+					int marker = m_Menu->getMarkerWidget()->marker();
+					int mark = node->getMark() != marker ? marker : 0;
 					node->setMark(mark);
 
 					std::ostringstream smark;
@@ -269,7 +269,7 @@ public:
 
 			Scene::Node* node = m_GraphView->getNodes()[msg->ID];
 
-			// NOTE : Find the zoom distance according to the node size so that it always has the same screen size.
+			// NOTE : Calculate the zoom distance according to the node size so that it always has the same screen size.
 			float zoomAngle = M_PI / 20;
 			float zoomDistance = static_cast<SpaceNode*>(node)->getScreenSize() / (2 * tan(zoomAngle / 2));
 
@@ -288,19 +288,31 @@ public:
 
 			if (msg->Name == "slider1" && msg->Message == "update")
 			{
-				float value = m_Menu->getSlider1()->value();
-				m_GraphView->setNodeSize(5.0f * value);
+				float value = 5.0f * m_Menu->getSlider1()->value();
+				m_GraphView->setNodeSize(value);
 			}
             else if (msg->Name == "slider2" && msg->Message == "update")
             {
-                float value = m_Menu->getSlider2()->value();
-                m_GraphView->setEdgeSize(3.0f * value);
+                float value = 3.0f * m_Menu->getSlider2()->value();
+                m_GraphView->setEdgeSize(value);
             }
             else if (msg->Name == "slider3" && msg->Message == "update")
             {
-                float value = m_Menu->getSlider3()->value();
-                m_GraphView->setTemperature(20.0f * value * value);
+                float x = m_Menu->getSlider3()->value();
+                float value = 20.0f * x * x;
+                m_GraphView->setTemperature(value);
             }
+            else if (msg->Name == "slider4" && msg->Message == "update")
+            {
+                float value = m_Menu->getSlider4()->value();
+                g_SpaceResources->LODSlice[0] = value;
+            }
+            else if (msg->Name == "slider5" && msg->Message == "update")
+            {
+                float value = m_Menu->getSlider5()->value();
+                g_SpaceResources->LODSlice[1] = value;
+            }
+			
 			else if (msg->Message == "pointer")
 				m_ToolMode = POINTER;
 			else if (msg->Message == "marker")
@@ -310,34 +322,86 @@ public:
 				else
 					m_ToolMode = MARKER;
 			}
-			else if (msg->Message == "space:nodes:all")
-				m_Menu->getNodeTextWidget()->text().set("All", m_Menu->getFont());
-			else if (msg->Message == "space:nodes:shapes+labels")
-				m_Menu->getNodeTextWidget()->text().set("Shapes + Labels", m_Menu->getFont());
-			else if (msg->Message == "space:nodes:marks+labels")
-				m_Menu->getNodeTextWidget()->text().set("Marks + Labels", m_Menu->getFont());
-			else if (msg->Message == "space:nodes:shapes+marks")
-				m_Menu->getNodeTextWidget()->text().set("Shapes + Marks", m_Menu->getFont());
-			else if (msg->Message == "space:nodes:shapes")
-				m_Menu->getNodeTextWidget()->text().set("Shapes", m_Menu->getFont());
-			else if (msg->Message == "space:nodes:marks")
-				m_Menu->getNodeTextWidget()->text().set("Marks", m_Menu->getFont());
-			else if (msg->Message == "space:nodes:labels")
-				m_Menu->getNodeTextWidget()->text().set("Labels", m_Menu->getFont());
-			else if (msg->Message == "space:nodes:off")
-				m_Menu->getNodeTextWidget()->text().set("Off", m_Menu->getFont());
 
+			else if (msg->Message == "space:nodes:all")
+			{
+				g_SpaceResources->ShowNodeShapes = SpaceResources::ALL;
+ 				g_SpaceResources->ShowNodeLabels = true;
+				m_Menu->getNodeTextWidget()->text().set("All", m_Menu->getFont());
+			}
+			else if (msg->Message == "space:nodes:shapes+labels")
+			{
+				g_SpaceResources->ShowNodeShapes = SpaceResources::COLORS;
+ 				g_SpaceResources->ShowNodeLabels = true;
+				m_Menu->getNodeTextWidget()->text().set("Shapes + Labels", m_Menu->getFont());
+			}
+			else if (msg->Message == "space:nodes:marks+labels")
+			{	
+				g_SpaceResources->ShowNodeShapes = SpaceResources::MARKS;
+ 				g_SpaceResources->ShowNodeLabels = true;
+				m_Menu->getNodeTextWidget()->text().set("Marks + Labels", m_Menu->getFont());
+			}
+			else if (msg->Message == "space:nodes:shapes+marks")
+			{
+				g_SpaceResources->ShowNodeShapes = SpaceResources::ALL;
+ 				g_SpaceResources->ShowNodeLabels = false;
+				m_Menu->getNodeTextWidget()->text().set("Shapes + Marks", m_Menu->getFont());
+			}
+			else if (msg->Message == "space:nodes:shapes")
+			{
+				g_SpaceResources->ShowNodeShapes = SpaceResources::COLORS;
+ 				g_SpaceResources->ShowNodeLabels = false;
+				m_Menu->getNodeTextWidget()->text().set("Shapes", m_Menu->getFont());
+			}
+			else if (msg->Message == "space:nodes:marks")
+			{
+				g_SpaceResources->ShowNodeShapes = SpaceResources::MARKS;
+ 				g_SpaceResources->ShowNodeLabels = false;
+				m_Menu->getNodeTextWidget()->text().set("Marks", m_Menu->getFont());
+			}
+			else if (msg->Message == "space:nodes:labels")
+			{
+				g_SpaceResources->ShowNodeShapes = SpaceResources::NONE;
+ 				g_SpaceResources->ShowNodeLabels = true;
+				m_Menu->getNodeTextWidget()->text().set("Labels", m_Menu->getFont());
+			}
+			else if (msg->Message == "space:nodes:off")
+			{
+				g_SpaceResources->ShowNodeShapes = SpaceResources::NONE;
+ 				g_SpaceResources->ShowNodeLabels = false;
+				m_Menu->getNodeTextWidget()->text().set("Off", m_Menu->getFont());
+			}
 			else if (msg->Message == "space:edges:lines")
+			{
+				g_SpaceResources->m_EdgeMode = SpaceResources::LINES;
 				m_Menu->getEdgeTextWidget()->text().set("Lines", m_Menu->getFont());
+		    }
 		    else if (msg->Message == "space:edges:widelines")
-		        m_Menu->getEdgeTextWidget()->text().set("Wide Lines", m_Menu->getFont());
+		    {
+		    	g_SpaceResources->m_EdgeMode = SpaceResources::WIDE_LINES;
+		     	m_Menu->getEdgeTextWidget()->text().set("Wide Lines", m_Menu->getFont());
+		    }
 		    else if (msg->Message == "space:edges:off")
+		    {
+		    	g_SpaceResources->m_EdgeMode = SpaceResources::OFF;
 		        m_Menu->getEdgeTextWidget()->text().set("Off", m_Menu->getFont());
+		    }
 
 			else if (msg->Message == "show spheres")
+			{
+				g_SpaceResources->ShowSpheres = true;
 				m_Menu->getSpheresTextWidget()->text().set("On", m_Menu->getFont());
+			}
 			else if (msg->Message == "hide spheres")
+			{
+				g_SpaceResources->ShowSpheres = false;
 				m_Menu->getSpheresTextWidget()->text().set("Off", m_Menu->getFont());
+			}
+
+			else if (msg->Message == "show debug")
+ 				g_SpaceResources->ShowDebug = true;
+ 			else if (msg->Message == "hide debug")
+ 				g_SpaceResources->ShowDebug = false;
 
 			else if (msg->Message == "play")
 				m_DemoMode = START;
