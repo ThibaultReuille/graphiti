@@ -371,15 +371,16 @@ public:
  				g_SpaceResources->ShowNodeLabels = false;
 				m_Menu->getNodeTextWidget()->text().set("Off", m_Menu->getFont());
 			}
-			else if (msg->Message == "space:edges:lines")
-			{
-				g_SpaceResources->m_EdgeMode = SpaceResources::LINES;
-				m_Menu->getEdgeTextWidget()->text().set("Lines", m_Menu->getFont());
-		    }
+			
 		    else if (msg->Message == "space:edges:widelines")
 		    {
 		    	g_SpaceResources->m_EdgeMode = SpaceResources::WIDE_LINES;
 		     	m_Menu->getEdgeTextWidget()->text().set("Wide Lines", m_Menu->getFont());
+		    }
+			else if (msg->Message == "space:edges:lines")
+			{
+				g_SpaceResources->m_EdgeMode = SpaceResources::LINES;
+				m_Menu->getEdgeTextWidget()->text().set("Lines", m_Menu->getFont());
 		    }
 		    else if (msg->Message == "space:edges:off")
 		    {

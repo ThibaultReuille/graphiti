@@ -213,8 +213,11 @@ public:
 
                 return true;
             }
+            
 #endif
 	    }
+
+#ifndef EMSCRIPTEN
 	    else if (m_EntityManager.active()->type() == Entity::TIME_SERIES)
 	    {
 		    auto entity = static_cast<TimeSeriesEntity*>(m_EntityManager.active());
@@ -237,6 +240,7 @@ public:
 		        return true;
 	    	}
 	    }
+#endif
 	    
         LOG("[GRAPHITI] Couldn't create view named '%s' !\n", view);
         return false;
@@ -306,10 +310,11 @@ public:
 			m_TextureVector.reshape(glutGet(GLUT_WINDOW_WIDTH) * factor, glutGet(GLUT_WINDOW_HEIGHT) * factor);
 		}
 
+#ifndef EMSCRIPTEN
 		m_FrameBuffer->bind();
 		m_FrameBuffer->setConvolutionEffect(Canvas::NORMAL);
 		m_FrameBuffer->bindColorTexture(m_TextureVector[0]);
-
+#endif
 		{
 		    glClearColor(0.0, 0.0, 0.0, 0.0);
 		    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -327,12 +332,14 @@ public:
 			m_Screenshot = false;
 		}
 
+#ifndef EMSCRIPTEN
 		// Final render to screen
 		m_FrameBuffer->unbind();
 		glClearColor(0.0, 0.0, 0.0, 0.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		m_FrameBuffer->draw(entity->context(), m_TextureVector[0]);
-
+#endif
+		
 		for (auto e : m_EntityManager.entities())
 		for (auto c : e.second->controllers())
             c->draw();

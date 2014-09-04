@@ -26,25 +26,6 @@ EMS_CC := $(EMSCRIPTEN)/em++
 EMS_CFLAGS := -std=c++11
 EMS_INCLUDES := $(G_INCLUDES)
 
-JS_EXPORT="\
-[\
-	'_main',\
-    '_create', '_destroy', '_initialize', '_start',\
-	'_registerScript',\
-	\
-	'_setAttribute',\
-	\
-	'_addNode', '_removeNode', '_countNodes', '_getNodeID',\
-	'_setNodeLabel', '_getNodeLabel',\
-	'_setNodeAttribute',\
-	\
-	'_addLink', '_removeLink', '_countLinks', '_getLinkID',\
-	'_getLinkNode1', '_getLinkNode2',\
-	'_setLinkAttribute',\
-	\
-	'_countSelectedNodes', '_getSelectedNode',\
-]"
-
 .PHONY: all pack native debug web clean dist
 
 all: native
@@ -65,7 +46,11 @@ debug: pack
 web: pack
 	@echo "--- Compiling web version with Emscripten ---"
 	mkdir -p Web
-	$(EMS_CC) $(EMS_CFLAGS) $(EMS_INCLUDES) Main.cc -s FULL_ES2=1 -s TOTAL_MEMORY=268435456 -o Web/$(BINARY).html -s EXPORTED_FUNCTIONS=$(JS_EXPORT)
+	$(EMS_CC) --bind $(EMS_CFLAGS) $(EMS_INCLUDES) Main.cc -s FULL_ES2=1 -s TOTAL_MEMORY=268435456 -o Web/$(BINARY).html
+
+webrun: pack web
+	@echo "--- Appending launcher script to Web/$(BINARY).html ---"
+	echo "<script async src='../Javascript/main.js'></script>" >> Web/$(BINARY).html
 
 clean:
 	@echo "--- Cleaning ---"

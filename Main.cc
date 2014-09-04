@@ -27,32 +27,6 @@
 #else
 
 	#include "Graphiti.hh"
-    #include "API/C.hh"
-    #include "API/Graph.hh"
-
-    int main(void)
-    {
-        LOG("--- Welcome in OpenGraphiti (" GRAPHITI_VERSION ") ---\n");
-        
-    	API::create();
-
-    	API::initialize();
-
-        int canvasWidth, canvasHeight, isFullscreen;
-        emscripten_run_script("for (i = 0; i < 5; i++) { document.body.children[i].style.display = 'None'; }");
-        emscripten_run_script("document.getElementById('output').style.display ='None'");
-        emscripten_run_script("document.getElementById('canvas').style.display ='block'");
-        canvasWidth = emscripten_run_script_int("window.innerWidth - 10");
-        canvasHeight = emscripten_run_script_int("window.innerHeight - 10");
-        API::createWindow("OpenGraphiti : Data Visualization Engine", canvasWidth, canvasHeight);
-
-        API::createEntity("graph");
-        
-        API::createView("space");
-
-    	API::start();
-
-    	API::destroy();
-    }
+    #include "API/Javascript.hh"
 
 #endif

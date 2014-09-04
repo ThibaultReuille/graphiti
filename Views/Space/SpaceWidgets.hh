@@ -127,10 +127,10 @@ public:
         switch(m_State)
         {
         case 0:
-            messages.push(static_cast<IMessage*>(new WidgetMessage("space:edges:lines")));
+            messages.push(static_cast<IMessage*>(new WidgetMessage("space:edges:widelines")));
             break;
         case 1:
-            messages.push(static_cast<IMessage*>(new WidgetMessage("space:edges:widelines")));
+            messages.push(static_cast<IMessage*>(new WidgetMessage("space:edges:lines")));
             break;
         case 2:
             messages.push(static_cast<IMessage*>(new WidgetMessage("space:edges:off")));
@@ -486,7 +486,7 @@ public:
             tl.x += m_WidgetSpacing + m_WidgetDimension.x;
             m_TopLeftWidgetGroup->add(m_EdgeTextWidget = new TextWidget("edges text", NULL, tl, textDimension));
             tl -= glm::vec3(m_WidgetSpacing + m_WidgetDimension.x, m_WidgetSpacing + m_WidgetDimension.y, 0);
-            m_EdgeTextWidget->text().set("Lines", m_Font);
+            m_EdgeTextWidget->text().set("Wide Lines", m_Font);
 
             m_TopLeftWidgetGroup->add(m_Slider2 = new SliderWidget("slider2", NULL, tl, glm::vec2(m_WidgetDimension.x * 3, m_WidgetDimension.y / 2)));
             tl.x += m_WidgetDimension.x * 3 + m_WidgetSpacing;

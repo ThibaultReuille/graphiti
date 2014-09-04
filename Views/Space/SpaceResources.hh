@@ -5,7 +5,7 @@ class SpaceResources
 public:
 	enum NodeMode { ALL, COLORS, MARKS, NONE };
 	enum LinkMode { NODE_COLOR, LINK_COLOR };
-	enum EdgeMode { LINES, WIDE_LINES, OFF };
+	enum EdgeMode { WIDE_LINES, LINES, OFF };
 
 	SpaceResources()
 	{
@@ -19,7 +19,7 @@ public:
 			ShowNodeActivity = true;
 
 			EdgeSize = 1.0f;
-			m_EdgeMode = LINES;
+			m_EdgeMode = WIDE_LINES;
 			ShowEdges = true;
 			ShowEdgeActivity = true;
 			ShowSpheres = true;
