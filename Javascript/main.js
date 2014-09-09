@@ -4,25 +4,71 @@
  * <script async src='path/to/this/file.js'></script>
  */
 
-var example = function()
+var loadJSON = function(file, jdata)
 {
-	console.log("Running example script ...");
+	var nodes = {};
+	var edges = {};
 
-	n1 = Module.addNode("A");
-	n2 = Module.addNode("B");
-	n3 = Module.addNode("C");
+	var node_attributes =
+	{
+    	"og:space:position" : "vec3",
+    	"og:space:color" : "vec4",
+   		"og:space:locked" : "bool",
+    	"og:space:lod": "float",
+    	"og:space:activity" : "float",
+    	"og:space:mark" : "int",
+		"og:space:size" : "float"
+	};
 
-	e1 = Module.addEdge(n1, n2); // A -> B
-	e2 = Module.addEdge(n2, n3); // B -> C
-	e3 = Module.addEdge(n3, n1); // C -> A
+	var edge_attributes =
+	{
+	    "og:space:activity" : "float",
+    	"og:space:color1" : "vec4",
+    	"og:space:color2" : "vec4",
+    	"og:space:width" : "float",
+    	"og:space:lod" : "float"
+    };
 
-	Module.setNodeAttribute(n1, "og:space:color", "vec4", "1.0 0.0 0.0 1.0"); // RED
-	Module.setNodeAttribute(n2, "og:space:color", "vec4", "0.0 1.0 0.0 1.0"); // GREEN
-	Module.setNodeAttribute(n3, "og:space:color", "vec4", "0.0 0.0 1.0 1.0"); // BLUE
+    Module.setAttribute("og:space:title", "string", file.name);
 
-	Module.setEdgeAttribute(e1, "og:space:activity", "float", "1.0");
-	Module.setEdgeAttribute(e2, "og:space:activity", "float", "2.0");
-	Module.setEdgeAttribute(e3, "og:space:activity", "float", "3.0");	
+    if (jdata[""])
+
+	for (id in jdata["nodes"])
+	{
+		var node = jdata["nodes"][id];
+		var nid = Module.addNode(node["label"]);
+
+		for (attribute in node)		
+			if (attribute in node_attributes)
+			{
+				var name = attribute;
+				var type = node_attributes[name];
+				var value = type.indexOf("vec") == 0 ? node[name].join(" ") : node[attribute].toString();
+				// console.log(name, type, value);
+				Module.setNodeAttribute(nid, attribute, type, value);
+			}
+		nodes[node["id"]] = nid;
+	}
+
+	for (id in jdata["edges"])
+	{
+		var edge = jdata["edges"][id]
+		var src = nodes[edge["src"]];
+		var dst = nodes[edge["dst"]];
+		var eid = Module.addEdge(src, dst);
+
+		for (attribute in edge)		
+			if (attribute in edge_attributes)
+			{
+				var name = attribute;
+				var type = edge_attributes[name];
+				var value = type.indexOf("vec") == 0 ? edge[name].join(" ") : edge[attribute].toString();
+				// console.log(name, type, value);
+				Module.setEdgeAttribute(eid, attribute, type, value);
+			}
+
+		edges[edge["id"]] = eid;
+	}
 }
 
 var hideEmscriptenUI = function()
@@ -36,9 +82,60 @@ var hideEmscriptenUI = function()
 	document.getElementById('canvas').style.display ='block';	
 }
 
+var setupDragAndDrop = function()
+{
+	var holder = document.getElementById('canvas');
+	var state = document.getElementById('status');
+
+	if (typeof window.FileReader === 'undefined')
+	{
+		state.className = 'fail';
+	}
+	else
+	{
+	  state.className = 'success';
+	  state.innerHTML = 'File API & FileReader available';
+	}
+	 
+	holder.ondragover = function ()
+	{
+		holder.style.opacity = 0.5;
+		return false;
+	};
+	holder.ondragend = function ()
+	{
+		holder.style.opacity = 1.0;
+		console.log("dragend");
+		return false;
+	};
+	holder.ondrop = function (e)
+	{
+		holder.style.opacity = 1.0;
+		holder.style.border = "none";
+	  	e.preventDefault();
+
+	  	var file = e.dataTransfer.files[0];
+	  	console.log(file);
+	  	var reader = new FileReader();
+	  	reader.onload = function (event)
+	  	{
+	    	console.log(event.target);
+
+		  	var jdata = JSON.parse(event.target.result);
+	  		loadJSON(file, jdata);
+	  	};
+
+	  	reader.readAsText(file);
+
+	  	return false;
+	};
+}
+
 var main = function()
 {
 	hideEmscriptenUI();
+
+	setupDragAndDrop();
 
 	Module.create();
 	Module.initialize();
@@ -46,7 +143,8 @@ var main = function()
 	Module.createEntity('graph');
 	Module.createView('space');
 
-	Module.registerScript('Example', 'example();') 
+	Module.registerScript('Start Animation', 'Module.setAttribute("og:space:animation", "bool", "true");'); 
+	Module.registerScript('Stop Animation', 'Module.setAttribute("og:space:animation", "bool", "false");'); 
 
 	Module.start();
 	Module.destroy();

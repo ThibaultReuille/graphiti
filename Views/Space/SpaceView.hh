@@ -238,10 +238,16 @@
  		}
  		else if (name == "color2")
  		{
-             Vec4Variable* variable = new Vec4Variable();
-             variable->set(static_cast<SpaceEdge*>(m_SpaceEdges[id])->getColor(1));
-             return variable;
+            Vec4Variable* variable = new Vec4Variable();
+            variable->set(static_cast<SpaceEdge*>(m_SpaceEdges[id])->getColor(1));
+            return variable;
  		}
+        else if (name == "width")
+        {
+            FloatVariable* variable = new FloatVariable();
+            variable->set(static_cast<SpaceEdge*>(m_SpaceEdges[id])->getWidth());
+            return variable;
+        }
  
  		return NULL;
  	}
@@ -835,26 +841,31 @@
  			static_cast<SpaceEdge*>(m_SpaceEdges[id])->setColor(1, vvec4.value());
             static_cast<SpaceEdge*>(m_SpaceEdges[id])->setDirty(true);
  		}
-		else if (name == "space:width" && type == RD_FLOAT)
- 		{
- 		    vfloat.set(value);
- 		    static_cast<SpaceEdge*>(m_SpaceEdges[id])->setWidth(vfloat.value());
- 		}
+        else if (name == "space:width" && type == RD_FLOAT)
+        {
+            vfloat.set(value);
+            static_cast<SpaceEdge*>(m_SpaceEdges[id])->setWidth(vfloat.value());
+        }
         else if (name == "space:activity" && type == RD_FLOAT)
-         {
-             vfloat.set(value);
-             static_cast<SpaceEdge*>(m_SpaceEdges[id])->setActivity(vfloat.value());
-         }
+        {
+            vfloat.set(value);
+            static_cast<SpaceEdge*>(m_SpaceEdges[id])->setActivity(vfloat.value());
+        }
         else if (name == "space:lod" && type == RD_FLOAT)
-         {
-             vfloat.set(value);
-             m_SpaceEdges[id]->setLOD(vfloat.value());
-         }
+        {
+            vfloat.set(value);
+            m_SpaceEdges[id]->setLOD(vfloat.value());
+        }
         else if (name == "space:icon" && type == RD_STRING)
-         {
-             vstring.set(value);
-             static_cast<SpaceEdge*>(m_SpaceEdges[id])->setIcon(vstring.value());
-         }
+        {
+            vstring.set(value);
+            static_cast<SpaceEdge*>(m_SpaceEdges[id])->setIcon(vstring.value());
+        }  
+        else if (name == "space:width" && type == RD_FLOAT)
+        {
+            vfloat.set(value);
+            static_cast<SpaceEdge*>(m_SpaceEdges[id])->setWidth(vfloat.value());
+        }
  	}
  
  	void onAddSphere(Sphere::ID id, const char* label)
