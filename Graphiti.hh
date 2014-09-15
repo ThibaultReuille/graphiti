@@ -15,10 +15,10 @@
 #include "Views/Space/SpaceView.hh"
 #include "Views/Space/SpaceController.hh"
 
-#ifndef EMSCRIPTEN
-
 # include "Views/World/WorldView.hh"
 # include "Views/World/WorldController.hh"
+
+#ifndef EMSCRIPTEN
 
 # include "Views/Cloud/CloudView.hh"
 # include "Views/Cloud/CloudController.hh"
@@ -144,7 +144,6 @@ public:
 
 	            return true;
 	        }
-#ifndef EMSCRIPTEN
             else if (name == "world")
             {
                 auto view = new WorldView();
@@ -162,6 +161,7 @@ public:
 
                 return true;
             }
+#ifndef EMSCRIPTEN
             else if (name == "cloud")
             {
                 auto view = new CloudView();
@@ -273,7 +273,12 @@ public:
 		m_TextureVector.add(new Texture("Color 1", glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT), 4));
 		m_TextureVector.add(new Texture("Color 2", glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT), 4));
 
+		// NOTE : This releases the Global Interpreter Lock and allows the python threads to run.
+		m_Console->begin();
+
 		run();
+
+		m_Console->end();
 	}
 
 	void screenshot(const char* filename)
@@ -365,6 +370,8 @@ public:
 
 			m_Started = true;
 		}
+
+		m_Console->idle(context().clock());
 
 		if (m_EntityManager.active() != NULL)
 			m_EntityManager.active()->context()->sequencer().play();
@@ -500,6 +507,23 @@ public:
 			// NOTE : Hack ! Script menu needs to be reshaped
 			m_HUD->reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 		}
+	}
+
+	Job::ID addJob(const char* name, float period)
+	{
+		IScript* script = m_Console->getScript(name);
+		if (script == NULL)
+		{
+			LOG("[API] Can't create job, script <%s> not found!\n", name);
+			return 0;
+		}
+
+		return m_Console->addJob(script, period);
+	}
+
+	void removeJob(Job::ID id)
+	{
+		m_Console->removeJob(id);
 	}
 
 	// Accessors

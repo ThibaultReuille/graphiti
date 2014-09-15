@@ -30,7 +30,11 @@ public:
 
 		void initialize() {}
 
-		bool execute(IScript* script) { std::cout << "Console : Couldn't execute script \"" << script->name() << "\" !" << std::endl; return false; }
+		bool execute(IScript* script)
+		{
+			LOG("[CONSOLE] Couldn't execute script \"%s\" !\n", script->name().c_str());
+			return false;
+		}
 # endif
 #endif
 	void notify(IMessage* message)
@@ -45,7 +49,7 @@ public:
 		IScript* script = getScript(msg->Name);
 		if (script == NULL)
 		{
-			std::cout << "Console : Couldn't find script \"" << msg->Name << "\" !" << std::endl;
+			LOG("[CONSOLE] Couldn't find script \"%s\" !", msg->Name.c_str());
 			return;
 		}
 		else

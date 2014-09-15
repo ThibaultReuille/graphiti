@@ -10,5 +10,6 @@ import networkx as nx
 import graphiti as graphiti
 import standard as std
 
-import demo as demo
+import demo
 import diff
+import leap

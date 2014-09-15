@@ -11,7 +11,7 @@ DIST := $(binary)-$(shell date +"%Y%m%d")
 UNAME := $(shell uname -s)
 ifeq ($(UNAME), Darwin)
 	CC=clang++
-	CFLAGS=$(G_CFLAGS) $(PYTHON_CFLAGS) -stdlib=libc++
+	CFLAGS=$(G_CFLAGS) $(PYTHON_CFLAGS) -stdlib=libc++ -pthread
 	INCLUDES=$(G_INCLUDES)
 	LDFLAGS=$(G_LDFLAGS) $(PYTHON_LDFLAGS) -framework GLUT -framework OpenGL -framework OpenCL
 endif

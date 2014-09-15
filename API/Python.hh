@@ -656,6 +656,31 @@ static PyObject* unregisterScript(PyObject* self, PyObject* args)
     return Py_BuildValue("");
 }
 
+static PyObject* addJob(PyObject* self, PyObject* args)
+{
+    (void)self;
+
+    char* name = NULL;
+    float period = 0;
+
+    PROTECT_PARSE(PyArg_ParseTuple(args, "sf", &name, &period))
+
+    return PyLong_FromLong(API::addJob(name, period));
+}
+
+static PyObject* removeJob(PyObject* self, PyObject* args)
+{
+    (void)self;
+    
+    unsigned long id;
+
+    PROTECT_PARSE(PyArg_ParseTuple(args, "k", &id))
+
+    API::removeJob(id);
+
+    return Py_BuildValue("");
+}
+
 static PyMethodDef g_Module[] =
 {
 	{"start",                 API::Python::start,               METH_VARARGS, "Start engine"},
@@ -673,6 +698,8 @@ static PyMethodDef g_Module[] =
     // ----- Scripts -----
     {"register_script",       API::Python::registerScript,      METH_VARARGS, "Register a script"},
     {"unregister_script",     API::Python::unregisterScript,    METH_VARARGS, "Unregister a script"},
+    {"add_job",               API::Python::addJob,              METH_VARARGS, "Add a job"},
+    {"remove_job",            API::Python::removeJob,           METH_VARARGS, "Remove a job"},
 
 	// ----- Graph -----
 

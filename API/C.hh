@@ -110,5 +110,15 @@ extern "C" {
 	    // LOG("[API] unregisterScript('%s')\n", name);
 		g_Graphiti.unregisterScript(name);
 	}
+
+	Job::ID addJob(const char* name, float period)
+	{
+		return g_Graphiti.addJob(name, period);
+	}
+
+	void removeJob(Job::ID id)
+	{
+		g_Graphiti.removeJob(id);
+	}
 }
 }

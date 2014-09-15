@@ -165,14 +165,21 @@
  	}
  
  	virtual IVariable* getAttribute(const std::string& name)
- 	{
-         if (name == "debug")
-         {
-             BooleanVariable* variable = new BooleanVariable();
-             variable->set(g_SpaceResources->ShowDebug);
-             return variable;
-         }
- 
+    {
+        if (name == "debug")
+        {
+            BooleanVariable* variable = new BooleanVariable();
+            variable->set(g_SpaceResources->ShowDebug);
+            return variable;
+        }
+        else if (name == "camera:position")
+        {
+            Vec3Variable* variable = new Vec3Variable();
+            variable->set(m_Camera.getPosition());
+            return variable;
+        }
+
+
          return NULL;
  	}
  

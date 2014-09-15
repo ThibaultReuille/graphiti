@@ -61,6 +61,8 @@ EMSCRIPTEN_BINDINGS(my_module)
 
 	function("registerScript", &Javascript::registerScript, allow_raw_pointers());
 	function("unregisterScript", &Javascript::unregisterScript, allow_raw_pointers());
+	function("addJob", &Javascript::addJob, allow_raw_pointers());
+	function("removeJob", &Javascript::removeJob);
 
 	// ----- Commands -----
 
