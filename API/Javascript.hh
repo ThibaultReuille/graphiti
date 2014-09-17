@@ -23,6 +23,8 @@ namespace Javascript
 
 	void unregisterScript(const std::string& name) { API::unregisterScript(name.c_str()); }
 
+	Job::ID addJob(const std::string& name, float period) { return API::addJob(name.c_str(), period); }
+
 	namespace Graph
 	{
 		Node::ID addNode(const std::string& label) { return API::Graph::addNode(label.c_str()); }
@@ -62,7 +64,7 @@ EMSCRIPTEN_BINDINGS(my_module)
 	function("registerScript", &Javascript::registerScript, allow_raw_pointers());
 	function("unregisterScript", &Javascript::unregisterScript, allow_raw_pointers());
 	function("addJob", &Javascript::addJob, allow_raw_pointers());
-	function("removeJob", &Javascript::removeJob);
+	function("removeJob", &API::removeJob);
 
 	// ----- Commands -----
 
