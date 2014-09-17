@@ -652,6 +652,17 @@
              else if (value == "link_color")
                  g_SpaceResources->m_LinkMode = SpaceResources::LINK_COLOR;
          }
+         else if (name == "space:camera:position" && type == RD_VEC3)
+         {
+            vvec3.set(value);
+            m_Camera.setPosition(vvec3.value());
+            m_Camera.updateViewMatrix();
+         }
+         else if (name == "space:camera:target" && type == RD_VEC3)
+         {
+            vvec3.set(value);
+            m_Camera.lookAt(vvec3.value());
+         }
          else if (name == "space:debug" && type == RD_BOOLEAN)
          {
              vbool.set(value);

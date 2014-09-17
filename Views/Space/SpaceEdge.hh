@@ -57,7 +57,7 @@ public:
                     break;
 
                 case SpaceResources::WIDE_LINES:
-                    extrusion = 0.5f * g_SpaceResources->EdgeSize * m_WideLine.calculateExtrudeDirection(*context->getCamera());
+                    extrusion = 0.25f * g_SpaceResources->EdgeSize * m_WideLine.calculateExtrudeDirection(*context->getCamera());
 
                     g_SpaceResources->EdgeShader->use();
                     g_SpaceResources->EdgeShader->uniform("u_Mode").set(1.0f);
