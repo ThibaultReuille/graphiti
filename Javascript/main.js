@@ -140,9 +140,10 @@ var main = function()
 	Module.create();
 	Module.initialize();
 	Module.createWindow('OpenGraphiti : Data Visualization Engine', window.innerWidth - 10, window.innerHeight - 10);
+
+	
 	Module.createEntity('graph');
 	Module.createView('space');
-
 	Module.registerScript('Start Animation', 'Module.setAttribute("og:space:animation", "bool", "true");'); 
 	Module.registerScript('Stop Animation', 'Module.setAttribute("og:space:animation", "bool", "false");'); 
 
