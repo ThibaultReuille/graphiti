@@ -95,35 +95,35 @@
          m_Temperature = 0.2f;
      }
  
- 	virtual ~SpaceView()
- 	{
- 	    SAFE_DELETE(m_Octree);
+    virtual ~SpaceView()
+    {
+        SAFE_DELETE(m_Octree);
+
+        delete g_SpaceResources;
+    }
+
+    virtual const char* name() const { return "space"; }
+
+    virtual bool bind(Entity* entity)
+    {
+        if (entity->type() != Entity::GRAPH)
+        {
+            LOG("[SPACE] Couldn't bind entity to view : Wrong entity type!\n");
+            return false;
+        }
  
- 		delete g_SpaceResources;
- 	}
- 
- 	virtual const char* name() const { return "space"; }
- 
- 	virtual bool bind(Entity* entity)
- 	{
- 	    if (entity->type() != Entity::GRAPH)
- 	    {
- 	        LOG("[SPACE] Couldn't bind entity to view : Wrong entity type!\n");
- 	        return false;
- 	    }
- 
-         m_GraphEntity = static_cast<GraphEntity*>(entity);
-         m_LinkAttractionForce.bind(m_GraphEntity->model(), &m_NodeMap, &m_LinkMap);
-         m_NodeRepulsionForce.bind(m_GraphEntity->model(), &m_NodeMap);
- 
-         m_GraphEntity->views().push_back(this);
-         m_GraphEntity->listeners().push_back(this);
- 
-         g_SpaceResources->Model = m_GraphEntity->model();
- 
-         context()->setCamera(&m_Camera);
- 
-         return true;
+        m_GraphEntity = static_cast<GraphEntity*>(entity);
+        m_LinkAttractionForce.bind(m_GraphEntity->model(), &m_NodeMap, &m_LinkMap);
+        m_NodeRepulsionForce.bind(m_GraphEntity->model(), &m_NodeMap);
+
+        m_GraphEntity->views().push_back(this);
+        m_GraphEntity->listeners().push_back(this);
+
+        g_SpaceResources->Model = m_GraphEntity->model();
+
+        context()->setCamera(&m_Camera);
+
+        return true;
  	}
  
  	void applyDegreeTint()

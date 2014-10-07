@@ -40,15 +40,9 @@ public:
     Graphiti()
     {
         m_HUD = NULL;
+        m_Console = NULL;
 
         m_Started = false;
-        m_Screenshot = false;
-        m_FullScreen = false;
-
-        m_Console = NULL;
-        m_Canvas = NULL;
-        m_PostEffect1 = Canvas::NORMAL;
-        m_PostEffect2 = Canvas::NORMAL;
     }
 
     virtual ~Graphiti()
@@ -66,7 +60,6 @@ public:
     virtual void destroy()
     {
         SAFE_DELETE(m_HUD);
-        SAFE_DELETE(m_Canvas);
 
         SAFE_DELETE(m_Console);
 
@@ -136,6 +129,7 @@ public:
                     return false;
                 }
                 entity->context()->messages().addListener(view);
+                m_Window->addView(view);
 
                 SpaceController* controller = new SpaceController();
                 controller->bind(static_cast<GraphContext*>(entity->context()), entity->model(), view);
@@ -154,6 +148,7 @@ public:
                     return false;
                 }
                 entity->context()->messages().addListener(view);
+                m_Window->addView(view);
 
                 WorldController* controller = new WorldController();
                 controller->bind(static_cast<GraphContext*>(entity->context()), view);
@@ -172,6 +167,7 @@ public:
                     return false;
                 }
                 entity->context()->messages().addListener(view);
+                m_Window->addView(view);
 
                 CloudController* controller = new CloudController();
                 controller->bind(static_cast<GraphContext*>(entity->context()), view);
@@ -206,6 +202,7 @@ public:
                     return false;
                 }
                 entity->context()->messages().addListener(view);
+                m_Window->addView(view);
 
                 ParticleController* controller = new ParticleController();
                 controller->bind(static_cast<GraphContext*>(entity->context()), entity->model(), view);
@@ -231,6 +228,7 @@ public:
                     return false;
                 }
                 entity->context()->messages().addListener(view);
+                m_Window->addView(view);
 
                 auto controller = new StreamController();
                 controller->bind(static_cast<TimeSeriesContext*>(entity->context()), view);
@@ -266,11 +264,6 @@ public:
 
         entity->context()->messages().process();
 
-        m_Canvas = new Canvas(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
-        m_Canvas->bind();
-
-        m_TextureVector.add(new Texture("Color 0", glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT), 4));
-
         // NOTE : This releases the Global Interpreter Lock and allows the python threads to run.
         m_Console->begin();
 
@@ -279,18 +272,16 @@ public:
         m_Console->end();
     }
 
-    void screenshot(const char* filename)
+    inline void screenshot(const char* filename)
     {
-        m_Screenshot = true;
-        m_ScreenshotFilename = std::string(filename);
+        m_Window->screenshot(std::string(filename), 1);
     }
 
     // ---------- Window Events ----------
 
     void reshape(int width, int height)
     {
-        m_Canvas->reshape(width, height);
-        m_TextureVector.reshape(width, height);
+        m_Window->reshape(width, height);
 
         for (auto e : m_EntityManager.entities())
         for (auto c : e.second->controllers())
@@ -306,42 +297,7 @@ public:
 
         Geometry::beginFrame();
 
-        if (m_Screenshot)
-        {
-            unsigned int factor = 4;
-            m_Canvas->reshape(glutGet(GLUT_WINDOW_WIDTH) * factor, glutGet(GLUT_WINDOW_HEIGHT) * factor);
-            m_TextureVector.reshape(glutGet(GLUT_WINDOW_WIDTH) * factor, glutGet(GLUT_WINDOW_HEIGHT) * factor);
-        }
-
-#ifndef EMSCRIPTEN
-        m_Canvas->bind();
-        m_Canvas->setConvolutionEffect(Canvas::NORMAL);
-        m_Canvas->bindColorTexture(m_TextureVector[0]);
-#endif
-        {
-            glClearColor(0.0, 0.0, 0.0, 0.0);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            for (auto e : m_EntityManager.entities())
-            for (auto v : e.second->views())
-                v->draw();
-        }
-
-        if (m_Screenshot)
-        {
-            m_Canvas->dump("hd-shot.tga", m_TextureVector[0]);
-            m_Canvas->reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
-            m_TextureVector.reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
-            m_Screenshot = false;
-        }
-
-#ifndef EMSCRIPTEN
-        // Final render to screen
-        m_Canvas->unbind();
-        glClearColor(0.0, 0.0, 0.0, 0.0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        m_Canvas->draw(entity->context(), m_TextureVector[0]);
-#endif
+        m_Window->draw(&m_Context);
 
         for (auto e : m_EntityManager.entities())
         for (auto c : e.second->controllers())
@@ -409,7 +365,7 @@ public:
         }
     #ifndef EMSCRIPTEN
         else if (key == 's')
-                m_Screenshot = true;
+                m_Window->screenshot(std::string("hd-shot.tga"), 4);
     #endif
         else
         {
@@ -535,13 +491,6 @@ private:
 
     HUD* m_HUD;
 
-    Canvas* m_Canvas;
-    TextureVector m_TextureVector;
-    Canvas::ConvolutionEffect m_PostEffect1;
-    Canvas::ConvolutionEffect m_PostEffect2;
-
     bool m_Started;
-    bool m_Screenshot;
     std::string m_ScreenshotFilename;
-    bool m_FullScreen;
 };

@@ -3,6 +3,7 @@
 #include <raindance/Core/Context.hh>
 #include <raindance/Core/Controller.hh>
 #include <raindance/Core/Variables.hh>
+#include <raindance/Core/GUI/View.hh>
 
 // Forward declarations
 
@@ -39,15 +40,12 @@ EntityModel::~EntityModel() {}
 
 // ----- Entity View -----
 
-class EntityView : public EntityBase
+class EntityView : public View, public EntityBase
 {
 public:
     virtual ~EntityView() = 0;
     virtual const char* name() const = 0;
-    virtual void draw() = 0;
-    virtual void idle() = 0;
     virtual bool bind(Entity* entity) = 0;
-
     virtual IVariable* getAttribute(const std::string& name) = 0;
 };
 
