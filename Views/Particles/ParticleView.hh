@@ -1,10 +1,10 @@
 #pragma once
 
-#include <raindance/Core/View.hh>
 #include <raindance/Core/OpenCL.hh>
 #include <raindance/Core/Camera/Camera.hh>
 #include <raindance/Core/Camera/Controllers.hh>
 #include <raindance/Core/Primitives/Sphere.hh>
+#include <raindance/Core/GUI/View.hh>
 
 #include "Entities/Graph/GraphModel.hh"
 

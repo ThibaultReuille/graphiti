@@ -2,8 +2,8 @@
 
 #include <raindance/Raindance.hh>
 #include <raindance/Core/Debug.hh>
-#include <raindance/Core/Canvas.hh> // TODO : Should disappear (Move window logic to RainDance.hh)
-#include <raindance/Core/Wallpaper.hh>
+#include <raindance/Core/GUI/Canvas.hh> // TODO : Should disappear (Move window logic to RainDance.hh)
+#include <raindance/Core/GUI/Wallpaper.hh>
 
 #include "Pack.hh"
 
@@ -38,112 +38,113 @@ class Graphiti : public RainDance
 {
 public:
     Graphiti()
-	{
-		m_HUD = NULL;
+    {
+        m_HUD = NULL;
 
-		m_Started = false;
-		m_Screenshot = false;
-		m_FullScreen = false;
+        m_Started = false;
+        m_Screenshot = false;
+        m_FullScreen = false;
 
-		m_FrameBuffer = NULL;
-		m_PostEffect1 = Canvas::NORMAL;
-		m_PostEffect2 = Canvas::NORMAL;
-	}
+        m_Console = NULL;
+        m_Canvas = NULL;
+        m_PostEffect1 = Canvas::NORMAL;
+        m_PostEffect2 = Canvas::NORMAL;
+    }
 
-	virtual ~Graphiti()
-	{
-	}
+    virtual ~Graphiti()
+    {
+    }
 
-	virtual void create(int argc, char** argv)
-	{
-	    RainDance::create(argc, argv);
+    virtual void create(int argc, char** argv)
+    {
+        RainDance::create(argc, argv);
 
-		if (m_Console == NULL)
-			m_Console = new GraphitiConsole(argc, argv);
-	}
+        if (m_Console == NULL)
+            m_Console = new GraphitiConsole(argc, argv);
+    }
 
-	virtual void destroy()
-	{
-		SAFE_DELETE(m_HUD);
-		SAFE_DELETE(m_FrameBuffer);
+    virtual void destroy()
+    {
+        SAFE_DELETE(m_HUD);
+        SAFE_DELETE(m_Canvas);
 
-		SAFE_DELETE(m_Console);
+        SAFE_DELETE(m_Console);
 
         RainDance::destroy();
 
         ResourceManager::getInstance().dump();
-	}
+    }
 
-	virtual void initialize()
-	{
-		m_Console->initialize();
-	}
+    virtual void initialize()
+    {
+        m_Console->initialize();
+    }
 
-	void createWindow(const char* title, int width, int height)
-	{
-		if (width <= 0 || height <= 0)
-		{
-			width = glutGet(GLUT_SCREEN_WIDTH);
-           	height = glutGet(GLUT_SCREEN_HEIGHT);
-		}
-		addWindow(title, width, height);
-	}
+    void createWindow(const char* title, int width, int height)
+    {
+        if (width <= 0 || height <= 0)
+        {
+            width = glutGet(GLUT_SCREEN_WIDTH);
+            height = glutGet(GLUT_SCREEN_HEIGHT);
+        }
+        addWindow(title, width, height);
+    }
 
-	Entity::ID createEntity(const char* type)
-	{
-		std::string stype = type;
+    Entity::ID createEntity(const char* type)
+    {
+        std::string stype = type;
 
-	    auto id = m_EntityManager.create(type);
-	    m_EntityManager.bind(id);
+        auto id = m_EntityManager.create(type);
+        m_EntityManager.bind(id);
 
-		if (stype == "graph")
-		{
-		    auto entity = m_EntityManager.entity(id);
+        if (stype == "graph")
+        {
+            auto entity = m_EntityManager.entity(id);
 
-		    auto t1 = new Track("command");
-		    t1->setExternalClock(&entity->context()->sequencer().clock());
-		    t1->setSynchronization(Track::EXTERNAL);
-		    entity->context()->sequencer().add(t1);
+            auto t1 = new Track("command");
+            t1->setExternalClock(&entity->context()->sequencer().clock());
+            t1->setSynchronization(Track::EXTERNAL);
+            entity->context()->sequencer().add(t1);
 
-		    auto t2 = new Track("animation");
-		    t2->setSynchronization(Track::INTERNAL);
-		    entity->context()->sequencer().add(t2);
-				
-			entity->context()->messages().addListener(m_Console);
-		}
+            auto t2 = new Track("animation");
+            t2->setSynchronization(Track::INTERNAL);
+            entity->context()->sequencer().add(t2);
 
-		return id;
-	}
+            entity->context()->messages().addListener(m_Console);
+        }
 
-	bool createView(const char* view)
-	{
-	    if (m_EntityManager.active() == NULL)
-	    	return false;
+        return id;
+    }
 
-	    std::string name = view;
+    bool createView(const char* view)
+    {
+        if (m_EntityManager.active() == NULL)
+            return false;
 
-	    if (m_EntityManager.active()->type() == Entity::GRAPH)
-	    {
-	    	auto entity = static_cast<GraphEntity*>(m_EntityManager.active());
+        std::string name = view;
 
-	    	if (name == "space")
-	    	{
-		    	auto view = new SpaceView();
-	            if (!view->bind(entity))
-	            {
-	                SAFE_DELETE(view);
-	                return false;
-	            }
-	            entity->context()->messages().addListener(view);
+        if (m_EntityManager.active()->type() == Entity::GRAPH)
+        {
+            auto entity = static_cast<GraphEntity*>(m_EntityManager.active());
 
-	            SpaceController* controller = new SpaceController();
-	            controller->bind(static_cast<GraphContext*>(entity->context()), entity->model(), view);
-	            entity->controllers().push_back(controller);
-	            entity->listeners().push_back(controller);
-	            entity->context()->messages().addListener(controller);
+            if (name == "space")
+            {
+                auto view = new SpaceView();
+                if (!view->bind(entity))
+                {
+                    SAFE_DELETE(view);
+                    return false;
+                }
+                entity->context()->messages().addListener(view);
 
-	            return true;
-	        }
+                SpaceController* controller = new SpaceController();
+                controller->bind(static_cast<GraphContext*>(entity->context()), entity->model(), view);
+                entity->controllers().push_back(controller);
+                entity->listeners().push_back(controller);
+                entity->context()->messages().addListener(controller);
+
+                return true;
+            }
             else if (name == "world")
             {
                 auto view = new WorldView();
@@ -213,216 +214,213 @@ public:
 
                 return true;
             }
-            
 #endif
-	    }
+        }
 
 #ifndef EMSCRIPTEN
-	    else if (m_EntityManager.active()->type() == Entity::TIME_SERIES)
-	    {
-		    auto entity = static_cast<TimeSeriesEntity*>(m_EntityManager.active());
-		    
-		    if (name == "stream")
-		    {
-	            auto view = new StreamView();
-		        if (!view->bind(entity))
-		        {
-		            SAFE_DELETE(view);
-		            return false;
-		        }
-		        entity->context()->messages().addListener(view);
+        else if (m_EntityManager.active()->type() == Entity::TIME_SERIES)
+        {
+            auto entity = static_cast<TimeSeriesEntity*>(m_EntityManager.active());
 
-		        auto controller = new StreamController();
-		        controller->bind(static_cast<TimeSeriesContext*>(entity->context()), view);
-		        entity->controllers().push_back(controller);
-		        entity->context()->messages().addListener(controller);
+            if (name == "stream")
+            {
+                auto view = new StreamView();
+                if (!view->bind(entity))
+                {
+                    SAFE_DELETE(view);
+                    return false;
+                }
+                entity->context()->messages().addListener(view);
 
-		        return true;
-	    	}
-	    }
+                auto controller = new StreamController();
+                controller->bind(static_cast<TimeSeriesContext*>(entity->context()), view);
+                entity->controllers().push_back(controller);
+                entity->context()->messages().addListener(controller);
+
+                return true;
+            }
+        }
 #endif
-	    
+
         LOG("[GRAPHITI] Couldn't create view named '%s' !\n", view);
         return false;
-	}
+    }
 
-	virtual void start()
-	{
-		auto entity = m_EntityManager.active();
-		if (entity == NULL)
-		{
-			LOG("[GRAPHITI] No active entity!\n");
-			return;
-		}
+    virtual void start()
+    {
+        auto entity = m_EntityManager.active();
+        if (entity == NULL)
+        {
+            LOG("[GRAPHITI] No active entity!\n");
+            return;
+        }
 
-		m_HUD = new HUD();
-		m_HUD->buildScriptWidgets(m_Console);
-		m_HUD->bind(entity->context());
+        m_HUD = new HUD();
+        m_HUD->buildScriptWidgets(m_Console);
+        m_HUD->bind(entity->context());
 
-		// Initialize clocks
-		entity->context()->clock().reset();
-		entity->context()->sequencer().clock().reset();
-		entity->context()->sequencer().clock().pause();
+        // Initialize clocks
+        entity->context()->clock().reset();
+        entity->context()->sequencer().clock().reset();
+        entity->context()->sequencer().clock().pause();
 
-		entity->context()->messages().process();
+        entity->context()->messages().process();
 
-		m_FrameBuffer = new Canvas(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
-		m_FrameBuffer->bind();
+        m_Canvas = new Canvas(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+        m_Canvas->bind();
 
-		m_TextureVector.add(new Texture("Color 0", glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT), 4));
-		m_TextureVector.add(new Texture("Color 1", glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT), 4));
-		m_TextureVector.add(new Texture("Color 2", glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT), 4));
+        m_TextureVector.add(new Texture("Color 0", glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT), 4));
 
-		// NOTE : This releases the Global Interpreter Lock and allows the python threads to run.
-		m_Console->begin();
+        // NOTE : This releases the Global Interpreter Lock and allows the python threads to run.
+        m_Console->begin();
 
-		run();
+        run();
 
-		m_Console->end();
-	}
+        m_Console->end();
+    }
 
-	void screenshot(const char* filename)
-	{
-		m_Screenshot = true;
-		m_ScreenshotFilename = std::string(filename);
-	}
+    void screenshot(const char* filename)
+    {
+        m_Screenshot = true;
+        m_ScreenshotFilename = std::string(filename);
+    }
 
-	// ---------- Window Events ----------
+    // ---------- Window Events ----------
 
-	void reshape(int width, int height)
-	{
-		m_FrameBuffer->reshape(width, height);
-		m_TextureVector.reshape(width, height);
+    void reshape(int width, int height)
+    {
+        m_Canvas->reshape(width, height);
+        m_TextureVector.reshape(width, height);
 
         for (auto e : m_EntityManager.entities())
         for (auto c : e.second->controllers())
             c->reshape(width, height);
 
-		if (m_HUD != NULL)
-			m_HUD->reshape(width, height);
-	}
+        if (m_HUD != NULL)
+            m_HUD->reshape(width, height);
+    }
 
-	void draw()
-	{
-	    auto entity = static_cast<GraphEntity*>(m_EntityManager.active());
+    void draw()
+    {
+        auto entity = static_cast<GraphEntity*>(m_EntityManager.active());
 
-	    Geometry::beginFrame();
+        Geometry::beginFrame();
 
-		if (m_Screenshot)
-		{
-			unsigned int factor = 4;
-			m_FrameBuffer->reshape(glutGet(GLUT_WINDOW_WIDTH) * factor, glutGet(GLUT_WINDOW_HEIGHT) * factor);
-			m_TextureVector.reshape(glutGet(GLUT_WINDOW_WIDTH) * factor, glutGet(GLUT_WINDOW_HEIGHT) * factor);
-		}
-
-#ifndef EMSCRIPTEN
-		m_FrameBuffer->bind();
-		m_FrameBuffer->setConvolutionEffect(Canvas::NORMAL);
-		m_FrameBuffer->bindColorTexture(m_TextureVector[0]);
-#endif
-		{
-		    glClearColor(0.0, 0.0, 0.0, 0.0);
-		    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		    for (auto e : m_EntityManager.entities())
-		    for (auto v : e.second->views())
-		        v->draw();
-		}
-
-		if (m_Screenshot)
-		{
-			m_FrameBuffer->dump("hd-shot.tga", m_TextureVector[0]);
-			m_FrameBuffer->reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
-			m_TextureVector.reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
-			m_Screenshot = false;
-		}
+        if (m_Screenshot)
+        {
+            unsigned int factor = 4;
+            m_Canvas->reshape(glutGet(GLUT_WINDOW_WIDTH) * factor, glutGet(GLUT_WINDOW_HEIGHT) * factor);
+            m_TextureVector.reshape(glutGet(GLUT_WINDOW_WIDTH) * factor, glutGet(GLUT_WINDOW_HEIGHT) * factor);
+        }
 
 #ifndef EMSCRIPTEN
-		// Final render to screen
-		m_FrameBuffer->unbind();
-		glClearColor(0.0, 0.0, 0.0, 0.0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		m_FrameBuffer->draw(entity->context(), m_TextureVector[0]);
+        m_Canvas->bind();
+        m_Canvas->setConvolutionEffect(Canvas::NORMAL);
+        m_Canvas->bindColorTexture(m_TextureVector[0]);
 #endif
-		
-		for (auto e : m_EntityManager.entities())
-		for (auto c : e.second->controllers())
+        {
+            glClearColor(0.0, 0.0, 0.0, 0.0);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            for (auto e : m_EntityManager.entities())
+            for (auto v : e.second->views())
+                v->draw();
+        }
+
+        if (m_Screenshot)
+        {
+            m_Canvas->dump("hd-shot.tga", m_TextureVector[0]);
+            m_Canvas->reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+            m_TextureVector.reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+            m_Screenshot = false;
+        }
+
+#ifndef EMSCRIPTEN
+        // Final render to screen
+        m_Canvas->unbind();
+        glClearColor(0.0, 0.0, 0.0, 0.0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        m_Canvas->draw(entity->context(), m_TextureVector[0]);
+#endif
+
+        for (auto e : m_EntityManager.entities())
+        for (auto c : e.second->controllers())
             c->draw();
 
-		if (!m_Screenshot)
-			m_HUD->draw(entity->context());
+        if (!m_Screenshot)
+            m_HUD->draw(entity->context());
 
-		finish();
+        finish();
 
-		Geometry::endFrame();
-	}
+        Geometry::endFrame();
+    }
 
-	void idle()
-	{
-		if (!m_Started)
-		{
-			if (m_Console)
-			{
-				IScript* script = m_Console->getScript("#started");
-				if (script)
-					m_Console->execute(script);
-			}
+    void idle()
+    {
+        if (!m_Started)
+        {
+            if (m_Console)
+            {
+                IScript* script = m_Console->getScript("#started");
+                if (script)
+                    m_Console->execute(script);
+            }
 
-			m_Started = true;
-		}
+            m_Started = true;
+        }
 
-		m_Console->idle(context().clock());
+        m_Console->idle(context().clock());
 
-		if (m_EntityManager.active() != NULL)
-			m_EntityManager.active()->context()->sequencer().play();
+        if (m_EntityManager.active() != NULL)
+            m_EntityManager.active()->context()->sequencer().play();
 
-		m_HUD->idle();
-		
-		for (auto e : m_EntityManager.entities())
-		{
-		    for (auto c : e.second->controllers())
-		        c->idle();
-		    for (auto v : e.second->views())
-		        v->idle();
-		}
+        m_HUD->idle();
 
-		if (m_EntityManager.active() != NULL)
-        	m_EntityManager.active()->context()->messages().process();
+        for (auto e : m_EntityManager.entities())
+        {
+            for (auto c : e.second->controllers())
+                c->idle();
+            for (auto v : e.second->views())
+                v->idle();
+        }
 
-		glutPostRedisplay();
-	}
+        if (m_EntityManager.active() != NULL)
+            m_EntityManager.active()->context()->messages().process();
 
-	void keyboard(unsigned char key, int x, int y)
-	{
-		(void) x;
-		(void) y;
+        glutPostRedisplay();
+    }
 
-		m_HUD->onKeyboard(key, Controller::KEY_DOWN);
+    void keyboard(unsigned char key, int x, int y)
+    {
+        (void) x;
+        (void) y;
 
-		if (key == 'f')
-		{
-		    m_Window->fullscreen();
-		}
-		else if (key == 'm')
-		{
-		    Geometry::getMetrics().dump();
-		    Geometry::getMetrics().reset();
-		    ResourceManager::getInstance().dump();
-		}
-	#ifndef EMSCRIPTEN
-		else if (key == 's')
-				m_Screenshot = true;
-	#endif
-		else
-		{
-	        for (auto e : m_EntityManager.entities())
-	        for (auto c : e.second->controllers())
-	            c->onKeyboard(key, Controller::KEY_DOWN);
-		}
-	}
+        m_HUD->onKeyboard(key, Controller::KEY_DOWN);
 
-	void keyboardUp(unsigned char key, int x, int y)
-	{
+        if (key == 'f')
+        {
+            m_Window->fullscreen();
+        }
+        else if (key == 'm')
+        {
+            Geometry::getMetrics().dump();
+            Geometry::getMetrics().reset();
+            ResourceManager::getInstance().dump();
+        }
+    #ifndef EMSCRIPTEN
+        else if (key == 's')
+                m_Screenshot = true;
+    #endif
+        else
+        {
+            for (auto e : m_EntityManager.entities())
+            for (auto c : e.second->controllers())
+                c->onKeyboard(key, Controller::KEY_DOWN);
+        }
+    }
+
+    void keyboardUp(unsigned char key, int x, int y)
+    {
         (void) x;
         (void) y;
 
@@ -431,119 +429,119 @@ public:
         for (auto e : m_EntityManager.entities())
         for (auto c : e.second->controllers())
             c->onKeyboard(key, Controller::KEY_UP);
-	}
+    }
 
-	void special(int key, int x, int y)
-	{
-		(void) x;
-		(void) y;
+    void special(int key, int x, int y)
+    {
+        (void) x;
+        (void) y;
 
-		m_HUD->onSpecial(key, Controller::KEY_DOWN);
+        m_HUD->onSpecial(key, Controller::KEY_DOWN);
 
-		for (auto e : m_EntityManager.entities())
-		for (auto c : e.second->controllers())
-		    c->onSpecial(key, Controller::KEY_DOWN);
-	}
+        for (auto e : m_EntityManager.entities())
+        for (auto c : e.second->controllers())
+            c->onSpecial(key, Controller::KEY_DOWN);
+    }
 
-	void specialUp(int key, int x, int y)
-	{
-	    (void) x;
-	    (void) y;
+    void specialUp(int key, int x, int y)
+    {
+        (void) x;
+        (void) y;
 
-		m_HUD->onSpecial(key, Controller::KEY_UP);
+        m_HUD->onSpecial(key, Controller::KEY_UP);
 
-		for (auto e : m_EntityManager.entities())
-		for (auto c : e.second->controllers())
-		    c->onSpecial(key, Controller::KEY_UP);
-	}
+        for (auto e : m_EntityManager.entities())
+        for (auto c : e.second->controllers())
+            c->onSpecial(key, Controller::KEY_UP);
+    }
 
-	void mouse(int button, int state, int x, int y)
-	{
-		m_HUD->mouse(button, state, x, y);
+    void mouse(int button, int state, int x, int y)
+    {
+        m_HUD->mouse(button, state, x, y);
 
-		if (m_HUD->getWidgetPick() == NULL)
-		{
-		    for (auto e : m_EntityManager.entities())
+        if (m_HUD->getWidgetPick() == NULL)
+        {
+            for (auto e : m_EntityManager.entities())
             for (auto c : e.second->controllers())
                 c->mouse(button, state, x, y);
-		}
-	}
+        }
+    }
 
-	void motion(int x, int y)
-	{
-		m_HUD->motion(x, y);
+    void motion(int x, int y)
+    {
+        m_HUD->motion(x, y);
 
-		for (auto e : m_EntityManager.entities())
-		for (auto c : e.second->controllers())
+        for (auto e : m_EntityManager.entities())
+        for (auto c : e.second->controllers())
                 c->motion(x, y);
-	}
+    }
 
-	void registerScript(const char* name, const char* source)
-	{
-		m_Console->registerScript(new StaticScript(std::string(name), std::string(source)));
+    void registerScript(const char* name, const char* source)
+    {
+        m_Console->registerScript(new StaticScript(std::string(name), std::string(source)));
 
-		if (m_HUD != NULL)
-		{
-			m_HUD->buildScriptWidgets(m_Console);
-			// NOTE : Hack ! script menu needs to be reshaped
-			m_HUD->reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
-		}
-	}
+        if (m_HUD != NULL)
+        {
+            m_HUD->buildScriptWidgets(m_Console);
+            // NOTE : Hack ! script menu needs to be reshaped
+            m_HUD->reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+        }
+    }
 
-	void unregisterScript(const char* name)
-	{
-	    IScript* script = m_Console->getScript(name);
-	    if (script == NULL)
-	    {
-	        LOG("[API] Script <%s> not found!\n", name);
-	        return;
-	    }
+    void unregisterScript(const char* name)
+    {
+        IScript* script = m_Console->getScript(name);
+        if (script == NULL)
+        {
+            LOG("[API] Script <%s> not found!\n", name);
+            return;
+        }
 
-		m_Console->unregisterScript(script);
+        m_Console->unregisterScript(script);
 
-		if (m_HUD != NULL)
-		{
-			m_HUD->buildScriptWidgets(m_Console);
-			// NOTE : Hack ! Script menu needs to be reshaped
-			m_HUD->reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
-		}
-	}
+        if (m_HUD != NULL)
+        {
+            m_HUD->buildScriptWidgets(m_Console);
+            // NOTE : Hack ! Script menu needs to be reshaped
+            m_HUD->reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+        }
+    }
 
-	Job::ID addJob(const char* name, float period)
-	{
-		IScript* script = m_Console->getScript(name);
-		if (script == NULL)
-		{
-			LOG("[API] Can't create job, script <%s> not found!\n", name);
-			return 0;
-		}
+    Job::ID addJob(const char* name, float period)
+    {
+        IScript* script = m_Console->getScript(name);
+        if (script == NULL)
+        {
+            LOG("[API] Can't create job, script <%s> not found!\n", name);
+            return 0;
+        }
 
-		return m_Console->addJob(script, period);
-	}
+        return m_Console->addJob(script, period);
+    }
 
-	void removeJob(Job::ID id)
-	{
-		m_Console->removeJob(id);
-	}
+    void removeJob(Job::ID id)
+    {
+        m_Console->removeJob(id);
+    }
 
-	// Accessors
+    // Accessors
 
-	inline EntityManager& getEntityManager() { return m_EntityManager; }
+    inline EntityManager& getEntityManager() { return m_EntityManager; }
 
 private:
-	GraphitiConsole* m_Console;
+    GraphitiConsole* m_Console;
 
-	EntityManager m_EntityManager;
+    EntityManager m_EntityManager;
 
-	HUD* m_HUD;
+    HUD* m_HUD;
 
-	Canvas* m_FrameBuffer;
-	TextureVector m_TextureVector;
-	Canvas::ConvolutionEffect m_PostEffect1;
-	Canvas::ConvolutionEffect m_PostEffect2;
+    Canvas* m_Canvas;
+    TextureVector m_TextureVector;
+    Canvas::ConvolutionEffect m_PostEffect1;
+    Canvas::ConvolutionEffect m_PostEffect2;
 
-	bool m_Started;
-	bool m_Screenshot;
-	std::string m_ScreenshotFilename;
-	bool m_FullScreen;
+    bool m_Started;
+    bool m_Screenshot;
+    std::string m_ScreenshotFilename;
+    bool m_FullScreen;
 };

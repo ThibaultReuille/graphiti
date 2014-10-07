@@ -1,6 +1,6 @@
 #pragma once
 
-#include <raindance/Core/HUD/Widgets/Widget.hh>
+#include <raindance/Core/GUI/Widgets/Widget.hh>
 
 class ViewWidget : public IWidget
 {

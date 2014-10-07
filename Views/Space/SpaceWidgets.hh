@@ -1,11 +1,11 @@
 #pragma once
 
-#include <raindance/Core/HUD/Widgets/Widget.hh>
-#include <raindance/Core/HUD/Widgets/TextWidget.hh>
-#include <raindance/Core/HUD/Widgets/SliderWidget.hh>
-#include <raindance/Core/HUD/Widgets/CheckBoxWidget.hh>
-#include <raindance/Core/HUD/Widgets/TimelineWidget.hh>
-#include <raindance/Core/HUD/Widgets/ClockWidget.hh>
+#include <raindance/Core/GUI/Widgets/Widget.hh>
+#include <raindance/Core/GUI/Widgets/TextWidget.hh>
+#include <raindance/Core/GUI/Widgets/SliderWidget.hh>
+#include <raindance/Core/GUI/Widgets/CheckBoxWidget.hh>
+#include <raindance/Core/GUI/Widgets/TimelineWidget.hh>
+#include <raindance/Core/GUI/Widgets/ClockWidget.hh>
 
 class PointerWidget : public IWidget
 {

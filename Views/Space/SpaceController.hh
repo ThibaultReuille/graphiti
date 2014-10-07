@@ -4,7 +4,7 @@
 #include <raindance/Core/Camera/Camera.hh>
 #include <raindance/Core/Camera/Controllers.hh>
 #include <raindance/Core/Camera/Sequences.hh>
-#include <raindance/Core/HUD/HUD.hh>
+#include <raindance/Core/GUI/HUD.hh>
 #include <raindance/Core/Controller.hh>
 #include <raindance/Core/Variables.hh>
 
