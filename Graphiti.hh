@@ -80,7 +80,10 @@ public:
             width = glutGet(GLUT_SCREEN_WIDTH);
             height = glutGet(GLUT_SCREEN_HEIGHT);
         }
-        addWindow(title, width, height);
+
+        WindowManager::ID id;
+        id = m_WindowManager->add(new Window(title, width, height));
+        m_WindowManager->bind(id);
     }
 
     Entity::ID createEntity(const char* type)
@@ -129,7 +132,7 @@ public:
                     return false;
                 }
                 entity->context()->messages().addListener(view);
-                m_Window->addView(view);
+                m_WindowManager->active()->addView(view);
 
                 SpaceController* controller = new SpaceController();
                 controller->bind(static_cast<GraphContext*>(entity->context()), entity->model(), view);
@@ -148,7 +151,7 @@ public:
                     return false;
                 }
                 entity->context()->messages().addListener(view);
-                m_Window->addView(view);
+                m_WindowManager->active()->addView(view);
 
                 WorldController* controller = new WorldController();
                 controller->bind(static_cast<GraphContext*>(entity->context()), view);
@@ -167,7 +170,7 @@ public:
                     return false;
                 }
                 entity->context()->messages().addListener(view);
-                m_Window->addView(view);
+                m_WindowManager->active()->addView(view);
 
                 CloudController* controller = new CloudController();
                 controller->bind(static_cast<GraphContext*>(entity->context()), view);
@@ -185,6 +188,7 @@ public:
                     return false;
                 }
                 entity->context()->messages().addListener(view);
+                m_WindowManager->active()->addView(view);
 
                 MeshController* controller = new MeshController();
                 controller->bind(entity->context(), view);
@@ -202,7 +206,7 @@ public:
                     return false;
                 }
                 entity->context()->messages().addListener(view);
-                m_Window->addView(view);
+                m_WindowManager->active()->addView(view);
 
                 ParticleController* controller = new ParticleController();
                 controller->bind(static_cast<GraphContext*>(entity->context()), entity->model(), view);
@@ -228,7 +232,7 @@ public:
                     return false;
                 }
                 entity->context()->messages().addListener(view);
-                m_Window->addView(view);
+                m_WindowManager->active()->addView(view);
 
                 auto controller = new StreamController();
                 controller->bind(static_cast<TimeSeriesContext*>(entity->context()), view);
@@ -274,14 +278,15 @@ public:
 
     inline void screenshot(const char* filename)
     {
-        m_Window->screenshot(std::string(filename), 1);
+        m_WindowManager->active()->screenshot(std::string(filename), 1);
     }
 
     // ---------- Window Events ----------
 
     void reshape(int width, int height)
     {
-        m_Window->reshape(width, height);
+        // TODO : Use glutGetWindow to forward to the right window.
+        m_WindowManager->active()->reshape(width, height);
 
         for (auto e : m_EntityManager.entities())
         for (auto c : e.second->controllers())
@@ -293,18 +298,16 @@ public:
 
     void draw()
     {
-        auto entity = static_cast<GraphEntity*>(m_EntityManager.active());
-
         Geometry::beginFrame();
 
-        m_Window->draw(&m_Context);
+        m_WindowManager->active()->draw(&m_Context);
 
         for (auto e : m_EntityManager.entities())
         for (auto c : e.second->controllers())
             c->draw();
 
-        if (!m_Screenshot)
-            m_HUD->draw(entity->context());
+        if (m_WindowManager->active()->getScreenshotFactor() <= 0)
+            m_HUD->draw(&m_Context);
 
         finish();
 
@@ -343,11 +346,12 @@ public:
         if (m_EntityManager.active() != NULL)
             m_EntityManager.active()->context()->messages().process();
 
-        glutPostRedisplay();
+        postRedisplay();
     }
 
     void keyboard(unsigned char key, int x, int y)
     {
+        // TODO : Use glutGetWindow to forward to the right window.
         (void) x;
         (void) y;
 
@@ -355,7 +359,7 @@ public:
 
         if (key == 'f')
         {
-            m_Window->fullscreen();
+            m_WindowManager->active()->fullscreen();
         }
         else if (key == 'm')
         {
@@ -365,7 +369,7 @@ public:
         }
     #ifndef EMSCRIPTEN
         else if (key == 's')
-                m_Window->screenshot(std::string("hd-shot.tga"), 4);
+            m_WindowManager->active()->screenshot(std::string("hd-shot.tga"), 4);
     #endif
         else
         {
