@@ -12,25 +12,25 @@
 #include "Entities/MVC.hh"
 #include "Entities/Graph/GraphCommands.hh"
 
-#include "Views/Space/SpaceView.hh"
-#include "Views/Space/SpaceController.hh"
+#include "Visualizers/Space/SpaceView.hh"
+#include "Visualizers/Space/SpaceController.hh"
 
-# include "Views/World/WorldView.hh"
-# include "Views/World/WorldController.hh"
+# include "Visualizers/World/WorldView.hh"
+# include "Visualizers/World/WorldController.hh"
 
 #ifndef EMSCRIPTEN
 
-# include "Views/Cloud/CloudView.hh"
-# include "Views/Cloud/CloudController.hh"
+# include "Visualizers/Cloud/CloudView.hh"
+# include "Visualizers/Cloud/CloudController.hh"
 
-# include "Views/Mesh/MeshView.hh"
-# include "Views/Mesh/MeshController.hh"
+# include "Visualizers/Mesh/MeshView.hh"
+# include "Visualizers/Mesh/MeshController.hh"
 
-# include "Views/Particles/ParticleView.hh"
-# include "Views/Particles/ParticleController.hh"
+# include "Visualizers/Particles/ParticleView.hh"
+# include "Visualizers/Particles/ParticleController.hh"
 
-# include "Views/Stream/StreamView.hh"
-# include "Views/Stream/StreamController.hh"
+# include "Visualizers/Stream/StreamView.hh"
+# include "Visualizers/Stream/StreamController.hh"
 
 #endif
 

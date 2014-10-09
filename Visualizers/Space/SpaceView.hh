@@ -21,15 +21,15 @@
  #include "Entities/Graph/GraphModel.hh"
  #include "Entities/Graph/GraphMessages.hh"
  
- #include "Views/Space/SpaceNode.hh"
- #include "Views/Space/SpaceEdge.hh"
- #include "Views/Space/SpaceSphere.hh"
+ #include "Visualizers/Space/SpaceNode.hh"
+ #include "Visualizers/Space/SpaceEdge.hh"
+ #include "Visualizers/Space/SpaceSphere.hh"
  
- #include "Views/Space/SpaceResources.hh"
+ #include "Visualizers/Space/SpaceResources.hh"
  
  typedef TranslationMap<SpaceNode::ID, Node::ID> NodeTranslationMap;
  typedef TranslationMap<SpaceEdge::ID, Link::ID> LinkTranslationMap;
- #include "Views/Space/SpaceForces.hh"
+ #include "Visualizers/Space/SpaceForces.hh"
  
  #include "Pack.hh"
  

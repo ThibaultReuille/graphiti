@@ -13,9 +13,9 @@
 
 #include "Entities/MVC.hh"
 
-#include "Views/World/WorldResources.hh"
-#include "Views/World/Earth.hh"
-#include "Views/World/WorldMap.hh"
+#include "Visualizers/World/WorldResources.hh"
+#include "Visualizers/World/Earth.hh"
+#include "Visualizers/World/WorldMap.hh"
 
 typedef TranslationMap<SpaceNode::ID, Node::ID> NodeTranslationMap;
 typedef TranslationMap<SpaceEdge::ID, Link::ID> LinkTranslationMap;

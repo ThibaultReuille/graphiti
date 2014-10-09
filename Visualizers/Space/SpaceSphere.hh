@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Views/Space/SpaceResources.hh"
-#include "Views/Space/SpaceWidgets.hh"
+#include "Visualizers/Space/SpaceResources.hh"
+#include "Visualizers/Space/SpaceWidgets.hh"
 
 class SpaceSphere : public Scene::Node
 {

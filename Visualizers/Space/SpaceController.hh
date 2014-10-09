@@ -12,7 +12,7 @@
 
 #include "Entities/Graph/GraphModel.hh"
 
-#include "Views/Space/SpaceWidgets.hh"
+#include "Visualizers/Space/SpaceWidgets.hh"
 
 class SpaceController : public GraphController
 {

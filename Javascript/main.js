@@ -38,7 +38,7 @@ var loadJSON = function(file, jdata)
 		var node = jdata["nodes"][id];
 		var nid = Module.addNode(node["label"]);
 
-		for (attribute in node)		
+		for (attribute in node)
 			if (attribute in node_attributes)
 			{
 				var name = attribute;
@@ -57,7 +57,7 @@ var loadJSON = function(file, jdata)
 		var dst = nodes[edge["dst"]];
 		var eid = Module.addEdge(src, dst);
 
-		for (attribute in edge)		
+		for (attribute in edge)
 			if (attribute in edge_attributes)
 			{
 				var name = attribute;
@@ -79,7 +79,7 @@ var hideEmscriptenUI = function()
 	}
 
 	document.getElementById('output').style.display ='None';
-	document.getElementById('canvas').style.display ='block';	
+	document.getElementById('canvas').style.display ='block';
 }
 
 var setupDragAndDrop = function()
@@ -96,7 +96,7 @@ var setupDragAndDrop = function()
 	  state.className = 'success';
 	  state.innerHTML = 'File API & FileReader available';
 	}
-	 
+
 	holder.ondragover = function ()
 	{
 		holder.style.opacity = 0.5;
@@ -140,11 +140,11 @@ var main = function()
 	Module.create();
 	Module.initialize();
 	Module.createWindow('OpenGraphiti : Data Visualization Engine', window.innerWidth - 10, window.innerHeight - 10);
-	
+
 	Module.createEntity('graph');
-	Module.createView('space');
-	Module.registerScript('Start Animation', 'Module.setAttribute("og:space:animation", "bool", "true");'); 
-	Module.registerScript('Stop Animation', 'Module.setAttribute("og:space:animation", "bool", "false");'); 
+	Module.createVisualizer('space');
+	Module.registerScript('Start Animation', 'Module.setAttribute("og:space:animation", "bool", "true");');
+	Module.registerScript('Stop Animation', 'Module.setAttribute("og:space:animation", "bool", "false");');
 
 	Module.start();
 	Module.destroy();

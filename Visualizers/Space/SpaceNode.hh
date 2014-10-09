@@ -2,8 +2,8 @@
 
 #include <raindance/Core/Scene/Node.hh>
 
-#include "Views/Space/SpaceResources.hh"
-#include "Views/Space/SpaceWidgets.hh"
+#include "Visualizers/Space/SpaceResources.hh"
+#include "Visualizers/Space/SpaceWidgets.hh"
 
 class SpaceNode : public Scene::Node
 {

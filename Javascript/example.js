@@ -22,7 +22,7 @@ var example = function()
 
 	Module.setEdgeAttribute(e1, "og:space:activity", "float", "1.0");
 	Module.setEdgeAttribute(e2, "og:space:activity", "float", "2.0");
-	Module.setEdgeAttribute(e3, "og:space:activity", "float", "3.0");	
+	Module.setEdgeAttribute(e3, "og:space:activity", "float", "3.0");
 }
 
 var hideEmscriptenUI = function()
@@ -33,7 +33,7 @@ var hideEmscriptenUI = function()
 	}
 
 	document.getElementById('output').style.display ='None';
-	document.getElementById('canvas').style.display ='block';	
+	document.getElementById('canvas').style.display ='block';
 }
 
 var main = function()
@@ -44,10 +44,10 @@ var main = function()
 	Module.initialize();
 	Module.createWindow('OpenGraphiti : Data Visualization Engine', window.innerWidth - 10, window.innerHeight - 10);
 	Module.createEntity('graph');
-	Module.createView('space');
+	Module.createVisualizer('space');
 
 	Module.registerScript('#started', 'alert("Welcome in OpenGraphiti !");');
-	Module.registerScript('Example', 'example();') 
+	Module.registerScript('Example', 'example();')
 
 	Module.start();
 	Module.destroy();

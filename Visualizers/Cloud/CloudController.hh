@@ -6,7 +6,7 @@
 
 #include "Entities/MVC.hh"
 
-#include "Views/Cloud/CloudWidgets.hh"
+#include "Visualizers/Cloud/CloudWidgets.hh"
 
 class CloudController : public GraphController
 {

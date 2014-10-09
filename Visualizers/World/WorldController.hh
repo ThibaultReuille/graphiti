@@ -6,7 +6,7 @@
 
 #include "Entities/MVC.hh"
 
-#include "Views/World/WorldWidgets.hh"
+#include "Visualizers/World/WorldWidgets.hh"
 
 class WorldController : public GraphController
 {
