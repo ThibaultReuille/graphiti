@@ -178,15 +178,15 @@ static PyObject* createWindow(PyObject* self, PyObject* args)
 	return Py_BuildValue("");
 }
 
-static PyObject* createView(PyObject* self, PyObject* args)
+static PyObject* createVisualizer(PyObject* self, PyObject* args)
 {
 	(void)self;
 
-	char* view = NULL;
+	char* name = NULL;
 
-	PROTECT_PARSE(PyArg_ParseTuple(args, "s", &view));
+	PROTECT_PARSE(PyArg_ParseTuple(args, "s", &name));
 
-	API::createView(view);
+	API::createVisualizer(name);
 	
 	return Py_BuildValue("");
 }
@@ -685,7 +685,7 @@ static PyMethodDef g_Module[] =
 {
 	{"start",                 API::Python::start,               METH_VARARGS, "Start engine"},
 	{"create_window",         API::Python::createWindow,        METH_VARARGS, "Create window"},
-	{"create_view",           API::Python::createView,          METH_VARARGS, "Create view"},
+	{"create_visualizer",     API::Python::createVisualizer,    METH_VARARGS, "Create visualizer"},
 	{"screenshot",            API::Python::screenshot,          METH_VARARGS, "Take a screenshot"},
     // ----- Entities -----
     {"create_entity",         API::Python::createEntity,        METH_VARARGS, "Create an entity"},

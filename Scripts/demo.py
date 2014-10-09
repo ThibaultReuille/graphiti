@@ -745,5 +745,5 @@ def start():
 
     graphiti.create_window("OpenGraphiti : Data Visualization Engine", 0, 0)
     graphiti.create_entity("graph")
-    graphiti.create_view("space")
+    graphiti.create_visualizer("space")
     graphiti.start()

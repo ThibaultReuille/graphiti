@@ -63,6 +63,21 @@ public:
 
 EntityController::~EntityController() {}
 
+// ----- Entity Visualizer -----
+
+class EntityVisualizer : public EntityBase
+{
+public:
+    EntityVisualizer(EntityView* view, EntityController* controller) : m_EntityView(view), m_EntityController(controller) {}
+    virtual ~EntityVisualizer() {}
+    virtual EntityView* view() { return m_EntityView; }
+    virtual EntityController* controller() { return m_EntityController; }
+
+protected:
+    EntityView* m_EntityView;
+    EntityController* m_EntityController;
+};
+
 // ----- Entity Listener -----
 
 class EntityListener : public EntityBase, public IListener
@@ -192,6 +207,7 @@ private:
 
     std::list<EntityView*> m_Views;
     std::list<EntityController*> m_Controllers;
+
     std::vector<EntityListener*> m_Listeners;
 };
 

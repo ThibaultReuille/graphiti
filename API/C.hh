@@ -31,10 +31,10 @@ extern "C" {
 		g_Graphiti.createWindow(title, width, height);
 	}
 
-	void createView(const char* view)
+	void createVisualizer(const char* visualizer)
 	{
-		// LOG("[API] createView('%s')\n", view);
-		g_Graphiti.createView(view);
+		// LOG("[API] createVisualizer('%s')\n", visualizer);
+		g_Graphiti.createVisualizer(visualizer);
 	}
 
 	void start()

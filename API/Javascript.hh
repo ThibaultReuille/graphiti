@@ -13,9 +13,9 @@ namespace Javascript
 
 	void createWindow(const std::string& title, int width, int height) { API::createWindow(title.c_str(), width, height); }
 
-	void createView(const std::string& view) { API::createView(view.c_str()); }
-
 	void createEntity(const std::string& type) { API::createEntity(type.c_str()); }
+
+	void createVisualizer(const std::string& visualizer) { API::createVisualizer(visualizer.c_str()); }
 
 	void setAttribute(const std::string& name, const std::string& type, const std::string& value) { API::setAttribute(name.c_str(), type.c_str(), value.c_str()); }
 
@@ -42,7 +42,7 @@ EMSCRIPTEN_BINDINGS(my_module)
 	function("create", &API::create);
 	function("initialize", &API::initialize);
 	function("createWindow", &Javascript::createWindow, allow_raw_pointers());
-	function("createView", &Javascript::createView, allow_raw_pointers());
+	function("createVisualizer", &Javascript::createVisualizer, allow_raw_pointers());
 	function("start", &API::start);
 	function("destroy", &API::destroy);
 	// function("screenshot", &API::screenshot);

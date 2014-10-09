@@ -78,5 +78,5 @@ def start():
 
     graphiti.create_window("OpenGraphiti : Data Visualization Engine", 0, 0)
     graphiti.create_entity("graph")
-    graphiti.create_view("world")
+    graphiti.create_visualizer("world")
     graphiti.start()

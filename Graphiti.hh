@@ -112,12 +112,15 @@ public:
         return id;
     }
 
-    bool createView(const char* view)
+    bool createVisualizer(const char* visualizer)
     {
         if (m_EntityManager.active() == NULL)
             return false;
 
-        std::string name = view;
+        std::string name = visualizer;
+
+        auto window = m_WindowManager->active();
+        Viewport viewport(glm::vec2(0, 0), glm::vec2(window->width(), window->height()));
 
         if (m_EntityManager.active()->type() == Entity::GRAPH)
         {
@@ -126,6 +129,7 @@ public:
             if (name == "space")
             {
                 auto view = new SpaceView();
+                view->setViewport(viewport);
                 if (!view->bind(entity))
                 {
                     SAFE_DELETE(view);
@@ -140,11 +144,14 @@ public:
                 entity->listeners().push_back(controller);
                 entity->context()->messages().addListener(controller);
 
+                auto visualizer = new EntityVisualizer(view, controller);
+
                 return true;
             }
             else if (name == "world")
             {
                 auto view = new WorldView();
+                view->setViewport(viewport);
                 if (!view->bind(entity))
                 {
                     SAFE_DELETE(view);
@@ -164,6 +171,7 @@ public:
             else if (name == "cloud")
             {
                 auto view = new CloudView();
+                view->setViewport(viewport);
                 if (!view->bind(entity))
                 {
                     SAFE_DELETE(view);
@@ -182,6 +190,7 @@ public:
             else if (name == "mesh")
             {
                 auto view = new MeshView();
+                view->setViewport(viewport);
                 if (!view->bind(entity))
                 {
                     SAFE_DELETE(view);
@@ -200,6 +209,7 @@ public:
             else if (name == "particles")
             {
                 auto view = new ParticleView();
+                view->setViewport(viewport);
                 if (!view->bind(entity))
                 {
                     SAFE_DELETE(view);
@@ -226,6 +236,7 @@ public:
             if (name == "stream")
             {
                 auto view = new StreamView();
+                view->setViewport(viewport);
                 if (!view->bind(entity))
                 {
                     SAFE_DELETE(view);
@@ -244,7 +255,7 @@ public:
         }
 #endif
 
-        LOG("[GRAPHITI] Couldn't create view named '%s' !\n", view);
+        LOG("[GRAPHITI] Couldn't create visualizer named '%s' !\n", visualizer);
         return false;
     }
 
@@ -360,6 +371,10 @@ public:
         if (key == 'f')
         {
             m_WindowManager->active()->fullscreen();
+        }
+        else if (key == 'n')
+        {
+            m_WindowManager->active()->nextView();
         }
         else if (key == 'm')
         {
