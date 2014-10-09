@@ -63,22 +63,22 @@ extern "C" {
 	    return g_Graphiti.createEntity(type);
 	}
 
-	void bindEntity(Entity::ID id)
+	void bindEntity(EntityManager::ID id)
 	{
 	    // LOG("[API] bindEntitiy(%lu)\n", id);
-	    g_Graphiti.getEntityManager().bind(id);
+	    g_Graphiti.entities().bind(id);
 	}
 
-	void send(Entity::ID id, const Variables& input, Variables& output)
+	void send(EntityManager::ID id, const Variables& input, Variables& output)
 	{
 	    // LOG("[API] send(%p, %p)\n", &input, &output);
-	    g_Graphiti.getEntityManager().entity(id)->send(input, output);
+	    g_Graphiti.entities().element(id)->send(input, output);
 	}
 
-	void destroyEntity(Entity::ID id)
+	void destroyEntity(EntityManager::ID id)
 	{
 	    // LOG("[API] destroyEntity('%lu')\n", id);
-	    return g_Graphiti.getEntityManager().destroy(id);
+	    return g_Graphiti.entities().destroy(id);
 	}
 
 	// ----- Attributes -----
@@ -87,14 +87,14 @@ extern "C" {
     {
         // LOG("[API] setAttribute('%s', '%s', '%s')\n", name, type, value);
 
-        return g_Graphiti.getEntityManager().active()->setAttribute(name, type, value);
+        return g_Graphiti.entities().active()->setAttribute(name, type, value);
     }
 
     IVariable* getAttribute(const char* name)
     {
         // LOG("[API] getAttribute('%s')\n", name);
 
-        return g_Graphiti.getEntityManager().active()->getAttribute(name);
+        return g_Graphiti.entities().active()->getAttribute(name);
     }
 
 	// ----- Scripts -----

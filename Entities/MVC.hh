@@ -4,6 +4,7 @@
 #include <raindance/Core/Controller.hh>
 #include <raindance/Core/Variables.hh>
 #include <raindance/Core/GUI/View.hh>
+#include <raindance/Core/Manager.hh>
 
 // Forward declarations
 
@@ -76,6 +77,12 @@ public:
 protected:
     EntityView* m_EntityView;
     EntityController* m_EntityController;
+};
+
+class EntityVisualizerManager : public Manager<EntityVisualizer>
+{
+public:
+    virtual ~EntityVisualizerManager() {}
 };
 
 // ----- Entity Listener -----
@@ -214,6 +221,32 @@ private:
 #include "Graph/GraphEntity.hh"
 #include "TimeSeries/TimeSeriesEntity.hh"
 
+class EntityManager : public Manager<Entity>
+{
+public:
+    virtual ~EntityManager() {}
+
+    virtual ID create(const char* type)
+    {
+        Entity* entity = NULL;
+
+        std::string stype(type);
+
+        if (stype == "graph")
+            entity = new GraphEntity();
+        else if (stype == "time_series")
+            entity = new TimeSeriesEntity();
+        else
+        {
+            LOG("[ENTITY] '%s' : Unknown entity type!\n", type);
+            throw;
+        }
+
+        return add(entity);
+    }
+};
+
+/*
 class EntityManager
 {
 public:
@@ -273,3 +306,4 @@ private:
     Entity* m_ActiveEntity;
     std::unordered_map<Entity::ID, Entity*> m_Entities;
 };
+*/

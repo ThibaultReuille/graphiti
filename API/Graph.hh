@@ -11,7 +11,7 @@ extern "C" {
     {
         // LOG("[API] addNode('%s')\n", label);
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -22,7 +22,7 @@ extern "C" {
     {
         // LOG("[API] removeNode(%lu)\n", id);
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -33,7 +33,7 @@ extern "C" {
     {
         // LOG("[API] tagNode(%lu, %lu)\n", node, sphere);
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -44,7 +44,7 @@ extern "C" {
     {
         // LOG("[API] countNodes()\n");
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -55,7 +55,7 @@ extern "C" {
     {
         // LOG("[API] getNodeID(%u)", i);
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -67,7 +67,7 @@ extern "C" {
     {
         // LOG("[API] getNodeIDs()\n");
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -80,7 +80,7 @@ extern "C"
     {
         // LOG("[API] setNodeLabel(%lu, '%s')\n", id, label);
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -91,7 +91,7 @@ extern "C"
     {
         // LOG("[API] getNodeLabel(%lu)\n", id);
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -102,7 +102,7 @@ extern "C"
     {
         // LOG("[API] setNodeAttribute(%lu, '%s', '%s', '%s')\n", id, name, type, value);
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -113,7 +113,7 @@ extern "C"
     {
         // LOG("[API] getNodeAttribute(%lu, '%s')\n", id, name);
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -126,7 +126,7 @@ extern "C"
     {
         // LOG("[API] addLink(%lu, %lu)\n", uid1, uid2);
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -137,7 +137,7 @@ extern "C"
     {
         // LOG("[API] removeLink(%lu)\n", id);
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -148,7 +148,7 @@ extern "C"
     {
         // LOG("[API] countLinks()\n");
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -159,7 +159,7 @@ extern "C"
     {
         // LOG("[API] getLinkID(%lu)\n", i);
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -171,7 +171,7 @@ extern "C"
     {
         // LOG("[API] getLinkIDs()\n");
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -184,7 +184,7 @@ extern "C"
     {
         // LOG("[API] getLinkNode1(%lu)", id);
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -195,7 +195,7 @@ extern "C"
     {
         // LOG("[API] getLinkNode2(%lu)", id);
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -206,7 +206,7 @@ extern "C"
     {
         // LOG("[API] setLinkAttribute(%lu, '%s', '%s', '%s')\n", id, name, type, value);
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -218,7 +218,7 @@ extern "C"
     {
         // LOG("[API] getLinkAttribute(%lu, '%s')\n", id, name);
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -233,7 +233,7 @@ extern "C"
     {
         // LOG("[API] addSphere('%s')\n", label);
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -246,7 +246,7 @@ extern "C"
     {
         // LOG("[API] addNeighbor('%s', %lu)\n", label, neighbor);
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -259,7 +259,7 @@ extern "C"
     {
         // LOG("[API] countSelectedNodes()\n");
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -270,7 +270,7 @@ extern "C"
     {
         // LOG("[API] getSelectedNode(%u)\n", index);
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
@@ -289,7 +289,7 @@ extern "C"
 
         // variables.dump();
 
-        Entity* entity = g_Graphiti.getEntityManager().active();
+        Entity* entity = g_Graphiti.entities().active();
         if (entity->type() != Entity::GRAPH)
             throw;
 
