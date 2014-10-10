@@ -6,6 +6,8 @@
 #include <raindance/Core/GUI/View.hh>
 #include <raindance/Core/Manager.hh>
 
+// TODO : This should probably all be moved into the Raindance engine
+
 // Forward declarations
 
 class Entity;
@@ -245,65 +247,3 @@ public:
         return add(entity);
     }
 };
-
-/*
-class EntityManager
-{
-public:
-    EntityManager()
-    {
-        m_NextEntityID = 0;
-        m_ActiveEntity = NULL;
-    }
-
-    virtual ~EntityManager()
-    {
-        for (auto e : m_Entities)
-            delete e.second;
-    }
-
-    Entity::ID create(const char* type)
-    {
-        std::string stype(type);
-
-        Entity::ID id = m_NextEntityID;
-
-        if (stype == "graph")
-            m_Entities[id] = new GraphEntity();
-        else if (stype == "time_series")
-            m_Entities[id] = new TimeSeriesEntity();
-        else
-        {
-            LOG("[ENTITY] '%s' : Unknown entity type!\n", type);
-            throw;
-        }
-
-        m_NextEntityID++;
-        return id;
-    }
-
-    void destroy(Entity::ID id)
-    {
-        Entity* e = m_Entities[id];
-        if (m_ActiveEntity == e)
-            m_ActiveEntity = NULL;
-        m_Entities.erase(id);
-        delete e;
-    }
-
-    void bind(Entity::ID id)
-    {
-        m_ActiveEntity = entity(id);
-    }
-
-    // Accessors
-    inline Entity* entity(Entity::ID id) { return m_Entities[id]; }
-    inline Entity* active() { return m_ActiveEntity; }
-    inline std::unordered_map<Entity::ID, Entity*>& entities() { return m_Entities; }
-
-private:
-    Entity::ID m_NextEntityID;
-    Entity* m_ActiveEntity;
-    std::unordered_map<Entity::ID, Entity*> m_Entities;
-};
-*/

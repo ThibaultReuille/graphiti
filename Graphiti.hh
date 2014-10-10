@@ -8,6 +8,7 @@
 #include "Pack.hh"
 
 #include "Core/Console.hh"
+#include "Core/Window.hh"
 
 #include "Entities/MVC.hh"
 #include "Entities/Graph/GraphCommands.hh"
@@ -81,8 +82,7 @@ public:
             height = glutGet(GLUT_SCREEN_HEIGHT);
         }
 
-        WindowManager::ID id;
-        id = m_WindowManager.add(new Window(title, width, height));
+        auto id = m_WindowManager.add(new GraphitiWindow(title, width, height));
         m_WindowManager.bind(id);
     }
 
@@ -119,7 +119,7 @@ public:
 
         std::string name = visualizer;
 
-        auto window = m_WindowManager.active();
+        auto window =  static_cast<GraphitiWindow*>(m_WindowManager.active());
         Viewport viewport(glm::vec2(0, 0), glm::vec2(window->width(), window->height()));
 
         if (m_EntityManager.active()->type() == Entity::GRAPH)
@@ -136,7 +136,6 @@ public:
                     return false;
                 }
                 entity->context()->messages().addListener(view);
-                m_WindowManager.active()->addView(view);
 
                 SpaceController* controller = new SpaceController();
                 controller->bind(static_cast<GraphContext*>(entity->context()), entity->model(), view);
@@ -144,7 +143,8 @@ public:
                 entity->listeners().push_back(controller);
                 entity->context()->messages().addListener(controller);
 
-                auto visualizer = new EntityVisualizer(view, controller);
+                auto vid = m_VisualizerManager.add(new EntityVisualizer(view, controller));
+                window->addVisualizer(m_VisualizerManager.element(vid));
 
                 return true;
             }
@@ -158,12 +158,14 @@ public:
                     return false;
                 }
                 entity->context()->messages().addListener(view);
-                m_WindowManager.active()->addView(view);
 
                 WorldController* controller = new WorldController();
                 controller->bind(static_cast<GraphContext*>(entity->context()), view);
                 entity->controllers().push_back(controller);
                 entity->context()->messages().addListener(controller);
+
+                auto vid = m_VisualizerManager.add(new EntityVisualizer(view, controller));
+                window->addVisualizer(m_VisualizerManager.element(vid));
 
                 return true;
             }
@@ -178,12 +180,14 @@ public:
                     return false;
                 }
                 entity->context()->messages().addListener(view);
-                m_WindowManager.active()->addView(view);
 
                 CloudController* controller = new CloudController();
                 controller->bind(static_cast<GraphContext*>(entity->context()), view);
                 entity->controllers().push_back(controller);
                 entity->context()->messages().addListener(controller);
+
+                auto vid = m_VisualizerManager.add(new EntityVisualizer(view, controller));
+                window->addVisualizer(m_VisualizerManager.element(vid));
 
                 return true;
             }
@@ -197,12 +201,14 @@ public:
                     return false;
                 }
                 entity->context()->messages().addListener(view);
-                m_WindowManager.active()->addView(view);
 
                 MeshController* controller = new MeshController();
                 controller->bind(entity->context(), view);
                 entity->controllers().push_back(controller);
                 entity->context()->messages().addListener(controller);
+
+                auto vid = m_VisualizerManager.add(new EntityVisualizer(view, controller));
+                window->addVisualizer(m_VisualizerManager.element(vid));
 
                 return true;
             }
@@ -216,12 +222,14 @@ public:
                     return false;
                 }
                 entity->context()->messages().addListener(view);
-                m_WindowManager.active()->addView(view);
 
                 ParticleController* controller = new ParticleController();
                 controller->bind(static_cast<GraphContext*>(entity->context()), entity->model(), view);
                 entity->controllers().push_back(controller);
                 entity->context()->messages().addListener(controller);
+
+                auto vid = m_VisualizerManager.add(new EntityVisualizer(view, controller));
+                window->addVisualizer(m_VisualizerManager.element(vid));
 
                 return true;
             }
@@ -243,12 +251,14 @@ public:
                     return false;
                 }
                 entity->context()->messages().addListener(view);
-                m_WindowManager.active()->addView(view);
 
                 auto controller = new StreamController();
                 controller->bind(static_cast<TimeSeriesContext*>(entity->context()), view);
                 entity->controllers().push_back(controller);
                 entity->context()->messages().addListener(controller);
+
+                auto vid = m_VisualizerManager.add(new EntityVisualizer(view, controller));
+                window->addVisualizer(m_VisualizerManager.element(vid));
 
                 return true;
             }
@@ -313,10 +323,6 @@ public:
 
         m_WindowManager.active()->draw(&m_Context);
 
-        for (auto e : m_EntityManager.elements())
-        for (auto c : e.second->controllers())
-            c->draw();
-
         if (m_WindowManager.active()->getScreenshotFactor() <= 0)
             m_HUD->draw(&m_Context);
 
@@ -374,7 +380,7 @@ public:
         }
         else if (key == 'n')
         {
-            m_WindowManager.active()->nextView();
+            static_cast<GraphitiWindow*>(m_WindowManager.active())->selectNextVisualizer();
         }
         else if (key == 'm')
         {
@@ -388,9 +394,8 @@ public:
     #endif
         else
         {
-            for (auto e : m_EntityManager.elements())
-            for (auto c : e.second->controllers())
-                c->onKeyboard(key, Controller::KEY_DOWN);
+            auto window = static_cast<GraphitiWindow*>(m_WindowManager.active());
+            window->getActiveVisualizer()->controller()->onKeyboard(key, Controller::KEY_DOWN);
         }
     }
 
@@ -401,9 +406,8 @@ public:
 
         m_HUD->onKeyboard(key, Controller::KEY_UP);
 
-        for (auto e : m_EntityManager.elements())
-        for (auto c : e.second->controllers())
-            c->onKeyboard(key, Controller::KEY_UP);
+        auto window = static_cast<GraphitiWindow*>(m_WindowManager.active());
+        window->getActiveVisualizer()->controller()->onKeyboard(key, Controller::KEY_UP);
     }
 
     void special(int key, int x, int y)
@@ -425,9 +429,8 @@ public:
 
         m_HUD->onSpecial(key, Controller::KEY_UP);
 
-        for (auto e : m_EntityManager.elements())
-        for (auto c : e.second->controllers())
-            c->onSpecial(key, Controller::KEY_UP);
+        auto window = static_cast<GraphitiWindow*>(m_WindowManager.active());
+        window->getActiveVisualizer()->controller()->onSpecial(key, Controller::KEY_UP);
     }
 
     void mouse(int button, int state, int x, int y)
@@ -436,9 +439,8 @@ public:
 
         if (m_HUD->getWidgetPick() == NULL)
         {
-            for (auto e : m_EntityManager.elements())
-            for (auto c : e.second->controllers())
-                c->mouse(button, state, x, y);
+            auto window = static_cast<GraphitiWindow*>(m_WindowManager.active());
+            window->getActiveVisualizer()->controller()->mouse(button, state, x, y);
         }
     }
 
@@ -446,9 +448,8 @@ public:
     {
         m_HUD->motion(x, y);
 
-        for (auto e : m_EntityManager.elements())
-        for (auto c : e.second->controllers())
-                c->motion(x, y);
+        auto window = static_cast<GraphitiWindow*>(m_WindowManager.active());
+        window->getActiveVisualizer()->controller()->motion(x, y);
     }
 
     void registerScript(const char* name, const char* source)
