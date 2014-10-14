@@ -22,8 +22,11 @@ public:
 
         preDraw(context);
 
-        m_Visualizers[m_ActiveVisualizer]->view()->draw();
-        m_Visualizers[m_ActiveVisualizer]->controller()->draw();
+        auto visualizer = m_Visualizers[m_ActiveVisualizer];
+        if (visualizer->view() != NULL)
+            visualizer->view()->draw();
+        if (visualizer->controller() != NULL)
+            visualizer->controller()->draw();
 
         postDraw(context);
     }

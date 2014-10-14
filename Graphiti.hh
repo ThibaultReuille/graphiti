@@ -2,8 +2,6 @@
 
 #include <raindance/Raindance.hh>
 #include <raindance/Core/Debug.hh>
-#include <raindance/Core/GUI/Canvas.hh> // TODO : Should disappear (Move window logic to RainDance.hh)
-#include <raindance/Core/GUI/Wallpaper.hh>
 
 #include "Pack.hh"
 
@@ -11,28 +9,16 @@
 #include "Core/Window.hh"
 
 #include "Entities/MVC.hh"
-#include "Entities/Graph/GraphCommands.hh"
 
-#include "Visualizers/Space/SpaceView.hh"
-#include "Visualizers/Space/SpaceController.hh"
-
-# include "Visualizers/World/WorldView.hh"
-# include "Visualizers/World/WorldController.hh"
+#include "Visualizers/Space/SpaceVisualizer.hh"
+#include "Visualizers/World/WorldVisualizer.hh"
 
 #ifndef EMSCRIPTEN
-
-# include "Visualizers/Cloud/CloudView.hh"
-# include "Visualizers/Cloud/CloudController.hh"
-
-# include "Visualizers/Mesh/MeshView.hh"
-# include "Visualizers/Mesh/MeshController.hh"
-
-# include "Visualizers/Particles/ParticleView.hh"
-# include "Visualizers/Particles/ParticleController.hh"
-
-# include "Visualizers/Stream/StreamView.hh"
-# include "Visualizers/Stream/StreamController.hh"
-
+# include "Visualizers/Particles/ParticleVisualizer.hh"
+# include "Visualizers/Stream/StreamVisualizer.hh"
+// # include "Visualizers/Cloud/CloudView.hh"
+// # include "Visualizers/Mesh/MeshView.hh"
+// # include "Visualizers/Mesh/MeshController.hh"
 #endif
 
 class Graphiti : public RainDance
@@ -86,7 +72,7 @@ public:
         m_WindowManager.bind(id);
     }
 
-    Entity::ID createEntity(const char* type)
+    EntityManager::ID createEntity(const char* type)
     {
         std::string stype = type;
 
@@ -112,182 +98,65 @@ public:
         return id;
     }
 
-    bool createVisualizer(const char* visualizer)
+    bool createVisualizer(const char* name)
     {
-        if (m_EntityManager.active() == NULL)
+        Entity* entity = m_EntityManager.active();
+        if (entity == NULL)
             return false;
 
-        std::string name = visualizer;
+        std::string sname = name;
 
         auto window =  static_cast<GraphitiWindow*>(m_WindowManager.active());
         Viewport viewport(glm::vec2(0, 0), glm::vec2(window->width(), window->height()));
 
-        if (m_EntityManager.active()->type() == Entity::GRAPH)
-        {
-            auto entity = static_cast<GraphEntity*>(m_EntityManager.active());
+        EntityVisualizer* visualizer = NULL;
 
-            if (name == "space")
-            {
-                auto view = new SpaceView();
-                view->setViewport(viewport);
-                if (!view->bind(entity))
-                {
-                    SAFE_DELETE(view);
-                    return false;
-                }
-                entity->context()->messages().addListener(view);
-
-                SpaceController* controller = new SpaceController();
-                controller->bind(static_cast<GraphContext*>(entity->context()), entity->model(), view);
-                entity->controllers().push_back(controller);
-                entity->listeners().push_back(controller);
-                entity->context()->messages().addListener(controller);
-
-                auto vid = m_VisualizerManager.add(new EntityVisualizer(view, controller));
-                window->addVisualizer(m_VisualizerManager.element(vid));
-
-                return true;
-            }
-            else if (name == "world")
-            {
-                auto view = new WorldView();
-                view->setViewport(viewport);
-                if (!view->bind(entity))
-                {
-                    SAFE_DELETE(view);
-                    return false;
-                }
-                entity->context()->messages().addListener(view);
-
-                WorldController* controller = new WorldController();
-                controller->bind(static_cast<GraphContext*>(entity->context()), view);
-                entity->controllers().push_back(controller);
-                entity->context()->messages().addListener(controller);
-
-                auto vid = m_VisualizerManager.add(new EntityVisualizer(view, controller));
-                window->addVisualizer(m_VisualizerManager.element(vid));
-
-                return true;
-            }
+        if (sname == "space")
+            visualizer = new SpaceVisualizer();
+        else if (sname == "world")
+            visualizer = new WorldVisualizer();
 #ifndef EMSCRIPTEN
-            else if (name == "cloud")
-            {
-                auto view = new CloudView();
-                view->setViewport(viewport);
-                if (!view->bind(entity))
-                {
-                    SAFE_DELETE(view);
-                    return false;
-                }
-                entity->context()->messages().addListener(view);
+        else if (sname == "particles")
+            visualizer = new ParticleVisualizer();
+        /*
+        else if (name == "cloud")
+            visualizer = new CloudVisualizer();
+        else if (name == "mesh")
+            visualizer = new MeshVisualizer();
+        */
+        if (sname == "stream")
+            visualizer = new StreamVisualizer();
 
-                CloudController* controller = new CloudController();
-                controller->bind(static_cast<GraphContext*>(entity->context()), view);
-                entity->controllers().push_back(controller);
-                entity->context()->messages().addListener(controller);
-
-                auto vid = m_VisualizerManager.add(new EntityVisualizer(view, controller));
-                window->addVisualizer(m_VisualizerManager.element(vid));
-
-                return true;
-            }
-            else if (name == "mesh")
-            {
-                auto view = new MeshView();
-                view->setViewport(viewport);
-                if (!view->bind(entity))
-                {
-                    SAFE_DELETE(view);
-                    return false;
-                }
-                entity->context()->messages().addListener(view);
-
-                MeshController* controller = new MeshController();
-                controller->bind(entity->context(), view);
-                entity->controllers().push_back(controller);
-                entity->context()->messages().addListener(controller);
-
-                auto vid = m_VisualizerManager.add(new EntityVisualizer(view, controller));
-                window->addVisualizer(m_VisualizerManager.element(vid));
-
-                return true;
-            }
-            else if (name == "particles")
-            {
-                auto view = new ParticleView();
-                view->setViewport(viewport);
-                if (!view->bind(entity))
-                {
-                    SAFE_DELETE(view);
-                    return false;
-                }
-                entity->context()->messages().addListener(view);
-
-                ParticleController* controller = new ParticleController();
-                controller->bind(static_cast<GraphContext*>(entity->context()), entity->model(), view);
-                entity->controllers().push_back(controller);
-                entity->context()->messages().addListener(controller);
-
-                auto vid = m_VisualizerManager.add(new EntityVisualizer(view, controller));
-                window->addVisualizer(m_VisualizerManager.element(vid));
-
-                return true;
-            }
 #endif
-        }
-
-#ifndef EMSCRIPTEN
-        else if (m_EntityManager.active()->type() == Entity::TIME_SERIES)
+        if (visualizer != NULL && visualizer->bind(viewport, entity))
         {
-            auto entity = static_cast<TimeSeriesEntity*>(m_EntityManager.active());
-
-            if (name == "stream")
-            {
-                auto view = new StreamView();
-                view->setViewport(viewport);
-                if (!view->bind(entity))
-                {
-                    SAFE_DELETE(view);
-                    return false;
-                }
-                entity->context()->messages().addListener(view);
-
-                auto controller = new StreamController();
-                controller->bind(static_cast<TimeSeriesContext*>(entity->context()), view);
-                entity->controllers().push_back(controller);
-                entity->context()->messages().addListener(controller);
-
-                auto vid = m_VisualizerManager.add(new EntityVisualizer(view, controller));
-                window->addVisualizer(m_VisualizerManager.element(vid));
-
-                return true;
-            }
+            m_VisualizerManager.add(visualizer);
+            window->addVisualizer(visualizer);
+            return true;
         }
-#endif
-
-        LOG("[GRAPHITI] Couldn't create visualizer named '%s' !\n", visualizer);
-        return false;
+        else
+        {
+            SAFE_DELETE(visualizer);
+            LOG("[GRAPHITI] Couldn't create visualizer named '%s' !\n", name);
+            return false;
+        }
     }
 
     virtual void start()
     {
-        auto entity = m_EntityManager.active();
-        if (entity == NULL)
-        {
-            LOG("[GRAPHITI] No active entity!\n");
-            return;
-        }
-
         m_HUD = new HUD();
         m_HUD->buildScriptWidgets(m_Console);
-        m_HUD->bind(entity->context());
+        m_HUD->bind(m_EntityManager.active()->context());
 
-        // Initialize clocks
-        entity->context()->clock().reset();
-        entity->context()->sequencer().clock().reset();
-        entity->context()->sequencer().clock().pause();
+        for (auto it : m_EntityManager.elements())
+        {
+            // Initialize clocks
+            it.second->context()->clock().reset();
+            it.second->context()->sequencer().clock().reset();
+            it.second->context()->sequencer().clock().pause();
 
-        entity->context()->messages().process();
+            it.second->context()->messages().process();
+        }
 
         // NOTE : This releases the Global Interpreter Lock and allows the python threads to run.
         m_Console->begin();

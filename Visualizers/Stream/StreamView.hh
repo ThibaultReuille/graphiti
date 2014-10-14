@@ -25,28 +25,18 @@ public:
 		m_Camera2D.lookAt(glm::vec3(0, 0, 10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
 		m_Font = new Font();
-
-		// m_PointIcon = new Icon();
-		// m_PointIcon->load("disk", Resources_Particle_ball_png, sizeof(Resources_Particle_ball_png));
 	}
 
 	virtual ~StreamView()
 	{
 		SAFE_DELETE(m_Font);
-		SAFE_DELETE(m_PointIcon);
 	}
 
 	virtual const char* name() const { return "mesh"; }
 
-    virtual bool bind(Entity* entity)
+    virtual bool bind(TimeSeriesEntity* entity)
     {
-        if (entity->type() != Entity::TIME_SERIES)
-        {
-            LOG("[TIMESERIES] Couldn't bind entity to view : Wrong entity type!\n");
-            return false;
-        }
-
-        m_TimeSeriesEntity = static_cast<TimeSeriesEntity*>(entity);
+        m_TimeSeriesEntity = entity;
         m_TimeSeriesEntity->views().push_back(this);
         m_TimeSeriesEntity->listeners().push_back(this);
 
@@ -92,8 +82,6 @@ private:
 	TimeSeriesEntity* m_TimeSeriesEntity;
 
 	Camera m_Camera2D;
-
-	Icon* m_PointIcon;
 
 	Font* m_Font;
 };

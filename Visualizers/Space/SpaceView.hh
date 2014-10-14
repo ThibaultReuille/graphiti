@@ -1,37 +1,38 @@
- #pragma once
- 
- #include <raindance/Core/Text.hh>
- #include <raindance/Core/Icon.hh>
- #include <raindance/Core/Intersection.hh>
- #include <raindance/Core/Primitives/Sphere.hh>
- #include <raindance/Core/Primitives/Line.hh>
- #include <raindance/Core/Primitives/WideLine.hh>
- #include <raindance/Core/Camera/Camera.hh>
- #include <raindance/Core/Camera/Frustrum.hh>
- #include <raindance/Core/Transformation.hh>
- #include <raindance/Core/Variables.hh>
- #include <raindance/Core/Scene/NodeVector.hh>
- #include <raindance/Core/Physics.hh>
- #include <raindance/Core/Environment.hh>
- #include <raindance/Core/Bezier.hh>
- #include <raindance/Core/Octree.hh>
- 
- #include "Entities/MVC.hh"
- 
- #include "Entities/Graph/GraphModel.hh"
- #include "Entities/Graph/GraphMessages.hh"
- 
- #include "Visualizers/Space/SpaceNode.hh"
- #include "Visualizers/Space/SpaceEdge.hh"
- #include "Visualizers/Space/SpaceSphere.hh"
- 
- #include "Visualizers/Space/SpaceResources.hh"
- 
- typedef TranslationMap<SpaceNode::ID, Node::ID> NodeTranslationMap;
- typedef TranslationMap<SpaceEdge::ID, Link::ID> LinkTranslationMap;
- #include "Visualizers/Space/SpaceForces.hh"
- 
- #include "Pack.hh"
+#pragma once
+
+#include <raindance/Core/Text.hh>
+#include <raindance/Core/Icon.hh>
+#include <raindance/Core/Intersection.hh>
+#include <raindance/Core/Primitives/Sphere.hh>
+#include <raindance/Core/Primitives/Line.hh>
+#include <raindance/Core/Primitives/WideLine.hh>
+#include <raindance/Core/Camera/Camera.hh>
+#include <raindance/Core/Camera/Frustrum.hh>
+#include <raindance/Core/Transformation.hh>
+#include <raindance/Core/Variables.hh>
+#include <raindance/Core/Scene/NodeVector.hh>
+#include <raindance/Core/Physics.hh>
+#include <raindance/Core/Environment.hh>
+#include <raindance/Core/Bezier.hh>
+#include <raindance/Core/Octree.hh>
+#include <raindance/Core/GUI/Wallpaper.hh>
+
+#include "Entities/MVC.hh"
+
+#include "Entities/Graph/GraphModel.hh"
+#include "Entities/Graph/GraphMessages.hh"
+
+#include "Visualizers/Space/SpaceNode.hh"
+#include "Visualizers/Space/SpaceEdge.hh"
+#include "Visualizers/Space/SpaceSphere.hh"
+
+#include "Visualizers/Space/SpaceResources.hh"
+
+typedef TranslationMap<SpaceNode::ID, Node::ID> NodeTranslationMap;
+typedef TranslationMap<SpaceEdge::ID, Link::ID> LinkTranslationMap;
+#include "Visualizers/Space/SpaceForces.hh"
+
+#include "Pack.hh"
  
 class SpaceRenderer : public OctreeFunctor
 {
@@ -101,15 +102,9 @@ class SpaceView : public GraphView
 
     virtual const char* name() const { return "space"; }
 
-    virtual bool bind(Entity* entity)
+    virtual bool bind(GraphEntity* entity)
     {
-        if (entity->type() != Entity::GRAPH)
-        {
-            LOG("[SPACE] Couldn't bind entity to view : Wrong entity type!\n");
-            return false;
-        }
- 
-        m_GraphEntity = static_cast<GraphEntity*>(entity);
+        m_GraphEntity = entity;
         m_LinkAttractionForce.bind(m_GraphEntity->model(), &m_NodeMap, &m_LinkMap);
         m_NodeRepulsionForce.bind(m_GraphEntity->model(), &m_NodeMap);
 

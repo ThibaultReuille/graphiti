@@ -5,8 +5,12 @@
 #include "API/C.hh"
 #include "API/Graph.hh"
 
-#define PROTECT_PARSE(code)      \
-    if (!(code)) return Py_BuildValue("");
+#define PROTECT_PARSE(code)                      \
+    if (!(code))                                 \
+    {                                            \
+        LOG("[PYTHON] Erroneous API call !\n");  \
+        return Py_BuildValue("");                \
+    }                                            \
 
 static PyObject* convertVariableToPyObject(IVariable* attribute)
 {
@@ -214,9 +218,7 @@ static PyObject* createEntity(PyObject* self, PyObject* args)
 
     PROTECT_PARSE(PyArg_ParseTuple(args, "s", &type))
 
-	API::createEntity(type);
-
-    return Py_BuildValue("");
+    return PyLong_FromLong(API::createEntity(type));
 }
 
 static PyObject* bindEntity(PyObject* self, PyObject* args)

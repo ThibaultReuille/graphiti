@@ -6,6 +6,8 @@
 #include <raindance/Core/GUI/View.hh>
 #include <raindance/Core/Manager.hh>
 
+#include "Core/Window.hh"
+
 // TODO : This should probably all be moved into the Raindance engine
 
 // Forward declarations
@@ -48,7 +50,6 @@ class EntityView : public View, public EntityBase
 public:
     virtual ~EntityView() = 0;
     virtual const char* name() const = 0;
-    virtual bool bind(Entity* entity) = 0;
     virtual IVariable* getAttribute(const std::string& name) = 0;
 };
 
@@ -71,12 +72,16 @@ EntityController::~EntityController() {}
 class EntityVisualizer : public EntityBase
 {
 public:
-    EntityVisualizer(EntityView* view, EntityController* controller) : m_EntityView(view), m_EntityController(controller) {}
     virtual ~EntityVisualizer() {}
+    virtual bool bind(const Viewport& viewport, Entity* entity) = 0;
     virtual EntityView* view() { return m_EntityView; }
     virtual EntityController* controller() { return m_EntityController; }
 
 protected:
+    void set(EntityView* view) { m_EntityView = view; }
+    void set(EntityController* controller) { m_EntityController = controller; }
+
+private:
     EntityView* m_EntityView;
     EntityController* m_EntityController;
 };
@@ -111,10 +116,7 @@ public:
         TIME_SERIES
     };
 
-    Entity(Type type)
-    {
-        m_Type = type;
-    }
+    Entity(Type type) : m_Type(type) {};
 
     virtual ~Entity()
     {
@@ -209,14 +211,12 @@ public:
     inline std::list<EntityController*>& controllers() { return m_Controllers; }
     inline std::vector<EntityListener*>& listeners() { return m_Listeners; }
 
-    inline Type type() { return m_Type; }
+    inline Type type() const { return m_Type; };
 
 private:
     Type m_Type;
-
     std::list<EntityView*> m_Views;
     std::list<EntityController*> m_Controllers;
-
     std::vector<EntityListener*> m_Listeners;
 };
 

@@ -57,7 +57,7 @@ extern "C" {
 
 	// ----- Entities -----
 
-	Entity::ID createEntity(const char* type)
+	EntityManager::ID createEntity(const char* type)
 	{
 	    // LOG("[API] createEntity('%s')\n", type);
 	    return g_Graphiti.createEntity(type);
