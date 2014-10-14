@@ -41,6 +41,4 @@ public:
 
         return true;
     }
-
-private:
 };

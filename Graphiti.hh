@@ -16,9 +16,8 @@
 #ifndef EMSCRIPTEN
 # include "Visualizers/Particles/ParticleVisualizer.hh"
 # include "Visualizers/Stream/StreamVisualizer.hh"
-// # include "Visualizers/Cloud/CloudView.hh"
-// # include "Visualizers/Mesh/MeshView.hh"
-// # include "Visualizers/Mesh/MeshController.hh"
+# include "Visualizers/Cloud/CloudVisualizer.hh"
+# include "Visualizers/Mesh/MeshVisualizer.hh"
 #endif
 
 class Graphiti : public RainDance
@@ -77,8 +76,8 @@ public:
         std::string stype = type;
 
         auto id = m_EntityManager.create(type);
-        m_EntityManager.bind(id);
 
+        // TODO : Move this to GraphEntity ?
         if (stype == "graph")
         {
             auto entity = m_EntityManager.element(id);
@@ -94,6 +93,8 @@ public:
 
             entity->context()->messages().addListener(m_Console);
         }
+
+        m_EntityManager.bind(id);
 
         return id;
     }
@@ -118,16 +119,14 @@ public:
 #ifndef EMSCRIPTEN
         else if (sname == "particles")
             visualizer = new ParticleVisualizer();
-        /*
-        else if (name == "cloud")
+        else if (sname == "cloud")
             visualizer = new CloudVisualizer();
-        else if (name == "mesh")
+        else if (sname == "mesh")
             visualizer = new MeshVisualizer();
-        */
-        if (sname == "stream")
+        else if (sname == "stream")
             visualizer = new StreamVisualizer();
-
 #endif
+
         if (visualizer != NULL && visualizer->bind(viewport, entity))
         {
             m_VisualizerManager.add(visualizer);

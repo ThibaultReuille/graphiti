@@ -24,11 +24,7 @@ public:
 
         auto view = new ParticleView();
         view->setViewport(viewport);
-        if (!view->bind(graph))
-        {
-            SAFE_DELETE(view);
-            return false;
-        }
+        view->bind(graph);
 
         graph->context()->messages().addListener(view);
 

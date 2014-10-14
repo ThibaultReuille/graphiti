@@ -1,34 +1,34 @@
 #pragma once
 
 #include "Entities/MVC.hh"
-#include "Visualizers/Stream/StreamView.hh"
-#include "Visualizers/Stream/StreamController.hh"
+#include "Visualizers/Mesh/MeshView.hh"
+#include "Visualizers/Mesh/MeshController.hh"
 
-class StreamVisualizer : public EntityVisualizer
+class MeshVisualizer : public EntityVisualizer
 {
 public:
 
-    StreamVisualizer()
+    MeshVisualizer()
     {
     }
 
     virtual bool bind(const Viewport& viewport, Entity* entity)
     {
-        if (entity->type() != Entity::TIME_SERIES)
+        if (entity->type() != Entity::GRAPH)
         {
-            LOG("[TIMESERIES] Couldn't bind entity to view : Wrong entity type!\n");
+            LOG("[MESH] Couldn't bind entity to view : Wrong entity type!\n");
             return false;
         }
 
-        auto ts = static_cast<TimeSeriesEntity*>(entity);
+        auto ts = static_cast<GraphEntity*>(entity);
 
-        auto view = new StreamView();
+        auto view = new MeshView();
         view->setViewport(viewport);
         view->bind(ts);
 
         entity->context()->messages().addListener(view);
 
-        auto controller = new StreamController();
+        auto controller = new MeshController();
         controller->bind(static_cast<GraphContext*>(ts->context()), view);
 
         entity->controllers().push_back(controller);
