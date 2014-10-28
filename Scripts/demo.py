@@ -57,7 +57,20 @@ def add_random_graph():
                 loop = False
         id = graphiti.add_link(src, dst)
         graphiti.set_link_attribute(id, "type", "string", str(j % 3))
-            
+
+def add_neighbor():
+    if graphiti.count_selected_nodes() == 0:
+        print("Please select a node !")
+        return
+    id = graphiti.get_selected_node(0)
+    label = raw_input("New node label : ")
+    t = raw_input("New node type : ")
+
+    nid = graphiti.add_node(label)
+    graphiti.set_node_attribute(nid, "type", "string", t)
+
+    graphiti.add_link(id, nid)
+        
 def remove_selected_node():
     if graphiti.count_selected_nodes() == 0:
         print("Please select a node !")
@@ -711,6 +724,7 @@ def start():
         ]],
         ["Test / Debug", [
             ["Add Random Graph", "demo.add_random_graph()"],
+            ["Add Neighbor", "demo.add_neighbor()"],
             ["Randomize Node Activity", "demo.randomize_node_activity()"],
             ["Randomize Node Icons", "demo.randomize_node_icons()"],
             ["Randomize Node Size", "demo.randomize_node_size()"],

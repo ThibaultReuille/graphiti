@@ -144,7 +144,10 @@ def load_json(json_filename):
 
     print(". Loading edges ...")
     for e in data["edges"]:
-        eid = graphiti.add_link(nodes[e["src"]], nodes[e["dst"]])
+        if "src" in e:
+            eid = graphiti.add_link(nodes[e["src"]], nodes[e["dst"]])
+        else:
+            eid = graphiti.add_link(nodes[e['source']], nodes[e['target']])
         links[e["id"]] = eid
 
         for key in e.keys():
