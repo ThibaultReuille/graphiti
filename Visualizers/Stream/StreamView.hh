@@ -17,13 +17,6 @@ public:
 		LOG("[TIMESERIES] Creating view ...\n");
 
 		m_TimeSeriesEntity = NULL;
-
-		m_WindowWidth = glutGet(GLUT_WINDOW_WIDTH);
-		m_WindowHeight = glutGet(GLUT_WINDOW_HEIGHT);
-
-		m_Camera2D.setOrthographicProjection(0.0f, (float)m_WindowWidth, 0.0f, (float)m_WindowHeight, 0.001f, 100.f);
-		m_Camera2D.lookAt(glm::vec3(0, 0, 10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-
 		m_Font = new Font();
 	}
 
@@ -36,6 +29,9 @@ public:
 
     virtual bool bind(TimeSeriesEntity* entity)
     {
+		m_Camera2D.setOrthographicProjection(0.0f, getViewport().getDimension()[0], 0.0f, getViewport().getDimension()[1], 0.001f, 100.f);
+		m_Camera2D.lookAt(glm::vec3(0, 0, 10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+
         m_TimeSeriesEntity = entity;
         m_TimeSeriesEntity->views().push_back(this);
         m_TimeSeriesEntity->listeners().push_back(this);
@@ -76,9 +72,6 @@ public:
     inline TimeSeriesModel* model() { return static_cast<TimeSeriesModel*>(m_TimeSeriesEntity->model()); }
 
 private:
-	unsigned int m_WindowWidth;
-	unsigned int m_WindowHeight;
-
 	TimeSeriesEntity* m_TimeSeriesEntity;
 
 	Camera m_Camera2D;

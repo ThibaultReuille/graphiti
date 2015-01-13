@@ -510,7 +510,6 @@ def color_nodes_by_dga_score():
             graphiti.set_node_attribute(id, "graphiti:space:color", "vec4", std.vec4_to_str(rgb))
 
 def depth_circle_layout():
-    
     radius = 100.0
 
     ids = graphiti.get_node_ids()
@@ -631,7 +630,6 @@ def calculate_degree_map():
     return degrees
 
 def detect_spn():
-
     degree_map = calculate_degree_map()
     source_map = dict()
 
@@ -734,7 +732,7 @@ def start():
             ["Randomize Timeline", "demo.randomize_timeline()"],
             ["Randomize LOD", "demo.randomize_lod()"],
             ["Debug On/Off", "demo.show_debug()"]
-        ]],
+        ]]
     ]
 
     unreg_command = ""
@@ -746,7 +744,6 @@ def start():
         reg_command = ""
         for s in script[1]:
             reg_command += 'graphiti.register_script("' + s[0] + '", "' + s[1] + '")\n'
-
         graphiti.register_script(script[0], unreg_command + "\n" + reg_command) 
 
     graphiti.register_script("==========", "pass")

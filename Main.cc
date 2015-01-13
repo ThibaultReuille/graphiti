@@ -9,8 +9,8 @@
 	{
 		LOG("--- Welcome in OpenGraphiti (" GRAPHITI_VERSION ") ---\n");
 
-		// Create gaia context
-		API::create_with_args(argc, argv);
+		// Create context
+		API::create(argc, argv);
 
 		// Initialize python bindings
         API::Python::initialize();

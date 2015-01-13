@@ -18,19 +18,10 @@ public:
 
 		m_GraphEntity = NULL;
 
-		m_WindowWidth = glutGet(GLUT_WINDOW_WIDTH);
-		m_WindowHeight = glutGet(GLUT_WINDOW_HEIGHT);
-
-		m_Camera2D.setOrthographicProjection(0.0f, (float)m_WindowWidth, 0.0f, (float)m_WindowHeight, 0.001f, 100.f);
-		m_Camera2D.lookAt(glm::vec3(0, 0, 10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-
-		m_Camera3D.setPerspectiveProjection(60.0f, m_WindowWidth / (float)m_WindowHeight, 0.1f, 1024.0f);
-		m_Camera3D.lookAt(glm::vec3(0, 0, 30), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-
 		m_Font = new Font();
 
 		m_PointIcon = new Icon();
-		m_PointIcon->load("disk", Resources_Particle_ball_png, sizeof(Resources_Particle_ball_png));
+		m_PointIcon->load("disk", Assets_Particle_ball_png, sizeof(Assets_Particle_ball_png));
 	}
 
 	virtual ~MeshView()
@@ -48,6 +39,12 @@ public:
             LOG("[MESH] Couldn't bind entity to view : Wrong entity type!\n");
             return false;
         }
+
+		m_Camera2D.setOrthographicProjection(0.0f, getViewport().getDimension()[0], 0.0f, getViewport().getDimension()[1], 0.001f, 100.f);
+		m_Camera2D.lookAt(glm::vec3(0, 0, 10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+
+		m_Camera3D.setPerspectiveProjection(60.0f, getViewport().getDimension()[0] / getViewport().getDimension()[1], 0.1f, 1024.0f);
+		m_Camera3D.lookAt(glm::vec3(0, 0, 30), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
         m_GraphEntity = static_cast<GraphEntity*>(entity);
         m_GraphEntity->views().push_back(this);
@@ -177,9 +174,6 @@ public:
     inline GraphModel* model() { return static_cast<GraphModel*>(m_GraphEntity->model()); }
 
 private:
-	unsigned int m_WindowWidth;
-	unsigned int m_WindowHeight;
-
 	GraphEntity* m_GraphEntity;
 
 	Camera m_Camera2D;

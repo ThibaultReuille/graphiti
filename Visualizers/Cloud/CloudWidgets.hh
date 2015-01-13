@@ -9,21 +9,23 @@ public:
 	: IWidget("view", parent, pos, dimension)
 	{
 		m_Icon = new Icon(glm::vec2(1.0, 1.0), glm::vec2(0.5, -0.5));
-		m_Icon->load("eye", Resources_Hud_eye_png, sizeof(Resources_Hud_eye_png));
+		m_Icon->load("eye", Assets_Hud_eye_png, sizeof(Assets_Hud_eye_png));
 		m_State = 0;
 	}
+	
 	virtual ~ViewWidget()
 	{
 		delete m_Icon;
 	}
+
 	virtual void draw(Context* context, glm::mat4 model, glm::mat4 view, glm::mat4 projection)
 	{
 		m_Icon->draw(context, projection * view * glm::scale(model, glm::vec3(m_Dimension, 1.0)), glm::vec4(1.0, 1.0, 1.0, 1.0), 0);
 	}
-	virtual void onMouseClick(MessageQueue& messages, int x, int y)
+
+	void onMouseClick(MessageQueue& messages, const glm::vec2& pos) override
 	{
-		(void) x;
-		(void) y;
+		(void) pos;
 		m_State = (m_State + 1) % 7;
 		switch(m_State)
 		{

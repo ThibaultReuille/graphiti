@@ -1,5 +1,5 @@
 G_CFLAGS := -W -Wall -ansi -Wno-missing-field-initializers -O3 -Wno-deprecated -std=c++11
-G_LDFLAGS :=
+G_LDFLAGS := -lglfw3
 G_INCLUDES := -I./ -I../ -I../raindance/Lib/glm-0.9.5.4
 
 PYTHON_CFLAGS := `python2.7-config --cflags | sed s/"-mno-fused-madd"//g`
@@ -13,13 +13,13 @@ ifeq ($(UNAME), Darwin)
 	CC=clang++
 	CFLAGS=$(G_CFLAGS) $(PYTHON_CFLAGS) -stdlib=libc++ -pthread
 	INCLUDES=$(G_INCLUDES)
-	LDFLAGS=$(G_LDFLAGS) $(PYTHON_LDFLAGS) -framework GLUT -framework OpenGL -framework OpenCL
+	LDFLAGS=$(G_LDFLAGS) $(PYTHON_LDFLAGS) -framework OpenGL -framework OpenCL
 endif
 ifeq ($(UNAME), Linux)
 	CC=g++
 	CFLAGS=$(G_CFLAGS) $(PYTHON_CFLAGS)
 	INCLUDES=$(G_INCLUDES)
-	LDFLAGS=$(G_LDFLAGS) $(PYTHON_LDFLAGS) -lm -lglut -lGL -lGLU -lGLEW -lOpenCL
+	LDFLAGS=$(G_LDFLAGS) $(PYTHON_LDFLAGS) -lm -lGL -lGLU -lGLEW -lOpenCL
 endif
 
 EMS_CC := $(EMSCRIPTEN)/em++

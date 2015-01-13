@@ -7,7 +7,7 @@ namespace Graph {
 
 inline GraphEntity* getActiveGraph()
 {
-    auto entity = g_Graphiti.entities().active();
+    auto entity = g_Graphiti->entities().active();
     if (entity->type() != Entity::GRAPH)
     {
         LOG("[API] Active entity is not a graph!\n");

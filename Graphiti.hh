@@ -5,10 +5,10 @@
 
 #include "Pack.hh"
 
+#include "Entities/MVC.hh"
+
 #include "Core/Console.hh"
 #include "Core/Window.hh"
-
-#include "Entities/MVC.hh"
 
 #include "Visualizers/Space/SpaceVisualizer.hh"
 #include "Visualizers/World/WorldVisualizer.hh"
@@ -20,38 +20,14 @@
 # include "Visualizers/Mesh/MeshVisualizer.hh"
 #endif
 
-class Graphiti : public RainDance
+class Graphiti : public Raindance, public Root
 {
 public:
-    Graphiti()
+    Graphiti(int argc, char** argv)
+    : Raindance(argc, argv), m_Console(NULL)
     {
-        m_HUD = NULL;
-        m_Console = NULL;
-
-        m_Started = false;
-    }
-
-    virtual ~Graphiti()
-    {
-    }
-
-    virtual void create(int argc, char** argv)
-    {
-        RainDance::create(argc, argv);
-
-        if (m_Console == NULL)
-            m_Console = new GraphitiConsole(argc, argv);
-    }
-
-    virtual void destroy()
-    {
-        SAFE_DELETE(m_HUD);
-
         SAFE_DELETE(m_Console);
-
-        RainDance::destroy();
-
-        ResourceManager::getInstance().dump();
+        m_Console = new GraphitiConsole(argc, argv);
     }
 
     virtual void initialize()
@@ -59,19 +35,25 @@ public:
         m_Console->initialize();
     }
 
-    void createWindow(const char* title, int width, int height)
+    virtual ~Graphiti()
     {
-        if (width <= 0 || height <= 0)
-        {
-            width = glutGet(GLUT_SCREEN_WIDTH);
-            height = glutGet(GLUT_SCREEN_HEIGHT);
-        }
-
-        auto id = m_WindowManager.add(new GraphitiWindow(title, width, height));
-        m_WindowManager.bind(id);
+        SAFE_DELETE(m_Console);
     }
 
-    EntityManager::ID createEntity(const char* type)
+    virtual void createWindow(const char* title, int width, int height)
+    {
+        if (width == 0 || height == 0)
+        {
+            // TODO : Fullscreen mode
+            width = 1024;
+            height = 728;
+        }
+
+        auto window = new GLWindow(title, width, height, this);
+        add(window);
+    }
+
+    virtual EntityManager::ID createEntity(const char* type)
     {
         std::string stype = type;
 
@@ -99,7 +81,7 @@ public:
         return id;
     }
 
-    bool createVisualizer(const char* name)
+    virtual bool createVisualizer(const char* name)
     {
         Entity* entity = m_EntityManager.active();
         if (entity == NULL)
@@ -107,11 +89,9 @@ public:
 
         std::string sname = name;
 
-        auto window =  static_cast<GraphitiWindow*>(m_WindowManager.active());
-        Viewport viewport(glm::vec2(0, 0), glm::vec2(window->width(), window->height()));
+        auto window = static_cast<GLWindow*>(windows().active());
 
         EntityVisualizer* visualizer = NULL;
-
         if (sname == "space")
             visualizer = new SpaceVisualizer();
         else if (sname == "world")
@@ -127,7 +107,7 @@ public:
             visualizer = new StreamVisualizer();
 #endif
 
-        if (visualizer != NULL && visualizer->bind(viewport, entity))
+        if (visualizer != NULL && visualizer->bind(window->getViewport(), entity))
         {
             m_VisualizerManager.add(visualizer);
             window->addVisualizer(visualizer);
@@ -143,82 +123,39 @@ public:
 
     virtual void start()
     {
-        m_HUD = new HUD();
-        m_HUD->buildScriptWidgets(m_Console);
-        m_HUD->bind(m_EntityManager.active()->context());
+        context()->messages().addListener(m_Console);
 
         for (auto it : m_EntityManager.elements())
         {
-            // Initialize clocks
+            // Initialize clocks & process messages
             it.second->context()->clock().reset();
             it.second->context()->sequencer().clock().reset();
             it.second->context()->sequencer().clock().pause();
-
             it.second->context()->messages().process();
         }
 
         // NOTE : This releases the Global Interpreter Lock and allows the python threads to run.
         m_Console->begin();
 
+        IScript* script = m_Console->getScript("#started");
+        if (script)
+            m_Console->execute(script);
+
+        refreshHUD();
+
         run();
 
         m_Console->end();
     }
 
-    inline void screenshot(const char* filename)
+    void idle() override
     {
-        m_WindowManager.active()->screenshot(std::string(filename), 1);
-    }
+        m_Console->idle(context()->clock());
 
-    // ---------- Window Events ----------
-
-    void reshape(int width, int height)
-    {
-        // TODO : Use glutGetWindow to forward to the right window.
-        m_WindowManager.active()->reshape(width, height);
-
-        for (auto e : m_EntityManager.elements())
-        for (auto c : e.second->controllers())
-            c->reshape(width, height);
-
-        if (m_HUD != NULL)
-            m_HUD->reshape(width, height);
-    }
-
-    void draw()
-    {
-        Geometry::beginFrame();
-
-        m_WindowManager.active()->draw(&m_Context);
-
-        if (m_WindowManager.active()->getScreenshotFactor() <= 0)
-            m_HUD->draw(&m_Context);
-
-        finish();
-
-        Geometry::endFrame();
-    }
-
-    void idle()
-    {
-        if (!m_Started)
-        {
-            if (m_Console)
-            {
-                IScript* script = m_Console->getScript("#started");
-                if (script)
-                    m_Console->execute(script);
-            }
-
-            m_Started = true;
-        }
-
-        m_Console->idle(context().clock());
+        Raindance::idle();
 
         if (m_EntityManager.active() != NULL)
             m_EntityManager.active()->context()->sequencer().play();
-
-        m_HUD->idle();
 
         for (auto e : m_EntityManager.elements())
         {
@@ -228,159 +165,49 @@ public:
                 v->idle();
         }
 
+        m_Context->messages().process();
+
+        // TODO : We shoud align every message on Graphiti.context()
         if (m_EntityManager.active() != NULL)
             m_EntityManager.active()->context()->messages().process();
-
-        postRedisplay();
-    }
-
-    void keyboard(unsigned char key, int x, int y)
-    {
-        // TODO : Use glutGetWindow to forward to the right window.
-        (void) x;
-        (void) y;
-
-        m_HUD->onKeyboard(key, Controller::KEY_DOWN);
-
-        if (key == 'f')
-        {
-            m_WindowManager.active()->fullscreen();
-        }
-        else if (key == 'n')
-        {
-            static_cast<GraphitiWindow*>(m_WindowManager.active())->selectNextVisualizer();
-        }
-        else if (key == 'm')
-        {
-            Geometry::getMetrics().dump();
-            Geometry::getMetrics().reset();
-            ResourceManager::getInstance().dump();
-        }
-    #ifndef EMSCRIPTEN
-        else if (key == 's')
-            m_WindowManager.active()->screenshot(std::string("hd-shot.tga"), 4);
-    #endif
-        else
-        {
-            auto window = static_cast<GraphitiWindow*>(m_WindowManager.active());
-            window->getActiveVisualizer()->controller()->onKeyboard(key, Controller::KEY_DOWN);
-        }
-    }
-
-    void keyboardUp(unsigned char key, int x, int y)
-    {
-        (void) x;
-        (void) y;
-
-        m_HUD->onKeyboard(key, Controller::KEY_UP);
-
-        auto window = static_cast<GraphitiWindow*>(m_WindowManager.active());
-        window->getActiveVisualizer()->controller()->onKeyboard(key, Controller::KEY_UP);
-    }
-
-    void special(int key, int x, int y)
-    {
-        (void) x;
-        (void) y;
-
-        m_HUD->onSpecial(key, Controller::KEY_DOWN);
-
-        for (auto e : m_EntityManager.elements())
-        for (auto c : e.second->controllers())
-            c->onSpecial(key, Controller::KEY_DOWN);
-    }
-
-    void specialUp(int key, int x, int y)
-    {
-        (void) x;
-        (void) y;
-
-        m_HUD->onSpecial(key, Controller::KEY_UP);
-
-        auto window = static_cast<GraphitiWindow*>(m_WindowManager.active());
-        window->getActiveVisualizer()->controller()->onSpecial(key, Controller::KEY_UP);
-    }
-
-    void mouse(int button, int state, int x, int y)
-    {
-        m_HUD->mouse(button, state, x, y);
-
-        if (m_HUD->getWidgetPick() == NULL)
-        {
-            auto window = static_cast<GraphitiWindow*>(m_WindowManager.active());
-            window->getActiveVisualizer()->controller()->mouse(button, state, x, y);
-        }
-    }
-
-    void motion(int x, int y)
-    {
-        m_HUD->motion(x, y);
-
-        auto window = static_cast<GraphitiWindow*>(m_WindowManager.active());
-        window->getActiveVisualizer()->controller()->motion(x, y);
     }
 
     void registerScript(const char* name, const char* source)
     {
-        m_Console->registerScript(new StaticScript(std::string(name), std::string(source)));
-
-        if (m_HUD != NULL)
-        {
-            m_HUD->buildScriptWidgets(m_Console);
-            // NOTE : Hack ! script menu needs to be reshaped
-            m_HUD->reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
-        }
+        auto script = new StaticScript(std::string(name), std::string(source));
+        m_Console->registerScript(script);
+        refreshHUD();
     }
 
     void unregisterScript(const char* name)
     {
         IScript* script = m_Console->getScript(name);
         if (script == NULL)
-        {
-            LOG("[API] Script <%s> not found!\n", name);
             return;
-        }
 
         m_Console->unregisterScript(script);
-
-        if (m_HUD != NULL)
-        {
-            m_HUD->buildScriptWidgets(m_Console);
-            // NOTE : Hack ! Script menu needs to be reshaped
-            m_HUD->reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
-        }
+        refreshHUD();
     }
 
-    Job::ID addJob(const char* name, float period)
+    void refreshHUD()
     {
-        IScript* script = m_Console->getScript(name);
-        if (script == NULL)
+        if (windows().active() != NULL)
         {
-            LOG("[API] Can't create job, script <%s> not found!\n", name);
-            return 0;
-        }
-
-        return m_Console->addJob(script, period);
+            auto window = static_cast<GLWindow*>(windows().active());
+            window->hud()->buildScriptWidgets(console());
+            window->hud()->reshape(window->getViewport());
+        }    
     }
 
-    void removeJob(Job::ID id)
-    {
-        m_Console->removeJob(id);
-    }
+    // ----- Properties -----
 
-    // Accessors
-
-    inline EntityManager& entities() { return m_EntityManager; }
-    inline EntityVisualizerManager& visualizers() { return m_VisualizerManager; }
+    virtual Context* context() { return m_Context; }
+    virtual GraphitiConsole* console() { return m_Console; }
+    virtual EntityManager& entities() { return m_EntityManager; }
+    virtual EntityVisualizerManager& visualizers() { return m_VisualizerManager; }
 
 private:
     GraphitiConsole* m_Console;
-
     EntityManager m_EntityManager;
     EntityVisualizerManager m_VisualizerManager;
-
-    HUD* m_HUD;
-
-    bool m_Started;
-    std::string m_ScreenshotFilename;
 };

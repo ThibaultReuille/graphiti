@@ -9,9 +9,7 @@ public:
         m_GraphModel = model;
         m_GraphView = view;
 
-        int width = glutGet(GLUT_WINDOW_WIDTH);
-        int height = glutGet(GLUT_WINDOW_HEIGHT);
-        m_GraphView->camera()->setPerspectiveProjection(60.0f, (float)width / (float)height, 0.1f, 1000000.0f);
+        m_GraphView->camera()->setPerspectiveProjection(60.0f, view->getViewport().getDimension()[0] / view->getViewport().getDimension()[1], 0.1f, 1000000.0f);
         m_GraphView->camera()->lookAt(glm::vec3(0, 0, 1000), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
         m_SphericalCameraController.bind(m_GraphContext, m_GraphView->camera());
@@ -19,23 +17,20 @@ public:
         m_SphericalCameraController.setRadius(1000);
         m_SphericalCameraController.updateCamera();
     }
-    virtual void reshape(int width, int height)
-    {
-        m_SphericalCameraController.reshape(width, height);
-    }
 
-    virtual void idle()
+    void idle() override
     {
         m_SphericalCameraController.updateCamera();
     }
 
-    virtual void draw()
+    void onWindowSize(int width, int height) override
     {
+        m_SphericalCameraController.onWindowSize(width, height);
     }
 
-    virtual void onKeyboard(unsigned char key, Controller::KeyEvent event)
+    void onKey(int key, int scancode, int action, int mods) override
     {
-        if (event == Controller::KEY_DOWN && key == ' ')
+        if (action == GLFW_PRESS && key == GLFW_KEY_SPACE)
         {
             static bool physics = true;
             m_GraphView->setPhysics(physics);
@@ -43,115 +38,37 @@ public:
             return;
         }
 
-        m_SphericalCameraController.onKeyboard(key, event);
+        m_SphericalCameraController.onKey(key, scancode, action, mods);
     }
 
-    virtual void onMouseDown(int x, int y)
+    void onMouseDown(const glm::vec2& pos) override
     {
-        m_SphericalCameraController.onMouseDown(x, y);
+        m_SphericalCameraController.onMouseDown(pos);
     }
 
-    virtual void onMouseClick(int x, int y)
+    void onMouseClick(const glm::vec2& pos) override
     {
-        m_SphericalCameraController.onMouseClick(x, y);
+        m_SphericalCameraController.onMouseClick(pos);
     }
 
-    virtual void onMouseDoubleClick(int x, int y)
+    void onMouseDoubleClick(const glm::vec2& pos) override
     {
-        m_SphericalCameraController.onMouseDoubleClick(x, y);
+        m_SphericalCameraController.onMouseDoubleClick(pos);
     }
 
-    virtual void onMouseTripleClick(int x, int y)
+    void onMouseTripleClick(const glm::vec2& pos) override
     {
-         m_SphericalCameraController.onMouseTripleClick(x, y);
+         m_SphericalCameraController.onMouseTripleClick(pos);
     }
 
-    virtual void onMouseMove(int x, int y, int dx, int dy)
+    void onMouseMove(const glm::vec2& pos, const glm::vec2& dpos) override
     {
-        m_SphericalCameraController.onMouseMove(x, y, dx, dy);
-    }
-
-    virtual void onSpecial(int key, Controller::KeyEvent event)
-    {
-        m_SphericalCameraController.onSpecial(key, event);
+        m_SphericalCameraController.onMouseMove(pos, dpos);
     }
 
     void notify(IMessage* message)
     {
         (void) message;
-    }
-
-    // GraphListener Interface
-
-    virtual void onSetAttribute(const std::string& name, VariableType type, const std::string& value)
-    {
-        (void) name;
-        (void) type;
-        (void) value;
-    }
-
-    virtual void onAddNode(Node::ID id, const char* label)
-    {
-        (void) id;
-        (void) label;
-    }
-
-    virtual void onRemoveNode(Node::ID id)
-    {
-        (void) id;
-    }
-
-    virtual void onSetNodeAttribute(Node::ID id, const std::string& name, VariableType type, const std::string& value)
-    {
-        (void) id;
-        (void) name;
-        (void) type;
-        (void) value;
-    }
-
-    virtual void onSetNodeLabel(Node::ID id, const char* label)
-    {
-        (void) id;
-        (void) label;
-    }
-
-    virtual void onTagNode(Node::ID node, Sphere::ID sphere)
-    {
-        (void) node;
-        (void) sphere;
-    }
-
-    virtual void onAddLink(Link::ID uid, Node::ID uid1, Node::ID uid2)
-    {
-        (void) uid;
-        (void) uid1;
-        (void) uid2;
-    }
-
-    virtual void onRemoveLink(Link::ID id)
-    {
-        (void) id;
-    }
-
-    virtual void onSetLinkAttribute(Link::ID id, const std::string& name, VariableType type, const std::string& value)
-    {
-        (void) id;
-        (void) name;
-        (void) type;
-        (void) value;
-    }
-
-    virtual void onAddNeighbor(const std::pair<Node::ID, Link::ID>& element, const char* label, Node::ID neighbor)
-    {
-        (void) element;
-        (void) label;
-        (void) neighbor;
-    }
-
-    virtual void onAddSphere(Sphere::ID id, const char* label)
-    {
-        (void) id;
-        (void) label;
     }
 
 private:

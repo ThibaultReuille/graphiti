@@ -177,9 +177,9 @@ public:
 
 	Earth()
 	{
-		m_SphereTexture = ResourceManager::getInstance().loadTexture("earth", Resources_Earth_world_2048x1024_jpg, sizeof(Resources_Earth_world_2048x1024_jpg));
+		m_SphereTexture = ResourceManager::getInstance().loadTexture("earth", Assets_Earth_world_2048x1024_jpg, sizeof(Assets_Earth_world_2048x1024_jpg));
 		m_SphereMesh = new SphereMesh(g_WorldResources->EarthRadius, 100, 100);
-		m_SphereShader = ResourceManager::getInstance().loadShader("globe", Resources_globe_vert, sizeof(Resources_globe_vert), Resources_globe_frag, sizeof(Resources_globe_frag));
+		m_SphereShader = ResourceManager::getInstance().loadShader("globe", Assets_globe_vert, sizeof(Assets_globe_vert), Assets_globe_frag, sizeof(Assets_globe_frag));
 		m_SphereMaterial.setDiffuse(glm::vec4(0.1, 0.1, 0.1, 1.0));
 		m_SphereMaterial.setShininess(45.0f);
 

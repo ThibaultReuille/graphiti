@@ -14,7 +14,7 @@ public:
 	: IWidget("pointer", parent, pos, dimension)
 	{
 		m_Icon = new Icon(glm::vec2(1.0, 1.0), glm::vec2(0.5, -0.5));
-		m_Icon->load("pointer", Resources_Hud_pointer_png, sizeof(Resources_Hud_pointer_png));
+		m_Icon->load("pointer", Assets_Hud_pointer_png, sizeof(Assets_Hud_pointer_png));
 	}
 	virtual ~PointerWidget()
 	{
@@ -24,10 +24,9 @@ public:
 	{
 		m_Icon->draw(context, projection * view * glm::scale(model, glm::vec3(m_Dimension, 1.0)), glm::vec4(1.0, 1.0, 1.0, 1.0), 0);
 	}
-	virtual void onMouseClick(MessageQueue& messages, int x, int y)
+	void onMouseClick(MessageQueue& messages, const glm::vec2& pos) override
 	{
-		(void) x;
-		(void) y;
+		(void) pos;
 		messages.push(static_cast<IMessage*>(new WidgetMessage("pointer")));
 	}
 };
@@ -44,8 +43,8 @@ public:
 	: IWidget("playpause", parent, pos, dimension)
 	{
 		m_Icon = new Icon(glm::vec2(1.0, 1.0), glm::vec2(0.5, -0.5));
-		m_Icon->load("play", Resources_Hud_play_png, sizeof(Resources_Hud_play_png));
-		m_Icon->load("pause", Resources_Hud_pause_png, sizeof(Resources_Hud_pause_png));
+		m_Icon->load("play", Assets_Hud_play_png, sizeof(Assets_Hud_play_png));
+		m_Icon->load("pause", Assets_Hud_pause_png, sizeof(Assets_Hud_pause_png));
 		m_State = PAUSE;
 	}
 	virtual ~PlayPauseWidget()
@@ -64,10 +63,9 @@ public:
 			break;
 		}
 	}
-	virtual void onMouseClick(MessageQueue& messages, int x, int y)
+	void onMouseClick(MessageQueue& messages, const glm::vec2& pos) override
 	{
-		(void) x;
-		(void) y;
+		(void) pos;
 		m_State = (State) ((m_State + 1) % 2);
 		messages.push(static_cast<IMessage*>(new WidgetMessage(m_State == PLAY ? "play" : "pause")));
 	}
@@ -83,7 +81,7 @@ public:
 	: IWidget("expand", parent, pos, dimension)
 	{
 		m_Icon = new Icon(glm::vec2(1.0, 1.0), glm::vec2(0.5, -0.5));
-		m_Icon->load("expand", Resources_Hud_expand_png, sizeof(Resources_Hud_expand_png));
+		m_Icon->load("expand", Assets_Hud_expand_png, sizeof(Assets_Hud_expand_png));
 	}
 	virtual ~ExpandWidget()
 	{
@@ -93,10 +91,9 @@ public:
 	{
         m_Icon->draw(context, projection * view * glm::scale(model, glm::vec3(m_Dimension, 1.0)), glm::vec4(1.0, 1.0, 1.0, 1.0), 0);
 	}
-	virtual void onMouseClick(MessageQueue& messages, int x, int y)
+	void onMouseClick(MessageQueue& messages, const glm::vec2& pos) override
 	{
-		(void) x;
-		(void) y;
+		(void) pos;
 		messages.push(static_cast<IMessage*>(new WidgetMessage("expand")));
 	}
 };
@@ -108,7 +105,7 @@ public:
 	: IWidget("edge", parent, pos, dimension)
 	{
 		m_Icon = new Icon(glm::vec2(1.0, 1.0), glm::vec2(0.5, -0.5));
-		m_Icon->load("edge", Resources_Hud_graph_png, sizeof(Resources_Hud_graph_png));
+		m_Icon->load("edge", Assets_Hud_graph_png, sizeof(Assets_Hud_graph_png));
 		m_State = 0;
 	}
 	virtual ~EdgeWidget()
@@ -119,10 +116,10 @@ public:
     {
         m_Icon->draw(context, projection * view * glm::scale(model, glm::vec3(m_Dimension, 1.0)), m_State != 2 ? glm::vec4(1.0, 1.0, 1.0, 1.0) : glm::vec4(0.5, 0.5, 0.5, 1.0), 0);
     }
-    virtual void onMouseClick(MessageQueue& messages, int x, int y)
+    void onMouseClick(MessageQueue& messages, const glm::vec2& pos) override
     {
-        (void) x;
-        (void) y;
+        (void) pos;
+
         m_State = (m_State + 1) % 3;
         switch(m_State)
         {
@@ -150,7 +147,7 @@ public:
 	: IWidget("label", parent, pos, dimension)
 	{
 		m_Icon = new Icon(glm::vec2(1.0, 1.0), glm::vec2(0.5, -0.5));
-		m_Icon->load("label", Resources_Hud_label_png, sizeof(Resources_Hud_label_png));
+		m_Icon->load("label", Assets_Hud_label_png, sizeof(Assets_Hud_label_png));
 		m_State = true;
 	}
 	virtual ~LabelWidget()
@@ -161,10 +158,10 @@ public:
 	{
 	    m_Icon->draw(context, projection * view * glm::scale(model, glm::vec3(m_Dimension, 1.0)), m_State ? glm::vec4(1.0, 1.0, 1.0, 1.0) : glm::vec4(0.5, 0.5, 0.5, 1.0), 0);
 	}
-	virtual void onMouseClick(MessageQueue& messages, int x, int y)
+	void onMouseClick(MessageQueue& messages, const glm::vec2& pos) override
 	{
-		(void) x;
-		(void) y;
+		(void) pos;
+
 		m_State = !m_State;
 		messages.push(static_cast<IMessage*>(new WidgetMessage(m_State ? "show labels" : "hide labels")));
 	}
@@ -179,7 +176,7 @@ public:
 	: IWidget("spheres", parent, pos, dimension)
 	{
 		m_Icon = new Icon(glm::vec2(1.0, 1.0), glm::vec2(0.5, -0.5));
-		m_Icon->load("spheres", Resources_Hud_spheres_png, sizeof(Resources_Hud_spheres_png));
+		m_Icon->load("spheres", Assets_Hud_spheres_png, sizeof(Assets_Hud_spheres_png));
 		m_State = true;
 	}
 	virtual ~SpheresWidget()
@@ -190,10 +187,10 @@ public:
 	{
 	    m_Icon->draw(context, projection * view * glm::scale(model, glm::vec3(m_Dimension, 1.0)), m_State ? glm::vec4(1.0, 1.0, 1.0, 1.0) : glm::vec4(0.5, 0.5, 0.5, 1.0), 0);
 	}
-	virtual void onMouseClick(MessageQueue& messages, int x, int y)
+	void onMouseClick(MessageQueue& messages, const glm::vec2& pos) override
 	{
-		(void) x;
-		(void) y;
+		(void) pos;
+
 		m_State = !m_State;
 		messages.push(static_cast<IMessage*>(new WidgetMessage(m_State ? "show spheres" : "hide spheres")));
 	}
@@ -208,7 +205,7 @@ public:
 	: IWidget("node", parent, pos, dimension)
 	{
 		m_Icon = new Icon(glm::vec2(1.0, 1.0), glm::vec2(0.5, -0.5));
-		m_Icon->load("node", Resources_Hud_node_png, sizeof(Resources_Hud_node_png));
+		m_Icon->load("node", Assets_Hud_node_png, sizeof(Assets_Hud_node_png));
 		m_State = 0;
 	}
 	virtual ~NodeWidget()
@@ -219,10 +216,10 @@ public:
 	{
 	    m_Icon->draw(context, projection * view * glm::scale(model, glm::vec3(m_Dimension, 1.0)), m_State != 7 ? glm::vec4(1.0, 1.0, 1.0, 1.0) : glm::vec4(0.5, 0.5, 0.5, 1.0), 0);
 	}
-	virtual void onMouseClick(MessageQueue& messages, int x, int y)
+	void onMouseClick(MessageQueue& messages, const glm::vec2& pos) override
 	{
-		(void) x;
-		(void) y;
+		(void) pos;
+
 		m_State = (m_State + 1) % 8;
 		switch(m_State)
 		{
@@ -265,7 +262,7 @@ public:
 	: IWidget("loupe", parent, pos, dimension)
 	{
 		m_Icon = new Icon(glm::vec2(1.0, 1.0), glm::vec2(0.5, -0.5));
-		m_Icon->load("loupe", Resources_Hud_loupe_png, sizeof(Resources_Hud_loupe_png));
+		m_Icon->load("loupe", Assets_Hud_loupe_png, sizeof(Assets_Hud_loupe_png));
 	}
 	virtual ~LoupeWidget()
 	{
@@ -274,12 +271,6 @@ public:
 	virtual void draw(Context* context, glm::mat4 model, glm::mat4 view, glm::mat4 projection)
 	{
 	    m_Icon->draw(context, projection * view * glm::scale(model, glm::vec3(m_Dimension, 1.0)), glm::vec4(1.0, 1.0, 1.0, 1.0), 0);
-	}
-	virtual void onMouseClick(MessageQueue& messages, int x, int y)
-	{
-		(void) messages;
-		(void) x;
-		(void) y;
 	}
 };
 
@@ -301,7 +292,7 @@ public:
 	: IWidget("marker", parent, pos, dimension)
 	{
 		m_Icon = new Icon(glm::vec2(1.0, 1.0), glm::vec2(0.5, -0.5));
-		m_Icon->load("marker", Resources_Hud_marker_png, sizeof(Resources_Hud_marker_png));
+		m_Icon->load("marker", Assets_Hud_marker_png, sizeof(Assets_Hud_marker_png));
 		m_Marker = 1;
 	}
 	virtual ~MarkerWidget()
@@ -312,10 +303,9 @@ public:
 	{
 	    m_Icon->draw(context, projection * view * glm::scale(model, glm::vec3(m_Dimension, 1.0)), color(m_Marker), 0);
 	}
-	virtual void onMouseClick(MessageQueue& messages, int x, int y)
+	void onMouseClick(MessageQueue& messages, const glm::vec2& pos) override
 	{
-		(void) x;
-		(void) y;
+		(void) pos;
 		messages.push(static_cast<IMessage*>(new WidgetMessage("marker")));
 	}
 
@@ -387,7 +377,7 @@ public:
 	: IWidget("bug", parent, pos, dimension)
 	{
 		m_Icon = new Icon(glm::vec2(1.0, 1.0), glm::vec2(0.5, -0.5));
-		m_Icon->load("bug", Resources_Hud_bug_png, sizeof(Resources_Hud_bug_png));
+		m_Icon->load("bug", Assets_Hud_bug_png, sizeof(Assets_Hud_bug_png));
 		m_State = false;
 	}
 	virtual ~BugWidget()
@@ -398,10 +388,9 @@ public:
 	{
 	    m_Icon->draw(context, projection * view * glm::scale(model, glm::vec3(m_Dimension, 1.0)), m_State ? glm::vec4(1.0, 1.0, 1.0, 1.0) : glm::vec4(0.5, 0.5, 0.5, 1.0), 0);
 	}
-	virtual void onMouseClick(MessageQueue& messages, int x, int y)
+	void onMouseClick(MessageQueue& messages, const glm::vec2& pos) override
 	{
-		(void) x;
-		(void) y;
+		(void) pos;
 		m_State = !m_State;
 		messages.push(static_cast<IMessage*>(new WidgetMessage(m_State ? "show debug" : "hide debug")));
 	}
@@ -414,11 +403,6 @@ class SpaceMenu //  : public WidgetGroup
 public:
     SpaceMenu()
     {
-        m_WindowWidth = glutGet(GLUT_WINDOW_WIDTH);
-        m_WindowHeight = glutGet(GLUT_WINDOW_HEIGHT);
-        m_Camera.setOrthographicProjection(0.0f, (float)m_WindowWidth, 0.0f, (float)m_WindowHeight, 0.001f, 100.f);
-        m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-
         m_Font = new Font();
         m_WidgetDimension = glm::vec2(24, 24);
         m_WidgetSpacing = 10;
@@ -602,17 +586,23 @@ public:
         }
     }
 
-    IWidget* pickWidget(int x, int y)
+    void bind(View* view)
+    {
+        m_Camera.setOrthographicProjection(0.0f, view->getViewport().getDimension()[0], 0.0f, view->getViewport().getDimension()[1], 0.001f, 100.f);
+        m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+    }
+
+    IWidget* pickWidget(const glm::vec2& pos)
     {
         IWidget* pick = NULL;
 
-        pick = m_TopLeftWidgetGroup->pickWidget(x, y);
+        pick = m_TopLeftWidgetGroup->pickWidget(pos);
         if (pick != NULL)
             return pick;
-        pick = m_BottomLeftWidgetGroup->pickWidget(x, y);
+        pick = m_BottomLeftWidgetGroup->pickWidget(pos);
         if (pick != NULL)
             return pick;
-        pick = m_BottomRightWidgetGroup->pickWidget(x, y);
+        pick = m_BottomRightWidgetGroup->pickWidget(pos);
         if (pick != NULL)
             return pick;
         return NULL;
@@ -626,11 +616,8 @@ public:
         delete m_Font;
     }
 
-    virtual void reshape(int width, int height)
+    virtual void resize(int width, int height)
     {
-        m_WindowWidth = width;
-        m_WindowHeight = height;
-
         m_Camera.reshape(width, height);
         m_Camera.setOrthographicProjection(0.0f, (float)width, 0.0f, (float)height, 0.001f, 100.f);
         m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
@@ -668,8 +655,6 @@ public:
     inline ClockWidget* getClock() { return m_ClockWidget; }
 
 private:
-    int m_WindowHeight;
-    int m_WindowWidth;
     Camera m_Camera;
     Font* m_Font;
     glm::vec2 m_WidgetDimension;

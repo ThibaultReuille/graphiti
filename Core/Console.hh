@@ -37,22 +37,20 @@ public:
 		}
 # endif
 #endif
-	void notify(IMessage* message)
+	virtual void notify(IMessage* message)
 	{
 		IMessage::Type type = message->type();
-
 		if (type != IMessage::SCRIPT)
 			return;
 
-		ScriptMessage* msg = static_cast<ScriptMessage*>(message);
-
+		auto msg = static_cast<ScriptMessage*>(message);
 		IScript* script = getScript(msg->Name);
 		if (script == NULL)
 		{
 			LOG("[CONSOLE] Couldn't find script \"%s\" !", msg->Name.c_str());
 			return;
 		}
-		else
-			execute(script);
+
+		execute(script);
 	}
 };

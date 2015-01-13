@@ -9,25 +9,35 @@ class GraphContext : public EntityContext
 class GraphListener : public EntityListener
 {
 public:
-    virtual void onAddNode(Node::ID id, const char* label) = 0;
+    virtual void onAddNode(Node::ID uid, const char* label)
+    { (void) uid; (void) label; }
 
-    virtual void onRemoveNode(Node::ID id) = 0;
+    virtual void onRemoveNode(Node::ID uid)
+    { (void) uid; }
 
-    virtual void onSetNodeAttribute(Node::ID id, const std::string& name, VariableType type, const std::string& value) = 0;
+    virtual void onSetNodeAttribute(Node::ID uid, const std::string& name, VariableType type, const std::string& value)
+    { (void) uid; (void) name; (void) type; (void) value; }
 
-    virtual void onSetNodeLabel(Node::ID id, const char* label) = 0;
+    virtual void onSetNodeLabel(Node::ID uid, const char* label)
+    { (void) uid; (void) label; }
 
-    virtual void onTagNode(Node::ID node, Sphere::ID sphere) = 0;
+    virtual void onTagNode(Node::ID uid, Sphere::ID sphere)
+    { (void) uid; (void) sphere; }
 
-    virtual void onAddLink(Link::ID uid, Node::ID uid1, Node::ID uid2) = 0;
+    virtual void onAddLink(Link::ID uid, Node::ID uid1, Node::ID uid2)
+    { (void) uid; (void) uid1; (void) uid2; }
 
-    virtual void onRemoveLink(Link::ID id) = 0;
+    virtual void onRemoveLink(Link::ID uid)
+    { (void) uid; }
 
-    virtual void onSetLinkAttribute(Link::ID id, const std::string& name, VariableType type, const std::string& value) = 0;
+    virtual void onSetLinkAttribute(Link::ID uid, const std::string& name, VariableType type, const std::string& value)
+    { (void) uid; (void) name; (void) type; (void) value; }
 
-    virtual void onAddNeighbor(const std::pair<Node::ID, Link::ID>& element, const char* label, Node::ID neighbor) = 0;
+    virtual void onAddNeighbor(const std::pair<Node::ID, Link::ID>& element, const char* label, Node::ID neighbor)
+    { (void) element; (void) label; (void) neighbor; }
 
-    virtual void onAddSphere(Sphere::ID id, const char* label) = 0;
+    virtual void onAddSphere(Sphere::ID uid, const char* label)
+    { (void) uid; (void) label; }
 };
 
 class GraphView : public EntityView, public GraphListener

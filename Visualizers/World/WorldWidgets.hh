@@ -9,7 +9,7 @@ public:
 	: IWidget("earth", parent, pos, dimension)
 	{
 		m_Icon = new Icon();
-		m_Icon->load("globe", Resources_Earth_globe_png, sizeof(Resources_Earth_globe_png));
+		m_Icon->load("globe", Assets_Earth_globe_png, sizeof(Assets_Earth_globe_png));
 		m_State = true;
 	}
 	virtual ~EarthWidget()
@@ -20,10 +20,9 @@ public:
 	{
 		m_Icon->draw(context, projection * view * model, m_State ? glm::vec4(1.0, 1.0, 1.0, 1.0) : glm::vec4(0.5, 0.5, 0.5, 1.0), 0);
 	}
-	virtual void onMouseClick(MessageQueue& messages, int x, int y)
+	void onMouseClick(MessageQueue& messages, const glm::vec2& pos) override
 	{
-		(void) x;
-		(void) y;
+		(void) pos;
 		m_State = !m_State;
 		messages.push(static_cast<IMessage*>(new WidgetMessage(m_State ? "show earth" : "hide earth")));
 	}
@@ -38,7 +37,7 @@ public:
 	: IWidget("world map", parent, pos, dimension)
 	{
 		m_Icon = new Icon();
-		m_Icon->load("worldmap", Resources_Earth_world_map_icon_png, sizeof(Resources_Earth_world_map_icon_png));
+		m_Icon->load("worldmap", Assets_Earth_world_map_icon_png, sizeof(Assets_Earth_world_map_icon_png));
 		m_State = true;
 	}
 	virtual ~WorldMapWidget()
@@ -49,10 +48,9 @@ public:
 	{
 		m_Icon->draw(context, projection * view * model, m_State ? glm::vec4(1.0, 1.0, 1.0, 1.0) : glm::vec4(0.5, 0.5, 0.5, 1.0), 0);
 	}
-	virtual void onMouseClick(MessageQueue& messages, int x, int y)
+	void onMouseClick(MessageQueue& messages, const glm::vec2& pos) override
 	{
-		(void) x;
-		(void) y;
+		(void) pos;
 		m_State = !m_State;
 		messages.push(static_cast<IMessage*>(new WidgetMessage(m_State ? "show worldmap" : "hide worldmap")));
 	}

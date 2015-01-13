@@ -13,11 +13,6 @@ class WorldController : public GraphController
 public:
 	WorldController()
 	{
-		m_WindowWidth = glutGet(GLUT_WINDOW_WIDTH);
-		m_WindowHeight = glutGet(GLUT_WINDOW_HEIGHT);
-		m_Camera.setOrthographicProjection(0.0f, (float)m_WindowWidth, 0.0f, (float)m_WindowHeight, 0.001f, 100.f);
-		m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-
 		m_WidgetDimension = glm::vec2(32, 32);
 		m_WidgetSpacing = 10;
 
@@ -37,22 +32,14 @@ public:
 		m_Context = context;
 		m_WorldView = view;
 
+		m_Camera.setOrthographicProjection(0.0f, view->getViewport().getDimension()[0], 0.0f, view->getViewport().getDimension()[1], 0.001f, 100.f);
+		m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+
 		m_SphericalCameraController.bind(context, view->getCamera3D());
 		m_SphericalCameraController.updateCamera();
 	}
 
-	virtual void reshape(int width, int height)
-	{
-		m_Camera.reshape(width, height);
-		m_Camera.setOrthographicProjection(0.0f, (float)width, 0.0f, (float)height, 0.001f, 100.f);
-		m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-
-		m_WidgetGroup->reshape(width, height);
-
-		m_SphericalCameraController.reshape(width, height);
-	}
-
-	virtual void idle()
+	void idle() override
 	{
 		m_SphericalCameraController.updateCamera();
 	}
@@ -62,43 +49,49 @@ public:
 		m_WidgetGroup->draw(m_Context, glm::mat4(), m_Camera.getViewMatrix(), m_Camera.getProjectionMatrix());
 	}
 
-	virtual void onKeyboard(unsigned char key, Controller::KeyEvent event)
+	void onWindowSize(int width, int height) override
 	{
-		m_SphericalCameraController.onKeyboard(key, event);
+		m_Camera.reshape(width, height);
+		m_Camera.setOrthographicProjection(0.0f, (float)width, 0.0f, (float)height, 0.001f, 100.f);
+		m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+
+		m_WidgetGroup->reshape(width, height);
+
+		m_SphericalCameraController.onWindowSize(width, height);
 	}
 
-	virtual void onMouseDown(int x, int y)
+	void onKey(int key, int scancode, int action, int mods) override
 	{
-		m_SphericalCameraController.onMouseDown(x, y);
+		m_SphericalCameraController.onKey(key, scancode, action, mods);
 	}
 
-	virtual void onMouseClick(int x, int y)
+	void onMouseDown(const glm::vec2& pos) override
 	{
-		IWidget* pickWidget = m_WidgetGroup->pickWidget(x, y);
+		m_SphericalCameraController.onMouseDown(pos);
+	}
+
+	void onMouseClick(const glm::vec2& pos) override
+	{
+		IWidget* pickWidget = m_WidgetGroup->pickWidget(pos);
 		if (pickWidget != NULL)
-			pickWidget->onMouseClick(m_Context->messages(), x, y);
+			pickWidget->onMouseClick(m_Context->messages(), pos);
 		else
-			m_SphericalCameraController.onMouseClick(x, y);
+			m_SphericalCameraController.onMouseClick(pos);
 	}
 
-	virtual void onMouseDoubleClick(int x, int y)
+	void onMouseDoubleClick(const glm::vec2& pos) override
 	{
-		m_SphericalCameraController.onMouseDoubleClick(x, y);
+		m_SphericalCameraController.onMouseDoubleClick(pos);
 	}
 
-	virtual void onMouseTripleClick(int x, int y)
+	void onMouseTripleClick(const glm::vec2& pos) override
 	{
-		m_SphericalCameraController.onMouseTripleClick(x, y);
+		m_SphericalCameraController.onMouseTripleClick(pos);
 	}
 
-	virtual void onMouseMove(int x, int y, int dx, int dy)
+	void onMouseMove(const glm::vec2& pos, const glm::vec2& dpos) override
 	{
-		m_SphericalCameraController.onMouseMove(x, y, dx, dy);
-	}
-
-	virtual void onSpecial(int key, Controller::KeyEvent event)
-	{
-		m_SphericalCameraController.onSpecial(key, event);
+		m_SphericalCameraController.onMouseMove(pos, dpos);
 	}
 
 	void notify(IMessage* message)
@@ -106,85 +99,9 @@ public:
 		(void) message;
 	}
 
-    // GraphListener Interface
-
-    virtual void onSetAttribute(const std::string& name, VariableType type, const std::string& value)
-    {
-        (void) name;
-        (void) type;
-        (void) value;
-    }
-
-    virtual void onAddNode(Node::ID id, const char* label)
-    {
-        (void) id;
-        (void) label;
-    }
-
-    virtual void onRemoveNode(Node::ID id)
-    {
-        (void) id;
-    }
-
-    virtual void onSetNodeAttribute(Node::ID id, const std::string& name, VariableType type, const std::string& value)
-    {
-        (void) id;
-        (void) name;
-        (void) type;
-        (void) value;
-    }
-
-    virtual void onSetNodeLabel(Node::ID id, const char* label)
-    {
-        (void) id;
-        (void) label;
-    }
-
-    virtual void onTagNode(Node::ID node, Sphere::ID sphere)
-    {
-        (void) node;
-        (void) sphere;
-    }
-
-    virtual void onAddLink(Link::ID uid, Node::ID uid1, Node::ID uid2)
-    {
-        (void) uid;
-        (void) uid1;
-        (void) uid2;
-    }
-
-    virtual void onRemoveLink(Link::ID id)
-    {
-        (void) id;
-    }
-
-    virtual void onSetLinkAttribute(Link::ID id, const std::string& name, VariableType type, const std::string& value)
-    {
-        (void) id;
-        (void) name;
-        (void) type;
-        (void) value;
-    }
-
-    virtual void onAddNeighbor(const std::pair<Node::ID, Link::ID>& element, const char* label, Node::ID neighbor)
-    {
-        (void) element;
-        (void) label;
-        (void) neighbor;
-    }
-
-    virtual void onAddSphere(Sphere::ID id, const char* label)
-    {
-        (void) id;
-        (void) label;
-    }
-
 private:
 	Context* m_Context;
 	WorldView* m_WorldView;
-
-	int m_WindowHeight;
-	int m_WindowWidth;
 
 	Camera m_Camera;
 

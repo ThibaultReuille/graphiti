@@ -5,20 +5,20 @@ class WorldResources
 public:
 	WorldResources()
 	{
-		EarthGeoPointShader = ResourceManager::getInstance().loadShader("cube", Resources_cube_vert, sizeof(Resources_cube_vert), Resources_cube_frag, sizeof(Resources_cube_frag));
+		EarthGeoPointShader = ResourceManager::getInstance().loadShader("cube", Assets_cube_vert, sizeof(Assets_cube_vert), Assets_cube_frag, sizeof(Assets_cube_frag));
 		EarthGeoCube = new Cube(glm::vec3(0.0, 0.5, 0.0));
 
-		StarfieldTexture = ResourceManager::getInstance().loadTexture("starfield", Resources_Spheres_starfield_png, sizeof(Resources_Spheres_starfield_png));
+		StarfieldTexture = ResourceManager::getInstance().loadTexture("starfield", Assets_Spheres_starfield_png, sizeof(Assets_Spheres_starfield_png));
 		Starfield = new EnvironmentSphere();
 		Starfield->setTexture(StarfieldTexture);
 
 		WorldMapNodeIcon = new Icon();
-		WorldMapNodeIcon->load("ball", Resources_Particle_ball_png, sizeof(Resources_Particle_ball_png));
+		WorldMapNodeIcon->load("ball", Assets_Particle_ball_png, sizeof(Assets_Particle_ball_png));
 		WorldMapNodeIconSize = 10.0;
 
 		EarthRadius = 20.0f;
 		EarthNodeSize = 0.25;
-		EarthGeoLinkShader = ResourceManager::getInstance().loadShader("curve", Resources_curve_vert, sizeof(Resources_curve_vert), Resources_curve_frag, sizeof(Resources_curve_frag));
+		EarthGeoLinkShader = ResourceManager::getInstance().loadShader("curve", Assets_curve_vert, sizeof(Assets_curve_vert), Assets_curve_frag, sizeof(Assets_curve_frag));
 	}
 
 	~WorldResources()

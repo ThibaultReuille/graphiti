@@ -42,5 +42,6 @@ def start():
 	#views['line_chart'] = og.create_visualizer("stream")
 
 	og.register_script('#started', 'dashboard.on_started()')
+	og.register_script("test", "print('yes')")
 
 	og.start()

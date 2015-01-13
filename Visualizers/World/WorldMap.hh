@@ -62,13 +62,13 @@ public:
 		m_VertexBuffer.generate(Buffer::DYNAMIC);
 
 		std::cout << "Loading world map textures ..." << std::endl;
-		// Texture* texture = new Texture("world", Resources_Earth_black_and_blue_jpg, sizeof(Resources_Earth_black_and_blue_jpg));
-		Texture* texture = ResourceManager::getInstance().loadTexture("miller", Resources_Earth_miller_2048x1502_jpg, sizeof(Resources_Earth_miller_2048x1502_jpg));
+		// Texture* texture = new Texture("world", Assets_Earth_black_and_blue_jpg, sizeof(Assets_Earth_black_and_blue_jpg));
+		Texture* texture = ResourceManager::getInstance().loadTexture("miller", Assets_Earth_miller_2048x1502_jpg, sizeof(Assets_Earth_miller_2048x1502_jpg));
 		m_Layers.push_back(texture);
 		m_Layers.push_back(ResourceManager::getInstance().loadTexture("layer1", texture->width(), texture->height(), texture->components()));
 
 		std::cout << "Loading world map shader ..." << std::endl;
-		m_Shader = ResourceManager::getInstance().loadShader("world", Resources_world_vert, sizeof(Resources_world_vert), Resources_world_frag, sizeof(Resources_world_frag));
+		m_Shader = ResourceManager::getInstance().loadShader("world", Assets_world_vert, sizeof(Assets_world_vert), Assets_world_frag, sizeof(Assets_world_frag));
 		// m_Shader->dump();
 	}
 

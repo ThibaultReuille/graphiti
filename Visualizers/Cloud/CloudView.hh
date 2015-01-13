@@ -27,15 +27,6 @@ public:
 	{
 		LOG("[CLOUDVIEW] Creating cloud view ...\n");
 
-		m_WindowWidth = glutGet(GLUT_WINDOW_WIDTH);
-		m_WindowHeight = glutGet(GLUT_WINDOW_HEIGHT);
-
-		m_Camera2D.setOrthographicProjection(0.0f, (float)m_WindowWidth, 0.0f, (float)m_WindowHeight, 0.001f, 100.f);
-		m_Camera2D.lookAt(glm::vec3(0, 0, 10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-
-		m_Camera3D.setPerspectiveProjection(60.0f, m_WindowWidth / (float)m_WindowHeight, 0.1f, 1024.0f);
-		m_Camera3D.lookAt(glm::vec3(0, 0, 30), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-
 		m_GraphEntity = NULL;
 
 		m_PointCloud = new PointCloud();
@@ -50,11 +41,11 @@ public:
 
 		m_SliceTexture = NULL;
 		m_SliceQuad = NULL;
-		m_SliceShader = ResourceManager::getInstance().loadShader("quad", Resources_quad_vert, sizeof(Resources_quad_vert), Resources_quad_frag, sizeof(Resources_quad_frag));
+		m_SliceShader = ResourceManager::getInstance().loadShader("quad", Assets_quad_vert, sizeof(Assets_quad_vert), Assets_quad_frag, sizeof(Assets_quad_frag));
 
 		m_Mesh = NULL;
-		m_MeshShader = ResourceManager::getInstance().loadShader("isovolume", Resources_Shaders_isovolume_vert, sizeof(Resources_Shaders_isovolume_vert),
-		                                                                      Resources_Shaders_isovolume_frag, sizeof(Resources_Shaders_isovolume_frag));
+		m_MeshShader = ResourceManager::getInstance().loadShader("isovolume", Assets_Shaders_isovolume_vert, sizeof(Assets_Shaders_isovolume_vert),
+		                                                                      Assets_Shaders_isovolume_frag, sizeof(Assets_Shaders_isovolume_frag));
 		m_MeshMaterial.setDiffuse(glm::vec4(SKY_BLUE, 1.0));
 		m_MeshMaterial.setShininess(45.0f);
 		m_MeshLight.setPosition(glm::vec3(0.0, 10000.0, 0.0));
@@ -78,6 +69,12 @@ public:
             LOG("[CLOUD] Couldn't bind entity to view : Wrong entity type!\n");
             return false;
         }
+
+		m_Camera2D.setOrthographicProjection(0.0f, getViewport().getDimension()[0], 0.0f, getViewport().getDimension()[1], 0.001f, 100.f);
+		m_Camera2D.lookAt(glm::vec3(0, 0, 10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+
+		m_Camera3D.setPerspectiveProjection(60.0f, getViewport().getDimension()[0] / getViewport().getDimension()[1], 0.1f, 1024.0f);
+		m_Camera3D.lookAt(glm::vec3(0, 0, 30), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
         m_GraphEntity = static_cast<GraphEntity*>(entity);
         m_GraphEntity->views().push_back(this);
@@ -415,9 +412,6 @@ public:
     inline GraphModel* model() { return static_cast<GraphModel*>(m_GraphEntity->model()); }
 
 private:
-	unsigned int m_WindowWidth;
-	unsigned int m_WindowHeight;
-
 	GraphEntity* m_GraphEntity;
 
 	Camera m_Camera2D;

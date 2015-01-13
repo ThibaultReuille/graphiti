@@ -77,11 +77,7 @@ class SpaceView : public GraphView
          LOG("[SPACEVIEW] Creating space view ...\n");
  
          g_SpaceResources = new SpaceResources();
- 
-         m_Camera.setPerspectiveProjection(60.0f, getViewport().getDimension()[0] / getViewport().getDimension()[1], 0.1f, 1024.0f);
-         m_Camera.lookAt(glm::vec3(0, 0, -5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-         m_CameraAnimation = false;
- 
+  
          m_GraphEntity = NULL;
  
          m_Octree = NULL;
@@ -105,6 +101,11 @@ class SpaceView : public GraphView
     virtual bool bind(GraphEntity* entity)
     {
         m_GraphEntity = entity;
+
+        m_Camera.setPerspectiveProjection(60.0f, getViewport().getDimension()[0] / getViewport().getDimension()[1], 0.1f, 1024.0f);
+        m_Camera.lookAt(glm::vec3(0, 0, -5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+        m_CameraAnimation = false;
+
         m_LinkAttractionForce.bind(m_GraphEntity->model(), &m_NodeMap, &m_LinkMap);
         m_NodeRepulsionForce.bind(m_GraphEntity->model(), &m_NodeMap);
 
@@ -253,16 +254,16 @@ class SpaceView : public GraphView
     void draw()
     {
         const glm::vec4 bgcolor = glm::vec4(BLACK, 1.0);
-         glClearColor(bgcolor.r, bgcolor.g, bgcolor.b, bgcolor.a);
-         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClearColor(bgcolor.r, bgcolor.g, bgcolor.b, bgcolor.a);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         #ifndef EMSCRIPTEN // NOTE : WebGL doesn't like rectangle images
             g_SpaceResources->m_Wallpaper->draw(context());
         #endif
  
-         glDisable(GL_DEPTH_TEST);
-         glEnable(GL_BLEND);
-         glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
+        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
  
          // NOTE : In the future, we want to disable the depth test, and render the image by layers.
          // However this means we need to sort the nodes by distance to the eye and use the Painter's algorithm
@@ -428,7 +429,7 @@ class SpaceView : public GraphView
         return found;
     }
 
-    void idle()
+    void idle() override
     {
         updateNodes();
         updateLinks();
@@ -619,7 +620,7 @@ class SpaceView : public GraphView
 
      // ----- Graph Events ----
 
-    void onSetAttribute(const std::string& name, VariableType type, const std::string& value)
+    void onSetAttribute(const std::string& name, VariableType type, const std::string& value) override
     {
         FloatVariable vfloat;
         Vec3Variable vvec3;
@@ -661,13 +662,13 @@ class SpaceView : public GraphView
         }
     }
 
-    void onAddNode(Node::ID uid, const char* label)
+    void onAddNode(Node::ID uid, const char* label) override
     {
         pushNodeVertexAround(uid, label, glm::vec3(0, 0, 0), 2);
         m_DirtyOctree = true;
     }
 
-    void onRemoveNode(Node::ID uid)
+    void onRemoveNode(Node::ID uid) override
     {
         checkNodeUID(uid);
 
@@ -695,7 +696,7 @@ class SpaceView : public GraphView
         m_DirtyOctree = true;
     }
 
-    void onSetNodeAttribute(Node::ID uid, const std::string& name, VariableType type, const std::string& value)
+    void onSetNodeAttribute(Node::ID uid, const std::string& name, VariableType type, const std::string& value) override
     {
         FloatVariable vfloat;
         BooleanVariable vbool;
@@ -761,7 +762,7 @@ class SpaceView : public GraphView
          }
     }
  
-    void onSetNodeLabel(Node::ID uid, const char* label)
+    void onSetNodeLabel(Node::ID uid, const char* label) override
     {
         checkNodeUID(uid);
 
@@ -770,13 +771,13 @@ class SpaceView : public GraphView
         static_cast<SpaceNode*>(m_SpaceNodes[id])->setLabel(label);
     }
 
-    void onTagNode(Node::ID node, Sphere::ID sphere)
+    void onTagNode(Node::ID node, Sphere::ID sphere) override
     {
         (void) node;
         (void) sphere;
     }
 
-    void onAddLink(Link::ID uid, Node::ID uid1, Node::ID uid2)
+    void onAddLink(Link::ID uid, Node::ID uid1, Node::ID uid2) override
     {
         checkNodeUID(uid1);
         checkNodeUID(uid2);
@@ -790,7 +791,7 @@ class SpaceView : public GraphView
         m_DirtyOctree = true;
     }
 
-    void onRemoveLink(Link::ID uid)
+    void onRemoveLink(Link::ID uid) override
     {
         checkLinkUID(uid);
 
@@ -802,7 +803,7 @@ class SpaceView : public GraphView
         m_DirtyOctree = true;
     }
 
-    void onSetLinkAttribute(Link::ID uid, const std::string& name, VariableType type, const std::string& value)
+    void onSetLinkAttribute(Link::ID uid, const std::string& name, VariableType type, const std::string& value) override
     {
         checkLinkUID(uid);
 
@@ -877,19 +878,14 @@ class SpaceView : public GraphView
         }
     }
 
-    void onAddSphere(Sphere::ID id, const char* label)
+    void onAddSphere(Sphere::ID id, const char* label) override
     {
         (void) id;
         (void) label;
         m_SpaceSpheres.add(new SpaceSphere());
     }
 
-    void onSetSphereMark(Sphere::ID id, unsigned int mark)
-    {
-        static_cast<SpaceSphere*>(m_SpaceSpheres[id])->setColor(MarkerWidget::color(mark));
-    }
-
-    void onAddNeighbor(const std::pair<Node::ID, Link::ID>& element, const char* label, Node::ID neighbor)
+    void onAddNeighbor(const std::pair<Node::ID, Link::ID>& element, const char* label, Node::ID neighbor) override
     {
         checkNodeUID(neighbor);
 

@@ -50,21 +50,18 @@ public:
 		m_SphericalCameraController.bind(context, m_GraphView->camera());
 		m_SphericalCameraController.updateCamera();
 
+		m_Menu->bind(view);
         m_Menu->getTimeline()->bindTrack(m_GraphContext->sequencer().track("command"));
         m_Menu->getClock()->bind(&m_GraphContext->sequencer().track("command")->clock());
 	}
 
-	virtual void reshape(int width, int height)
+	void draw() override
 	{
-		m_Menu->reshape(width, height);
-
-		if (m_HasTarget)
-			m_SphericalCameraController.reshape(width, height);
-		else
-			m_FirstPersonCameraController.reshape(width, height);
+		if (m_ShowMenu)
+			m_Menu->draw(m_GraphContext);
 	}
 
-	virtual void idle()
+	void idle() override
 	{
 		updateSelection();
 
@@ -79,44 +76,6 @@ public:
         g_SpaceResources->ShowEdgeActivity = m_Menu->getCheckBox4()->value();
 	}
 
-	virtual void draw()
-	{
-		if (m_ShowMenu)
-			m_Menu->draw(m_GraphContext);
-	}
-
-	virtual void onKeyboard(unsigned char key, Controller::KeyEvent event)
-	{
-		if (event == Controller::KEY_DOWN && key == 9) // TAB
-		{
-			m_ShowMenu = !m_ShowMenu;
-			return;
-		}
-		else if (event == Controller::KEY_DOWN && key == ' ')
-		{
-		    if (m_GraphContext->sequencer().clock().state() == Clock::STARTED)
-		        m_GraphContext->sequencer().clock().pause();
-		    else
-		        m_GraphContext->sequencer().clock().start();
-		    return;
-		}
-
-		if (m_HasTarget)
-			m_SphericalCameraController.onKeyboard(key, event);
-		else
-			m_FirstPersonCameraController.onKeyboard(key, event);
-	}
-
-	virtual void onMouseDown(int x, int y)
-	{
-		m_IsDragging = false;
-
-		if (m_HasTarget)
-			m_SphericalCameraController.onMouseDown(x, y);
-		else
-			m_FirstPersonCameraController.onMouseDown(x, y);
-	}
-
 	void updateSelection()
 	{
 		// NOTE : Has selected node been removed ?
@@ -126,24 +85,100 @@ public:
 			m_IsDragging = false;
 			m_HasTarget = false;
 			m_HasPick = false;
-			LOG("Node selection lost!\n");
 		}
 	}
 
-	virtual void onMouseClick(int x, int y)
+	void onWindowSize(int width, int height) override
+	{
+		if (g_SpaceResources->m_Wallpaper)
+			g_SpaceResources->m_Wallpaper->resize(width, height);
+		m_Menu->resize(width, height);
+
+		if (m_HasTarget)
+			m_SphericalCameraController.onWindowSize(width, height);
+		else
+			m_FirstPersonCameraController.onWindowSize(width, height);
+	}
+
+	void onKey(int key, int scancode, int action, int mods) override
+	{
+		if (action == GLFW_PRESS && key == GLFW_KEY_TAB)
+		{
+			m_ShowMenu = !m_ShowMenu;
+			return;
+		}
+		else if (action == GLFW_PRESS && key == GLFW_KEY_SPACE)
+		{
+		    if (m_GraphContext->sequencer().clock().state() == Clock::STARTED)
+		        m_GraphContext->sequencer().clock().pause();
+		    else
+		        m_GraphContext->sequencer().clock().start();
+		    return;
+		}
+
+		if (m_HasTarget)
+			m_SphericalCameraController.onKey(key, scancode, action, mods);
+		else
+			m_FirstPersonCameraController.onKey(key, scancode, action, mods);
+	}
+	
+	void onScroll(double xoffset, double yoffset) override
+	{
+		if (m_HasTarget)
+			m_SphericalCameraController.onScroll(xoffset, yoffset);
+		else
+			m_FirstPersonCameraController.onScroll(xoffset, yoffset);
+	}
+	
+
+	void onMouseMove(const glm::vec2& pos, const glm::vec2& dpos) override
+	{
+		updateSelection();
+
+		if (m_IsDragging)
+		{
+			dragVertex(m_SelectedNode, (int)pos.x, (int)pos.y);
+		}
+		else
+		{
+			m_HasPick = m_GraphView->pickNode((int)pos.x, (int)pos.y, &m_PickNode);
+
+			if (m_HasPick && m_PickNode == m_SelectedNode && dpos.x < 5 && dpos.y < 5)
+			{
+				m_IsDragging = true;
+				dragVertex(m_SelectedNode, (int)pos.x, (int)pos.y);
+			}
+			else if (m_HasTarget)
+				m_SphericalCameraController.onMouseMove(pos, dpos);
+			else
+				m_FirstPersonCameraController.onMouseMove(pos, dpos);
+		}
+	}
+
+	void onMouseDown(const glm::vec2& pos) override
+	{
+		m_IsDragging = false;
+
+		if (m_HasTarget)
+			m_SphericalCameraController.onMouseDown(pos);
+		else
+			m_FirstPersonCameraController.onMouseDown(pos);
+	}
+
+	void onMouseClick(const glm::vec2& pos) override
 	{
 		m_IsDragging = false;
 
 		updateSelection();
 
-		IWidget* pickWidget = m_Menu->pickWidget(x, y);
+		IWidget* pickWidget = m_Menu->pickWidget(pos);
 		if (pickWidget != NULL)
 		{
-			pickWidget->onMouseClick(m_GraphContext->messages(), x, y);
+			pickWidget->onMouseClick(m_GraphContext->messages(), pos);
 		}
 		else
 		{
-			m_HasPick = m_GraphView->pickNode(x, y, &m_PickNode);
+			m_HasPick = m_GraphView->pickNode((int)pos.x, (int)pos.y, &m_PickNode);
 			if (m_HasPick)
 			{
 				if (m_ToolMode == POINTER)
@@ -168,7 +203,7 @@ public:
 					m_GraphView->onSetNodeAttribute(id, "space:mark", RD_INT, smark.str());
 				}
 
-				m_SphericalCameraController.onMouseClick(x, y);
+				m_SphericalCameraController.onMouseClick(pos);
 			}
 			else
 			{
@@ -176,12 +211,12 @@ public:
 					m_GraphModel->unselectNode(m_GraphView->getNodeMap().getRemoteID(m_SelectedNode));
 				m_HasSelection = false;
 				m_HasTarget = false;
-				m_FirstPersonCameraController.onMouseClick(x, y);
+				m_FirstPersonCameraController.onMouseClick(pos);
 			}
 		}
 	}
 
-	virtual void onMouseDoubleClick(int x, int y)
+	void onMouseDoubleClick(const glm::vec2& pos) override
 	{
 		updateSelection();
 
@@ -190,20 +225,20 @@ public:
 			m_HasTarget = true;
 			m_GraphContext->messages().push(new GraphTargetNodeMessage(m_SelectedNode));
 
-			m_SphericalCameraController.onMouseDoubleClick(x, y);
+			m_SphericalCameraController.onMouseDoubleClick(pos);
 		}
 		else
-			m_FirstPersonCameraController.onMouseDoubleClick(x, y);
+			m_FirstPersonCameraController.onMouseDoubleClick(pos);
 	}
 
-	virtual void onMouseTripleClick(int x, int y)
+	void onMouseTripleClick(const glm::vec2& pos) override
 	{
 		updateSelection();
 
 		if (m_HasTarget)
-			m_SphericalCameraController.onMouseTripleClick(x, y);
+			m_SphericalCameraController.onMouseTripleClick(pos);
 		else
-			m_FirstPersonCameraController.onMouseTripleClick(x, y);
+			m_FirstPersonCameraController.onMouseTripleClick(pos);
 	}
 
 	void dragVertex(Node::ID, int screenX, int screenY)
@@ -222,45 +257,7 @@ public:
 		// NOTE : I don't think we need to force octree update here since we can only drag nodes within the vision field.
 	}
 
-	virtual void onMouseMove(int x, int y, int dx, int dy)
-	{
-		updateSelection();
-
-		if (m_IsDragging)
-		{
-			dragVertex(m_SelectedNode, x, y);
-		}
-		else
-		{
-			m_HasPick = m_GraphView->pickNode(x, y, &m_PickNode);
-
-			if (m_HasPick && m_PickNode == m_SelectedNode && dx < 5 && dy < 5)
-			{
-				m_IsDragging = true;
-				dragVertex(m_SelectedNode, x, y);
-			}
-			else if (m_HasTarget)
-				m_SphericalCameraController.onMouseMove(x, y, dx, dy);
-			else
-				m_FirstPersonCameraController.onMouseMove(x, y, dx, dy);
-		}
-	}
-
-	virtual void onSpecial(int key, Controller::KeyEvent event)
-	{
-		if (event == Controller::KEY_DOWN)
-		{
-			if (key == GLUT_KEY_F11)
-				glutFullScreen();
-		}
-
-		if (m_HasTarget)
-			m_SphericalCameraController.onSpecial(key, event);
-		else
-			m_FirstPersonCameraController.onSpecial(key, event);
-	}
-
-	void notify(IMessage* message)
+	void notify(IMessage* message) override
 	{
 		IMessage::Type type = message->type();
 		if (type == TARGET_NODE)
@@ -420,7 +417,7 @@ public:
 
 	// GraphListener Interface
 
-    virtual void onSetAttribute(const std::string& name, VariableType type, const std::string& value)
+    void onSetAttribute(const std::string& name, VariableType type, const std::string& value) override
     {
         StringVariable vstring;
 
@@ -429,70 +426,6 @@ public:
             vstring.set(value);
             m_Menu->getTitle()->text().set(vstring.value().c_str(), m_Menu->getFont());
         }
-    }
-
-    virtual void onAddNode(Node::ID id, const char* label)
-    {
-        (void) id;
-        (void) label;
-    }
-
-    virtual void onRemoveNode(Node::ID id)
-    {
-        (void) id;
-    }
-
-    virtual void onSetNodeAttribute(Node::ID id, const std::string& name, VariableType type, const std::string& value)
-    {
-        (void) id;
-        (void) name;
-        (void) type;
-        (void) value;
-    }
-
-    virtual void onSetNodeLabel(Node::ID id, const char* label)
-    {
-        (void) id;
-        (void) label;
-    }
-
-    virtual void onTagNode(Node::ID node, Sphere::ID sphere)
-    {
-        (void) node;
-        (void) sphere;
-    }
-
-    virtual void onAddLink(Link::ID uid, Node::ID uid1, Node::ID uid2)
-    {
-        (void) uid;
-        (void) uid1;
-        (void) uid2;
-    }
-
-    virtual void onRemoveLink(Link::ID id)
-    {
-        (void) id;
-    }
-
-    virtual void onSetLinkAttribute(Link::ID id, const std::string& name, VariableType type, const std::string& value)
-    {
-        (void) id;
-        (void) name;
-        (void) type;
-        (void) value;
-    }
-
-    virtual void onAddNeighbor(const std::pair<Node::ID, Link::ID>& element, const char* label, Node::ID neighbor)
-    {
-        (void) element;
-        (void) label;
-        (void) neighbor;
-    }
-
-    virtual void onAddSphere(Sphere::ID id, const char* label)
-    {
-        (void) id;
-        (void) label;
     }
 
 private:

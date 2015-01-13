@@ -38,8 +38,8 @@ public:
         m_Sphere = new SphereMesh(3.0, 7, 10);
         m_Sphere->getVertexBuffer().mute("a_Texcoord", true);
         m_Shader = ResourceManager::getInstance().loadShader("ParticleView/node",
-                Resources_ParticleView_node_vert, sizeof(Resources_ParticleView_node_vert),
-                Resources_ParticleView_node_frag, sizeof(Resources_ParticleView_node_frag));
+                Assets_ParticleView_node_vert, sizeof(Assets_ParticleView_node_vert),
+                Assets_ParticleView_node_frag, sizeof(Assets_ParticleView_node_frag));
         // m_Shader->dump();
    }
 
@@ -78,7 +78,7 @@ public:
         m_Context = m_OpenCL.createContext(*device);
         m_Queue = m_OpenCL.createCommandQueue(*m_Context);
 
-        std::string source((const char*)Resources_ParticleView_physics_cl, Resources_ParticleView_physics_cl_len);
+        std::string source((const char*)Assets_ParticleView_physics_cl, Assets_ParticleView_physics_cl_len);
         OpenCL::Program* program = m_OpenCL.loadProgram(*m_Context, "particles", source);
         m_RepulsionK = m_OpenCL.createKernel(*program, "repulsion");
         m_AttractionK = m_OpenCL.createKernel(*program, "attraction");

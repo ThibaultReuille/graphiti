@@ -6,15 +6,15 @@
 #include <raindance/Core/GUI/View.hh>
 #include <raindance/Core/Manager.hh>
 
-#include "Core/Window.hh"
+#include "Core/Console.hh"
 
 // TODO : This should probably all be moved into the Raindance engine
 
-// Forward declarations
+// ------------------------
 
 class Entity;
 
-// ----- Entity Base -----
+// ------------------------
 
 class EntityBase
 {
@@ -25,14 +25,15 @@ protected:
     Variables m_Attributes;
 };
 
-// ----- Entity Context -----
+
+// ------------------------
 
 class EntityContext : public Context
 {
 public:
 };
 
-// ----- Entity Model -----
+// ------------------------
 
 class EntityModel : public EntityBase
 {
@@ -43,7 +44,7 @@ public:
 EntityModel::~EntityModel() {}
 
 
-// ----- Entity View -----
+// ------------------------
 
 class EntityView : public View, public EntityBase
 {
@@ -55,19 +56,19 @@ public:
 
 EntityView::~EntityView() {}
 
-// ----- Entity Controller -----
+// ------------------------
 
 class EntityController : public EntityBase, public Controller
 {
 public:
     virtual ~EntityController() = 0;
-    virtual void draw() = 0;
-    virtual void idle() = 0;
+    virtual void draw() {}
+    virtual void idle() {}
 };
 
 EntityController::~EntityController() {}
 
-// ----- Entity Visualizer -----
+// ------------------------
 
 class EntityVisualizer : public EntityBase
 {
@@ -92,18 +93,19 @@ public:
     virtual ~EntityVisualizerManager() {}
 };
 
-// ----- Entity Listener -----
+// ------------------------
 
 class EntityListener : public EntityBase, public IListener
 {
 public:
     virtual ~EntityListener() = 0;
-    virtual void onSetAttribute(const std::string& name, VariableType type, const std::string& value) = 0;
+    virtual void onSetAttribute(const std::string& name, VariableType type, const std::string& value)
+    { (void) name; (void) type; (void) value; }
 
 };
 EntityListener::~EntityListener() {}
 
-// ----- Entity -----
+// ------------------------
 
 class Entity : public EntityBase
 {
@@ -246,4 +248,15 @@ public:
 
         return add(entity);
     }
+};
+
+// ------------------------
+
+class Root
+{
+public:
+    virtual Context* context() = 0;
+    virtual GraphitiConsole* console() = 0;
+    virtual EntityManager& entities() = 0;
+    virtual EntityVisualizerManager& visualizers() = 0;
 };

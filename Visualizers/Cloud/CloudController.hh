@@ -13,11 +13,6 @@ class CloudController : public GraphController
 public:
 	CloudController()
 	{
-		m_WindowWidth = glutGet(GLUT_WINDOW_WIDTH);
-		m_WindowHeight = glutGet(GLUT_WINDOW_HEIGHT);
-		m_Camera.setOrthographicProjection(0.0f, (float)m_WindowWidth, 0.0f, (float)m_WindowHeight, 0.001f, 100.f);
-		m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-
 		m_Font = new Font();
 
 		m_WidgetSpacing = 10;
@@ -55,11 +50,16 @@ public:
 		m_Context = context;
 		m_CloudView = view;
 
+		m_WindowWidth = (int) m_CloudView->getViewport().getDimension()[0];
+		m_WindowHeight = (int) m_CloudView->getViewport().getDimension()[1];
+		m_Camera.setOrthographicProjection(0.0f, (float)m_WindowWidth, 0.0f, (float)m_WindowHeight, 0.001f, 100.f);
+		m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+
 		m_SphericalCameraController.bind(context, view->getCamera3D());
 		m_FirstPersonCameraController.bind(context, view->getCamera3D());
 	}
 
-	virtual void reshape(int width, int height)
+	void onWindowSize(int width, int height) override
 	{
 		m_Camera.reshape(width, height);
 		m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
@@ -69,15 +69,15 @@ public:
 		switch(m_CloudView->getCamera3D()->mode())
 		{
 		case Camera::PERSPECTIVE:
-			m_SphericalCameraController.reshape(width, height);
+			m_SphericalCameraController.onWindowSize(width, height);
 			break;
 		case Camera::ORTHOGRAPHIC:
-			m_FirstPersonCameraController.reshape(width, height);
+			m_FirstPersonCameraController.onWindowSize(width, height);
 			break;
 		}
 	}
 
-	virtual void idle()
+	void idle() override
 	{
 		switch(m_CloudView->getCamera3D()->mode())
 		{
@@ -90,104 +90,91 @@ public:
 		}
 	}
 
-	virtual void draw()
+	void draw() override
 	{
 		m_WidgetGroup->draw(m_Context, glm::mat4(), m_Camera.getViewMatrix(), m_Camera.getProjectionMatrix());
 	}
 
-	virtual void onKeyboard(unsigned char key, Controller::KeyEvent event)
+	void onKey(int key, int scancode, int action, int mods) override
 	{
 		switch(m_CloudView->getCamera3D()->mode())
 		{
 		case Camera::PERSPECTIVE:
-			m_SphericalCameraController.onKeyboard(key, event);
+			m_SphericalCameraController.onKey(key, scancode, action, mods);
 			break;
 		case Camera::ORTHOGRAPHIC:
-			m_FirstPersonCameraController.onKeyboard(key, event);
+			m_FirstPersonCameraController.onKey(key, scancode, action, mods);
 			break;
 		}
 	}
 
-	virtual void onMouseDown(int x, int y)
+	void onMouseDown(const glm::vec2& pos) override
 	{
 		switch(m_CloudView->getCamera3D()->mode())
 		{
 		case Camera::PERSPECTIVE:
-			m_SphericalCameraController.onMouseDown(x, y);
+			m_SphericalCameraController.onMouseDown(pos);
 			break;
 		case Camera::ORTHOGRAPHIC:
-			m_FirstPersonCameraController.onMouseDown(x, y);
+			m_FirstPersonCameraController.onMouseDown(pos);
 			break;
 		}
 	}
 
-	virtual void onMouseClick(int x, int y)
+	void onMouseClick(const glm::vec2& pos) override
 	{
-		IWidget* pickWidget = m_WidgetGroup->pickWidget(x, y);
+		IWidget* pickWidget = m_WidgetGroup->pickWidget(pos);
 		if (pickWidget != NULL)
-			pickWidget->onMouseClick(m_Context->messages(), x, y);
+			pickWidget->onMouseClick(m_Context->messages(), pos);
 		else
 		{
 			switch(m_CloudView->getCamera3D()->mode())
 			{
 			case Camera::PERSPECTIVE:
-				m_SphericalCameraController.onMouseClick(x, y);
+				m_SphericalCameraController.onMouseClick(pos);
 				break;
 			case Camera::ORTHOGRAPHIC:
-				m_FirstPersonCameraController.onMouseClick(x, y);
+				m_FirstPersonCameraController.onMouseClick(pos);
 				break;
 			}
 		}
 	}
 
-	virtual void onMouseDoubleClick(int x, int y)
+	void onMouseDoubleClick(const glm::vec2& pos) override
 	{
 		switch(m_CloudView->getCamera3D()->mode())
 		{
 		case Camera::PERSPECTIVE:
-			m_SphericalCameraController.onMouseDoubleClick(x, y);
+			m_SphericalCameraController.onMouseDoubleClick(pos);
 			break;
 		case Camera::ORTHOGRAPHIC:
-			m_FirstPersonCameraController.onMouseDoubleClick(x, y);
+			m_FirstPersonCameraController.onMouseDoubleClick(pos);
 			break;
 		}
 	}
 
-	virtual void onMouseTripleClick(int x, int y)
+	void onMouseTripleClick(const glm::vec2& pos) override
 	{
 		switch(m_CloudView->getCamera3D()->mode())
 		{
 		case Camera::PERSPECTIVE:
-			m_SphericalCameraController.onMouseTripleClick(x, y);
+			m_SphericalCameraController.onMouseTripleClick(pos);
 			break;
 		case Camera::ORTHOGRAPHIC:
-			m_FirstPersonCameraController.onMouseTripleClick(x, y);
+			m_FirstPersonCameraController.onMouseTripleClick(pos);
 			break;
 		}
 	}
 
-	virtual void onMouseMove(int x, int y, int dx, int dy)
+	void onMouseMove(const glm::vec2& pos, const glm::vec2& dpos) override
 	{
 		switch(m_CloudView->getCamera3D()->mode())
 		{
 		case Camera::PERSPECTIVE:
-			m_SphericalCameraController.onMouseMove(x, y, dx, dy);
+			m_SphericalCameraController.onMouseMove(pos, dpos);
 			break;
 		case Camera::ORTHOGRAPHIC:
-			m_FirstPersonCameraController.onMouseMove(x, y, dx, dy);
-			break;
-		}
-	}
-
-	virtual void onSpecial(int key, Controller::KeyEvent event)
-	{
-		switch(m_CloudView->getCamera3D()->mode())
-		{
-		case Camera::PERSPECTIVE:
-			m_SphericalCameraController.onSpecial(key, event);
-			break;
-		case Camera::ORTHOGRAPHIC:
-			m_FirstPersonCameraController.onSpecial(key, event);
+			m_FirstPersonCameraController.onMouseMove(pos, dpos);
 			break;
 		}
 	}
@@ -257,98 +244,6 @@ public:
 			}
 		}
 	}
-
-    // GraphListener Interface
-
-    virtual void onSetAttribute(const std::string& name, VariableType type, const std::string& value)
-    {
-        (void) name;
-        (void) type;
-        (void) value;
-    }
-
-    virtual void onAddNode(Node::ID id, const char* label)
-    {
-        (void) id;
-        (void) label;
-    }
-
-    virtual void onRemoveNode(Node::ID id)
-    {
-        (void) id;
-    }
-
-    virtual void onSetNodeAttribute(Node::ID id, const std::string& name, VariableType type, const std::string& value)
-    {
-        (void) id;
-        (void) name;
-        (void) type;
-        (void) value;
-    }
-
-    virtual void onSetNodeLabel(Node::ID id, const char* label)
-    {
-        (void) id;
-        (void) label;
-    }
-
-    virtual void onSetNodeMark(Node::ID id, unsigned int mark)
-    {
-        (void) id;
-        (void) mark;
-    }
-
-    virtual void onSetNodeWeight(Node::ID id, float weight)
-    {
-        (void) id;
-        (void) weight;
-    }
-
-    virtual void onTagNode(Node::ID node, Sphere::ID sphere)
-    {
-        (void) node;
-        (void) sphere;
-    }
-
-    virtual void onAddLink(Link::ID uid, Node::ID uid1, Node::ID uid2)
-    {
-        (void) uid;
-        (void) uid1;
-        (void) uid2;
-    }
-
-    virtual void onRemoveLink(Link::ID id)
-    {
-        (void) id;
-    }
-
-    virtual void onSetLinkAttribute(Link::ID id, const std::string& name, VariableType type, const std::string& value)
-    {
-        (void) id;
-        (void) name;
-        (void) type;
-        (void) value;
-    }
-
-    virtual void onAddNeighbor(const std::pair<Node::ID, Link::ID>& element, const char* label, Node::ID neighbor)
-    {
-        (void) element;
-        (void) label;
-        (void) neighbor;
-    }
-
-    virtual void onAddSphere(Sphere::ID id, const char* label)
-    {
-        (void) id;
-        (void) label;
-    }
-
-    virtual void onSetSphereMark(Sphere::ID id, unsigned int mark)
-    {
-        (void) id;
-        (void) mark;
-    }
-
 
 private:
 	Context* m_Context;

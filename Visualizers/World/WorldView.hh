@@ -26,10 +26,21 @@ public:
 
 	WorldView()
 	{
-		std::cout << "Creating world view ..." << std::endl;
+	}
 
-		m_WindowWidth = glutGet(GLUT_WINDOW_WIDTH);
-		m_WindowHeight = glutGet(GLUT_WINDOW_HEIGHT);
+	virtual ~WorldView()
+	{
+		delete g_WorldResources;
+		delete m_WorldMap;
+		delete m_Earth;
+	}
+
+	virtual const char* name() const { return "world"; }
+
+	virtual bool bind(Entity* entity)
+	{
+		m_WindowWidth = (unsigned int) getViewport().getDimension()[0];
+		m_WindowHeight = (unsigned int) getViewport().getDimension()[1];
 
 		m_Camera2D.setOrthographicProjection(0.0f, (float)m_WindowWidth, 0.0f, (float)m_WindowHeight, 0.001f, 100.f);
 		m_Camera2D.lookAt(glm::vec3(0, 0, 10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
@@ -45,19 +56,7 @@ public:
 		m_WorldMap = new WorldMap(m_WindowHeight * texture_ratio, m_WindowHeight);
 
 		m_Earth = new Earth();
-	}
 
-	virtual ~WorldView()
-	{
-		delete g_WorldResources;
-		delete m_WorldMap;
-		delete m_Earth;
-	}
-
-	virtual const char* name() const { return "world"; }
-
-	virtual bool bind(Entity* entity)
-	{
         if (entity->type() != Entity::GRAPH)
         {
             LOG("[WORLD] Couldn't bind entity to view : Wrong entity type!\n");
