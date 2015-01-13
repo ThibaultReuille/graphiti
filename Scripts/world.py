@@ -74,7 +74,7 @@ def start():
         else:
             print("Unrecognized format <'" + sys.argv[2] + "'> !")
 
-    graphiti.register_script("#started", "world.on_started()")
+    # graphiti.register_script("#started", "world.on_started()")
 
     graphiti.create_window("OpenGraphiti : Data Visualization Engine", 0, 0)
     graphiti.create_entity("graph")

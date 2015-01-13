@@ -65,6 +65,11 @@ public:
 		m_SphericalCameraController.onKey(key, scancode, action, mods);
 	}
 
+	void onScroll(double xoffset, double yoffset) override
+	{
+		m_SphericalCameraController.onScroll(xoffset, yoffset);
+	}
+
 	void onMouseDown(const glm::vec2& pos) override
 	{
 		m_SphericalCameraController.onMouseDown(pos);
