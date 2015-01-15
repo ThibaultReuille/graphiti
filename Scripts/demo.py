@@ -509,7 +509,7 @@ def color_nodes_by_dga_score():
             rgb = [1.0, 1.0 - sub, 1.0 - sub, 1.0]
             graphiti.set_node_attribute(id, "graphiti:space:color", "vec4", std.vec4_to_str(rgb))
 
-def depth_circle_layout():
+def seed_circle_layout():
     radius = 100.0
 
     ids = graphiti.get_node_ids()
@@ -699,7 +699,7 @@ def start():
             ["Sphere Layout", "demo.sphere_layout(20)"],
             ["Cube Layout", "demo.cube_layout()"],
             ["Conic Layout", "demo.conic_layout()"],
-            ["Depth Circle Layout", "demo.depth_circle_layout()"],
+            ["Seed Circle Layout", "demo.seed_circle_layout()"],
             ["Globe Layout", "demo.globe_layout()"],
         ]],
         ["Topology", [
