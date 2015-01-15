@@ -86,7 +86,9 @@ public:
 
     void onSetFramebufferSize(int width, int height) override
     {
-         m_HUD->reshape(getViewport());
+        glViewport(0, 0, width, height);
+
+        m_HUD->reshape(getViewport());
 
         for (auto visualizer : m_Visualizers)
             if (visualizer->controller())
