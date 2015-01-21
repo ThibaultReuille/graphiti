@@ -4,8 +4,8 @@ G_INCLUDES := -I./ -I../ -I../raindance/Lib/glm-0.9.5.4
 PYTHON_CFLAGS := `python2.7-config --cflags | sed s/"-mno-fused-madd"//g`
 PYTHON_LDFLAGS := `python2.7-config --ldflags`
 
-GLFW_CFLAGS := `pkg-config --cflags glfw3`
-GLFW_LDFLAGS := `pkg-config --static --libs glfw3`
+GLFW_CFLAGS := `pkg-config --cflags glew glfw3`
+GLFW_LDFLAGS := `pkg-config --static --libs glew glfw3`
 
 BINARY := graphiti
 DIST := $(binary)-$(shell date +"%Y%m%d")
@@ -15,13 +15,13 @@ ifeq ($(UNAME), Darwin)
 	CC=clang++
 	CFLAGS=$(G_CFLAGS) $(PYTHON_CFLAGS) $(GLFW_CFLAGS) -stdlib=libc++ -pthread
 	INCLUDES=$(G_INCLUDES)
-	LDFLAGS=$(G_LDFLAGS) $(PYTHON_LDFLAGS) $(GLFW_LDFLAGS) -framework OpenGL -framework OpenCL
+	LDFLAGS=$(G_LDFLAGS) $(PYTHON_LDFLAGS) $(GLFW_LDFLAGS) -framework OpenCL
 endif
 ifeq ($(UNAME), Linux)
 	CC=g++
 	CFLAGS=$(G_CFLAGS) $(PYTHON_CFLAGS) $(GLFW_CLFAGS)
 	INCLUDES=$(G_INCLUDES)
-	LDFLAGS=$(G_LDFLAGS) $(PYTHON_LDFLAGS) $(GLFW_LDFLAGS) -lm -lGL -lGLU -lOpenCL -pthread
+	LDFLAGS=$(G_LDFLAGS) $(PYTHON_LDFLAGS) $(GLFW_LDFLAGS) -lOpenCL -pthread
 endif
 
 EMS_CC := $(EMSCRIPTEN)/em++
