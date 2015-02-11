@@ -6,10 +6,10 @@
 
 #include "Entities/MVC.hh"
 
-class MeshController : public GraphController
+class NetworkController : public GraphController
 {
 public:
-	MeshController()
+	NetworkController()
 	{
 		m_Font = new Font();
 
@@ -35,15 +35,15 @@ public:
 		*/
 	}
 
-	virtual ~MeshController()
+	virtual ~NetworkController()
 	{
 		delete m_WidgetGroup;
 	}
 
-	void bind(Context* context, MeshView* view)
+	void bind(Context* context, NetworkView* view)
 	{
 		m_Context = context;
-		m_MeshView = view;
+		m_NetworkView = view;
 
 		m_Camera.setOrthographicProjection(0.0f, view->getViewport().getDimension()[0], 0.0f, view->getViewport().getDimension()[1], 0.001f, 100.f);
 		m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
@@ -60,7 +60,7 @@ public:
 
 		m_WidgetGroup->reshape(width, height);
 
-		switch(m_MeshView->getCamera3D()->mode())
+		switch(m_NetworkView->getCamera3D()->mode())
 		{
 		case Camera::PERSPECTIVE:
 			m_SphericalCameraController.onWindowSize(width, height);
@@ -73,7 +73,7 @@ public:
 
 	void idle() override
 	{
-		switch(m_MeshView->getCamera3D()->mode())
+		switch(m_NetworkView->getCamera3D()->mode())
 		{
 		case Camera::PERSPECTIVE:
 			m_SphericalCameraController.updateCamera();
@@ -91,7 +91,7 @@ public:
 
 	void onKey(int key, int scancode, int action, int mods) override
 	{
-		switch(m_MeshView->getCamera3D()->mode())
+		switch(m_NetworkView->getCamera3D()->mode())
 		{
 		case Camera::PERSPECTIVE:
 			m_SphericalCameraController.onKey(key, scancode, action, mods);
@@ -104,7 +104,7 @@ public:
 
 	void onMouseDown(const glm::vec2& pos) override
 	{
-		switch(m_MeshView->getCamera3D()->mode())
+		switch(m_NetworkView->getCamera3D()->mode())
 		{
 		case Camera::PERSPECTIVE:
 			m_SphericalCameraController.onMouseDown(pos);
@@ -122,7 +122,7 @@ public:
 			pickWidget->onMouseClick(m_Context->messages(), pos);
 		else
 		{
-			switch(m_MeshView->getCamera3D()->mode())
+			switch(m_NetworkView->getCamera3D()->mode())
 			{
 			case Camera::PERSPECTIVE:
 				m_SphericalCameraController.onMouseClick(pos);
@@ -136,7 +136,7 @@ public:
 
 	void onMouseDoubleClick(const glm::vec2& pos) override
 	{
-		switch(m_MeshView->getCamera3D()->mode())
+		switch(m_NetworkView->getCamera3D()->mode())
 		{
 		case Camera::PERSPECTIVE:
 			m_SphericalCameraController.onMouseDoubleClick(pos);
@@ -149,7 +149,7 @@ public:
 
 	void onMouseTripleClick(const glm::vec2& pos) override
 	{
-		switch(m_MeshView->getCamera3D()->mode())
+		switch(m_NetworkView->getCamera3D()->mode())
 		{
 		case Camera::PERSPECTIVE:
 			m_SphericalCameraController.onMouseTripleClick(pos);
@@ -162,7 +162,7 @@ public:
 
 	void onMouseMove(const glm::vec2& pos, const glm::vec2& dpos) override
 	{
-		switch(m_MeshView->getCamera3D()->mode())
+		switch(m_NetworkView->getCamera3D()->mode())
 		{
 		case Camera::PERSPECTIVE:
 			m_SphericalCameraController.onMouseMove(pos, dpos);
@@ -180,7 +180,7 @@ public:
 
 private:
 	Context* m_Context;
-	MeshView* m_MeshView;
+	NetworkView* m_NetworkView;
 
 	Camera m_Camera;
 

@@ -10,6 +10,7 @@ import graphiti as graphiti
 import standard as std
 
 import demo
+import network
 import diff
 #import leap
 import world

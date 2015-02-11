@@ -11,13 +11,14 @@
 #include "Core/Window.hh"
 
 #include "Visualizers/Space/SpaceVisualizer.hh"
+#include "Visualizers/Network/NetworkVisualizer.hh"
 #include "Visualizers/World/WorldVisualizer.hh"
 
 #ifndef EMSCRIPTEN
 # include "Visualizers/Particles/ParticleVisualizer.hh"
 # include "Visualizers/Stream/StreamVisualizer.hh"
 # include "Visualizers/Cloud/CloudVisualizer.hh"
-# include "Visualizers/Mesh/MeshVisualizer.hh"
+
 #endif
 
 class Graphiti : public Raindance, public Root
@@ -94,6 +95,8 @@ public:
         EntityVisualizer* visualizer = NULL;
         if (sname == "space")
             visualizer = new SpaceVisualizer();
+        else if (sname == "network")
+            visualizer = new NetworkVisualizer();
         else if (sname == "world")
             visualizer = new WorldVisualizer();
 #ifndef EMSCRIPTEN
@@ -101,8 +104,6 @@ public:
             visualizer = new ParticleVisualizer();
         else if (sname == "cloud")
             visualizer = new CloudVisualizer();
-        else if (sname == "mesh")
-            visualizer = new MeshVisualizer();
         else if (sname == "stream")
             visualizer = new StreamVisualizer();
 #endif

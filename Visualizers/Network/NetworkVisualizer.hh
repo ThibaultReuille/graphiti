@@ -1,14 +1,14 @@
 #pragma once
 
 #include "Entities/MVC.hh"
-#include "Visualizers/Mesh/MeshView.hh"
-#include "Visualizers/Mesh/MeshController.hh"
+#include "Visualizers/Network/NetworkView.hh"
+#include "Visualizers/Network/NetworkController.hh"
 
-class MeshVisualizer : public EntityVisualizer
+class NetworkVisualizer : public EntityVisualizer
 {
 public:
 
-    MeshVisualizer()
+    NetworkVisualizer()
     {
     }
 
@@ -22,13 +22,13 @@ public:
 
         auto ts = static_cast<GraphEntity*>(entity);
 
-        auto view = new MeshView();
+        auto view = new NetworkView();
         view->setViewport(viewport);
         view->bind(ts);
 
         entity->context()->messages().addListener(view);
 
-        auto controller = new MeshController();
+        auto controller = new NetworkController();
         controller->bind(static_cast<GraphContext*>(ts->context()), view);
 
         entity->controllers().push_back(controller);
