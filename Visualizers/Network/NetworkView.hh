@@ -8,92 +8,84 @@
 
 #include "Entities/MVC.hh"
 
-class ParticleSystem 
+class GPUGraph 
 {
 public:
 
 	struct Vertex
 	{
-		glm::vec3 Position;
-		glm::vec2 UV;
+		glm::vec3 Origin;
 	};
 
-	struct Instance
+	struct Node
 	{
-        glm::vec3 Translation;
-        glm::vec3 Scale;
+		typedef unsigned int ID;
+
+        glm::vec3 Position;
+        float Size;
         glm::vec4 Color;
 	};
 
-	ParticleSystem()
+	struct Edge
 	{
-		// --- Load Resources ---
+		typedef unsigned int ID;
 
+		Node::ID Source;
+		Node::ID Target;
+
+		float Width;
+	};
+
+	GPUGraph()
+	{
 		m_Icon = new Icon();
         m_Icon->load("network/shapes/disk", FS::BinaryFile("Assets/NetworkView/shape_disk.png"));
 
-		FS::TextFile geom("Assets/NetworkView/particles.geom");
 		FS::TextFile vert("Assets/NetworkView/particles.vert");
+		FS::TextFile geom("Assets/NetworkView/particles.geom");
 		FS::TextFile frag("Assets/NetworkView/particles.frag");
         m_Shader = ResourceManager::getInstance().loadShader("NetworkView/particles", vert.content(), frag.content(), geom.content());
         m_Shader->dump();
-
-        // --- Define Particle Geometry ---
-
-        m_VertexBuffer << glm::vec3(-0.5, -0.5, 0.0) << glm::vec2(0, 1);
-        m_VertexBuffer << glm::vec3( 0.5, -0.5, 0.0) << glm::vec2(1, 1);
-        m_VertexBuffer << glm::vec3(-0.5,  0.5, 0.0) << glm::vec2(0, 0);
-        m_VertexBuffer << glm::vec3( 0.5,  0.5, 0.0) << glm::vec2(1, 0);
-        m_VertexBuffer.describe("a_Position", 3, GL_FLOAT, sizeof(Vertex), 0);
-        m_VertexBuffer.describe("a_UV", 2, GL_FLOAT, sizeof(Vertex), sizeof(glm::vec3)); 
-        m_VertexBuffer.generate(Buffer::STATIC);
-
-        // --- Define Particle Instances ---
-
-        int count = 1000000;
-
-        for (int n = 0; n < count; n++)
-        {
-            float d = 50;
-
-            Instance i;
-
-            i.Translation = d * glm::vec3(
-                RANDOM_FLOAT(-1.0, 1.0),
-                RANDOM_FLOAT(-1.0, 1.0),
-                RANDOM_FLOAT(-1.0, 1.0));
-            
-            float s = RANDOM_FLOAT(0.5, 2.0);
-            i.Scale = glm::vec3(s, s, 1.0);
-            
-            i.Color = glm::vec4(
-                RANDOM_FLOAT(0.0, 1.0),
-                RANDOM_FLOAT(0.0, 1.0),
-                RANDOM_FLOAT(0.0, 1.0),
-                1.0);
-
-            m_InstanceBuffer.push(&i, sizeof(Instance));
-        }
-
-        m_InstanceBuffer.describe("a_Translation", 3, GL_FLOAT, sizeof(Instance), 0);
-        m_InstanceBuffer.describe("a_Scale", 3, GL_FLOAT, sizeof(Instance), sizeof(glm::vec3));
-        m_InstanceBuffer.describe("a_Color", 4, GL_FLOAT, sizeof(Instance), 2 * sizeof(glm::vec3));
-
-        m_InstanceBuffer.generate(Buffer::DYNAMIC);
 	}
 
-	virtual ~ParticleSystem()
+	virtual ~GPUGraph()
 	{
 		SAFE_DELETE(m_Icon);
 		ResourceManager::getInstance().unload(m_Shader);
 	}
 
-    virtual void draw(Context* context, Camera& camera, Transformation& transformation)
-    {
-        glDisable(GL_DEPTH_TEST);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
-        
+	void addNode(const Node& node)
+	{
+		m_NodeBuffer.push(&node, sizeof(Node));
+	}
+
+	void addEdge(const Edge& edge)
+	{
+		m_EdgeBuffer.push(&edge, sizeof(Edge));
+	}
+
+	void update()
+	{
+		// --- Define Node Geometry ---
+        m_VertexBuffer << glm::vec3(0, 0, 0);
+        m_VertexBuffer.describe("a_Origin", 3, GL_FLOAT, sizeof(Vertex), 0);
+        m_VertexBuffer.generate(Buffer::STATIC);
+
+		// --- Define Node Buffer Structure ---
+        m_NodeBuffer.describe("a_Position", 3, GL_FLOAT, sizeof(Node), 0);
+        m_NodeBuffer.describe("a_Size", 1, GL_FLOAT, sizeof(Node), sizeof(glm::vec3));
+        m_NodeBuffer.describe("a_Color", 4, GL_FLOAT, sizeof(Node), sizeof(glm::vec3) + sizeof(GL_FLOAT));
+        m_NodeBuffer.generate(Buffer::DYNAMIC);
+	}
+
+
+	virtual void drawEdges(Context* context, Camera& camera, Transformation& transformation)
+	{
+
+	}
+
+    virtual void drawNodes(Context* context, Camera& camera, Transformation& transformation)
+    {        
         m_Shader->use();
         m_Shader->uniform("u_Texture").set(m_Icon->getTexture(0));
 
@@ -101,26 +93,39 @@ public:
         m_Shader->uniform("u_ProjectionMatrix").set(camera.getProjectionMatrix());
 
         context->geometry().bind(m_VertexBuffer, *m_Shader);        
-        context->geometry().bind(m_InstanceBuffer, *m_Shader);
+        context->geometry().bind(m_NodeBuffer, *m_Shader);
         
-        glVertexAttribDivisorARB(m_Shader->attribute("a_Position").location(), 0); // Same vertices per instance
+        glVertexAttribDivisorARB(m_Shader->attribute("a_Origin").location(), 0); // Same vertices per instance
 
-        glVertexAttribDivisorARB(m_Shader->attribute("a_Translation").location(), 1);
-        glVertexAttribDivisorARB(m_Shader->attribute("a_Scale").location(), 1);
+        glVertexAttribDivisorARB(m_Shader->attribute("a_Position").location(), 1);
+        glVertexAttribDivisorARB(m_Shader->attribute("a_Size").location(), 1);
         glVertexAttribDivisorARB(m_Shader->attribute("a_Color").location(), 1);
 
-        context->geometry().drawArraysInstanced(GL_TRIANGLE_STRIP, 0, m_VertexBuffer.size() / sizeof(Vertex), m_InstanceBuffer.size() / sizeof(Instance));
+        context->geometry().drawArraysInstanced(GL_POINTS, 0, m_VertexBuffer.size() / sizeof(Vertex), m_NodeBuffer.size() / sizeof(Node));
         
         context->geometry().unbind(m_VertexBuffer);
-        context->geometry().unbind(m_InstanceBuffer);
+        context->geometry().unbind(m_NodeBuffer);
+    }
+
+    virtual void draw(Context* context, Camera& camera, Transformation& transformation)
+    {
+        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
+
+        drawEdges(context, camera, transformation);
+
+        drawNodes(context, camera, transformation);
     }
 
 private:
-	Shader::Program* m_Shader;
 	Icon* m_Icon;
 
+	Shader::Program* m_Shader;
 	Buffer m_VertexBuffer;
-	Buffer m_InstanceBuffer;
+
+	Buffer m_NodeBuffer;
+	Buffer m_EdgeBuffer;
 };
 
 
@@ -136,14 +141,51 @@ public:
 
 		m_Font = new Font();
 
-		m_ParticleSystem = new ParticleSystem();
+		m_Graph = new GPUGraph();
+
+        int node_count = 100000;
+        int edge_count = 100000;
+
+        for (int i = 0; i < node_count; i++)
+        {
+            float d = 100;
+
+            GPUGraph::Node node;
+            
+            node.Position = d * glm::vec3(
+                RANDOM_FLOAT(-1.0, 1.0),
+                RANDOM_FLOAT(-1.0, 1.0),
+                RANDOM_FLOAT(-1.0, 1.0));
+            
+            node.Size = RANDOM_FLOAT(0.1, 0.5);
+
+            node.Color = glm::vec4(
+                RANDOM_FLOAT(0.0, 1.0),
+                RANDOM_FLOAT(0.0, 1.0),
+                RANDOM_FLOAT(0.0, 1.0),
+                1.0);
+
+            m_Graph->addNode(node);
+        }
+
+        for (int i = 0; i < edge_count; i++)
+        {
+        	GPUGraph::Edge edge;
+
+        	edge.Source = RANDOM_INT(0, node_count);
+        	edge.Target = RANDOM_INT(0, node_count);
+
+        	m_Graph->addEdge(edge);
+        }
+
+        m_Graph->update();
 	}
 
 	virtual ~NetworkView()
 	{
 		SAFE_DELETE(m_Font);
 
-		SAFE_DELETE(m_ParticleSystem);
+		SAFE_DELETE(m_Graph);
 	}
 
 	virtual const char* name() const { return "mesh"; }
@@ -181,7 +223,7 @@ public:
 
 		Transformation transformation;
 
-		m_ParticleSystem->draw(context(), m_Camera3D, transformation);
+		m_Graph->draw(context(), m_Camera3D, transformation);
 	}
 
 	virtual void idle()
@@ -228,6 +270,6 @@ private:
 
 	Font* m_Font;
 
-	ParticleSystem* m_ParticleSystem;
+	GPUGraph* m_Graph;
 };
 
