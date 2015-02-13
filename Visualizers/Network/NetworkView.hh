@@ -66,6 +66,8 @@ public:
         	edges_frag.content(),
         	edges_geom.content());
         m_EdgeShader->dump();
+
+        m_NeedsUpdate = true;
 	}
 
 	virtual ~GPUGraph()
@@ -77,15 +79,20 @@ public:
 	void addNode(const Node& node)
 	{
 		m_NodeBuffer.push(&node, sizeof(Node));
+        m_NeedsUpdate = true;
 	}
 
 	void addEdge(const Edge& edge)
 	{
 		m_EdgeBuffer.push(&edge, sizeof(Edge));
+        m_NeedsUpdate = true;
 	}
 
 	void update()
 	{
+        if (!m_NeedsUpdate)
+            return;
+
 		// --- Define Node Geometry ---
 
         m_NodeParticleBuffer << glm::vec3(0, 0, 0);
@@ -109,11 +116,16 @@ public:
         m_EdgeBuffer.describe("a_TargetColor",    4, GL_FLOAT, sizeof(Edge), 2 * sizeof(glm::vec3) + sizeof(glm::vec4));
         m_EdgeBuffer.describe("a_Width",          1, GL_FLOAT, sizeof(Edge), 2 * sizeof(glm::vec3) + 2 * sizeof(glm::vec4));
         
-        m_EdgeBuffer.generate(Buffer::DYNAMIC);       
+        m_EdgeBuffer.generate(Buffer::DYNAMIC);  
+
+        m_NeedsUpdate = false;     
 	}
 
 	virtual void drawEdges(Context* context, Camera& camera, Transformation& transformation)
 	{
+        if (!m_EdgeBuffer.isGenerated() || m_EdgeBuffer.size() == 0)
+            return;
+
         m_EdgeShader->use();
         //m_EdgeShader->uniform("u_Texture").set(m_Icon->getTexture(0));
 
@@ -140,7 +152,10 @@ public:
 	}
 
     virtual void drawNodes(Context* context, Camera& camera, Transformation& transformation)
-    {        
+    {       
+        if (!m_NodeBuffer.isGenerated() || m_NodeBuffer.size() == 0)
+            return;
+
         m_NodeShader->use();
         m_NodeShader->uniform("u_Texture").set(m_Icon->getTexture(0));
 
@@ -182,6 +197,12 @@ public:
         return node;
     }
 
+    inline void setNode(Node::ID id, const Node& node)
+    {
+        m_NodeBuffer.set(id, &node, sizeof(Node));
+        m_NeedsUpdate = true;
+    }
+
     inline Edge getEdge(Edge::ID id)
     {
         Edge edge;
@@ -189,8 +210,15 @@ public:
         return edge;
     }
 
+    inline void setEdge(Edge::ID id, const Edge& edge)
+    {
+        m_EdgeBuffer.set(id, &edge, sizeof(Edge));
+        m_NeedsUpdate = true;
+    }
+
 private:
 	Icon* m_Icon;
+    bool m_NeedsUpdate;
 
 	Shader::Program* m_NodeShader;
     Buffer m_NodeParticleBuffer;
@@ -215,50 +243,6 @@ public:
 		m_Font = new Font();
 
 		m_Graph = new GPUGraph();
-
-        int node_count = 500000;
-        int edge_count = 500000;
-        float d = 100;
-
-        for (int i = 0; i < node_count; i++)
-        {
-            GPUGraph::Node node;
-            
-            node.Position = d * glm::vec3(
-                RANDOM_FLOAT(-1.0, 1.0),
-                RANDOM_FLOAT(-1.0, 1.0),
-                RANDOM_FLOAT(-1.0, 1.0));
-            
-            node.Size = RANDOM_FLOAT(0.5, 1.0);
-
-            node.Color = glm::vec4(
-                RANDOM_FLOAT(0.0, 1.0),
-                RANDOM_FLOAT(0.0, 1.0),
-                RANDOM_FLOAT(0.0, 1.0),
-                1.0);
-
-            m_Graph->addNode(node);
-        }
-
-        for (int i = 0; i < edge_count; i++)
-        {
-        	GPUGraph::Edge edge;
-
-            GPUGraph::Node n1 = m_Graph->getNode(RANDOM_INT(0, node_count - 1));
-            GPUGraph::Node n2 = m_Graph->getNode(RANDOM_INT(0, node_count - 1));
-
-            edge.SourcePosition = n1.Position;
-            edge.SourceColor = n1.Color;
-
-            edge.TargetPosition = n2.Position;
-            edge.TargetColor = n2.Color;
-
-            edge.Width = RANDOM_FLOAT(0.01, 0.1); // TODO 
-
-        	m_Graph->addEdge(edge);
-        }
-
-        m_Graph->update();
 	}
 
 	virtual ~NetworkView()
@@ -308,6 +292,7 @@ public:
 
 	virtual void idle()
 	{
+        m_Graph->update();
 	}
 
 	void notify(IMessage* message)
@@ -315,8 +300,160 @@ public:
 		(void) message;
 	}
 
+    // ----- Helpers -----
+
+    void checkNodeUID(GPUGraph::Node::ID uid)
+    {
+        if (!m_NodeMap.containsRemoteID(uid))
+        {
+            LOG("Node UID %lu not found !\n", uid);
+            throw;
+        }
+    }
+
+    void checkEdgeUID(GPUGraph::Edge::ID uid)
+    {
+        if (!m_EdgeMap.containsRemoteID(uid))
+        {
+            LOG("Edge UID %lu not found !\n", uid);
+            throw;
+        }
+    }
+
 	// ----- Graph Events -----
 
+
+    void onSetAttribute(const std::string& name, VariableType type, const std::string& value) override
+    {
+        LOG("onSetAttribute(%s, %i, %s)\n", name.c_str(), (int)type, value.c_str());
+    }
+
+    void onAddNode(Node::ID uid, const char* label) override // TODO : Attributes in Variables object
+    {
+        LOG("onAddNode(%lu, %s)\n", uid, label);
+
+        GPUGraph::Node node;
+            
+        // TODO : Emitter system? (Define where particles appear)
+
+        node.Position = 10.0f * glm::vec3(
+            RANDOM_FLOAT(-1.0, 1.0),
+            RANDOM_FLOAT(-1.0, 1.0),
+            RANDOM_FLOAT(-1.0, 1.0));
+        
+        node.Size = 1.0;
+
+        node.Color = glm::vec4(1.0, 1.0, 1.0, 1.0);
+
+        m_Graph->addNode(node);
+
+        static unsigned int node_count = 0;
+
+        GPUGraph::Node::ID nid = node_count;
+        m_NodeMap.addRemoteID(uid, nid);
+
+        node_count++;
+    }
+
+    void onRemoveNode(Node::ID uid) override
+    {
+        LOG("onRemoveNode(%lu)\n", uid);
+    }
+
+    void onSetNodeAttribute(Node::ID uid, const std::string& name, VariableType type, const std::string& value) override
+    {
+        LOG("onSetNodeAttribute(%lu, %s, %i, %s)\n", uid, name.c_str(), (int)type, value.c_str());
+
+        BooleanVariable vbool;
+        Vec3Variable vvec3;
+
+        checkNodeUID(uid);
+
+        GPUGraph::Node::ID id = m_NodeMap.getLocalID(uid);
+
+        if ((name == "space:position" || name == "particles:position") && type == RD_VEC3)
+        {
+            vvec3.set(value);
+
+            GPUGraph::Node node = m_Graph->getNode(id);
+            node.Position = vvec3.value();
+            m_Graph->setNode(id, node);
+
+        }
+    }
+
+    void onAddLink(Link::ID uid, Node::ID uid1, Node::ID uid2) override
+    {
+        LOG("onAddLink(%lu, %lu, %lu, %lu)\n", uid, uid1, uid2);
+
+        GPUGraph::Node::ID nid1 = m_NodeMap.getLocalID(uid1);
+        GPUGraph::Node::ID nid2 = m_NodeMap.getLocalID(uid2);
+
+        GPUGraph::Edge edge;
+
+        GPUGraph::Node n1 = m_Graph->getNode(nid1);
+        GPUGraph::Node n2 = m_Graph->getNode(nid2);
+
+        edge.SourcePosition = n1.Position;
+        edge.SourceColor = n1.Color;
+
+        edge.TargetPosition = n2.Position;
+        edge.TargetColor = n2.Color;
+
+        edge.Width = 1.0;
+
+        m_Graph->addEdge(edge);
+
+        static unsigned int edge_count = 0;
+
+        GPUGraph::Edge::ID eid = edge_count;
+        m_EdgeMap.addRemoteID(uid, eid);
+
+        edge_count++;
+    }
+
+    void onRemoveLink(Link::ID uid) override
+    {
+        LOG("onRemoveLink(%lu)\n", uid);
+    }
+
+    void onSetLinkAttribute(Link::ID uid, const std::string& name, VariableType type, const std::string& value) override
+    {
+        LOG("onSetLinkAttribute(%lu %s, %i, %s)\n", uid, name.c_str(), (int)type, value.c_str());
+
+        FloatVariable vfloat;
+        Vec3Variable vvec3;
+        Vec4Variable vvec4;
+        StringVariable vstring;
+
+        checkEdgeUID(uid);
+        GPUGraph::Edge::ID id = m_EdgeMap.getLocalID(uid);
+
+        if (name == "space:color1" && type == RD_VEC4)
+        {
+            vvec4.set(value);
+            
+            GPUGraph::Edge edge = m_Graph->getEdge(id);
+            edge.SourceColor = vvec4.value();
+            m_Graph->setEdge(id, edge);
+        }
+        else if (name == "space:color2" && type == RD_VEC4)
+        {
+            vvec4.set(value);
+            
+            GPUGraph::Edge edge = m_Graph->getEdge(id);
+            edge.TargetColor = vvec4.value();
+            m_Graph->setEdge(id, edge);
+        }
+        else if (name == "space:width" && type == RD_FLOAT)
+        {
+            vfloat.set(value);
+            
+            GPUGraph::Edge edge = m_Graph->getEdge(id);
+            edge.Width = vfloat.value();
+            m_Graph->setEdge(id, edge);
+        }
+    }
 
 	virtual IVariable* getAttribute(const std::string& name)
 	{
@@ -351,5 +488,7 @@ private:
 	Font* m_Font;
 
 	GPUGraph* m_Graph;
+    TranslationMap<GPUGraph::Node::ID, unsigned int> m_NodeMap;
+    TranslationMap<GPUGraph::Edge::ID, unsigned int> m_EdgeMap;
 };
 
