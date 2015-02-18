@@ -282,7 +282,7 @@ public:
 
 	virtual void draw()
 	{
-		glClearColor(0.2, 0.2, 0.2, 1.0);
+		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		Transformation transformation;
@@ -306,7 +306,7 @@ public:
     {
         if (!m_NodeMap.containsRemoteID(uid))
         {
-            LOG("Node UID %lu not found !\n", uid);
+            LOG("Node UID %u not found !\n", uid);
             throw;
         }
     }
@@ -315,7 +315,7 @@ public:
     {
         if (!m_EdgeMap.containsRemoteID(uid))
         {
-            LOG("Edge UID %lu not found !\n", uid);
+            LOG("Edge UID %u not found !\n", uid);
             throw;
         }
     }
@@ -366,6 +366,8 @@ public:
 
         BooleanVariable vbool;
         Vec3Variable vvec3;
+        Vec4Variable vvec4;
+        FloatVariable vfloat;
 
         checkNodeUID(uid);
 
@@ -380,11 +382,38 @@ public:
             m_Graph->setNode(id, node);
 
         }
+        else if (name == "space:color" && (type == RD_VEC3 || type == RD_VEC4))
+        {
+            glm::vec4 c;
+
+            if (type == RD_VEC3)
+            {
+                vvec3.set(value);
+                c = glm::vec4(vvec3.value(), 1.0);
+            }
+            else
+            {
+                vvec4.set(value);
+                c = vvec4.value();
+            }
+
+            GPUGraph::Node node = m_Graph->getNode(id);
+            node.Color = vvec4.value();
+            m_Graph->setNode(id, node);
+        }
+        else if (name == "space:size" && type == RD_FLOAT)
+        {
+            vfloat.set(value);
+
+            GPUGraph::Node node = m_Graph->getNode(id);
+            node.Size = vfloat.value();
+            m_Graph->setNode(id, node);        
+        }
     }
 
     void onAddLink(Link::ID uid, Node::ID uid1, Node::ID uid2) override
     {
-        LOG("onAddLink(%lu, %lu, %lu, %lu)\n", uid, uid1, uid2);
+        LOG("onAddLink(%lu, %lu, %lu)\n", uid, uid1, uid2);
 
         GPUGraph::Node::ID nid1 = m_NodeMap.getLocalID(uid1);
         GPUGraph::Node::ID nid2 = m_NodeMap.getLocalID(uid2);
@@ -400,7 +429,7 @@ public:
         edge.TargetPosition = n2.Position;
         edge.TargetColor = n2.Color;
 
-        edge.Width = 1.0;
+        edge.Width = 0.5; // NOTE : Half of the node size
 
         m_Graph->addEdge(edge);
 
