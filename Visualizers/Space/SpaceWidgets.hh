@@ -404,7 +404,7 @@ public:
     SpaceMenu()
     {
         m_Font = new Font();
-        m_WidgetDimension = glm::vec2(24, 24);
+        m_WidgetDimension = glm::vec2(20, 20);
         m_WidgetSpacing = 10;
 
         glm::vec2 textDimension = glm::vec2(60, m_WidgetDimension.y / 1.5);
@@ -418,6 +418,11 @@ public:
             m_TopLeftWidgetGroup = new WidgetGroup("top left", WidgetGroup::TOP_LEFT);
 
             glm::vec3 tl = glm::vec3(m_WidgetSpacing, -m_WidgetSpacing, 0);
+
+            m_TopLeftWidgetGroup->add(m_TitleWidget = new TextWidget("title widget", NULL , tl, titleDimension));
+            m_TitleWidget->text().set("OpenGraphiti", m_Font);
+
+            tl.y -= titleDimension.y + m_WidgetDimension.y;
 
             m_TopLeftWidgetGroup->add(m_PointerWidget = new PointerWidget(NULL, tl, m_WidgetDimension));
             tl.x += m_WidgetDimension.x + m_WidgetSpacing;
@@ -557,15 +562,6 @@ public:
             checkbox2TextWidget->text().set("Edge LOD", m_Font);
             tl -= glm::vec3(checkboxDimension.x + m_WidgetSpacing, m_WidgetDimension.y, 0);
 
-            // ----- Bottom left part -----
-
-            m_BottomLeftWidgetGroup = new WidgetGroup("bottom left", WidgetGroup::BOTTOM_LEFT);
-
-            glm::vec3 bl = glm::vec3(m_WidgetSpacing, m_WidgetSpacing + titleDimension.y, 0);
-
-            m_BottomLeftWidgetGroup->add(m_TitleWidget = new TextWidget("title widget", NULL , bl, titleDimension));
-            m_TitleWidget->text().set("OpenGraphiti", m_Font);
-
             // ----- Bottom right part -----
 
             m_BottomRightWidgetGroup = new WidgetGroup("bottom right", WidgetGroup::BOTTOM_RIGHT);
@@ -599,9 +595,6 @@ public:
         pick = m_TopLeftWidgetGroup->pickWidget(pos);
         if (pick != NULL)
             return pick;
-        pick = m_BottomLeftWidgetGroup->pickWidget(pos);
-        if (pick != NULL)
-            return pick;
         pick = m_BottomRightWidgetGroup->pickWidget(pos);
         if (pick != NULL)
             return pick;
@@ -611,7 +604,6 @@ public:
     virtual ~SpaceMenu()
     {
         delete m_TopLeftWidgetGroup;
-        delete m_BottomLeftWidgetGroup;
         delete m_BottomRightWidgetGroup;
         delete m_Font;
     }
@@ -623,7 +615,6 @@ public:
         m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
         m_TopLeftWidgetGroup->reshape(width, height);
-        m_BottomLeftWidgetGroup->reshape(width, height);
         m_BottomRightWidgetGroup->reshape(width, height);
     }
 
@@ -631,7 +622,6 @@ public:
 	{
 		glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
         m_TopLeftWidgetGroup->draw(context, glm::mat4(), m_Camera.getViewMatrix(), m_Camera.getProjectionMatrix());
-        m_BottomLeftWidgetGroup->draw(context, glm::mat4(), m_Camera.getViewMatrix(), m_Camera.getProjectionMatrix());
         m_BottomRightWidgetGroup->draw(context, glm::mat4(), m_Camera.getViewMatrix(), m_Camera.getProjectionMatrix());
     }
 
@@ -660,7 +650,6 @@ private:
     glm::vec2 m_WidgetDimension;
     float m_WidgetSpacing;
     WidgetGroup* m_TopLeftWidgetGroup;
-    WidgetGroup* m_BottomLeftWidgetGroup;
     WidgetGroup* m_BottomRightWidgetGroup;
 
     PointerWidget* m_PointerWidget;

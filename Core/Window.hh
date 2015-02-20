@@ -119,7 +119,7 @@ public:
     void onKey(int key, int scancode, int action, int mods) override
     {     
          m_HUD->onKey(key, scancode, action, mods);
-           
+
         if (key == GLFW_KEY_N && action == 1 /* DOWN */)
             selectNextVisualizer();
         else if (key == GLFW_KEY_M && action == 1 /* DOWN */)
@@ -134,6 +134,11 @@ public:
             if (visualizer)
                 visualizer->controller()->onKey(key, scancode, action, mods);
         }
+    }
+
+    void onChar(unsigned codepoint) override
+    {
+        m_HUD->onChar(codepoint);
     }
 
     void onScroll(double xoffset, double yoffset) override

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <raindance/Core/Context.hh>
+#include <raindance/Core/Console/Shell.hh>
 
 #if EMSCRIPTEN
 # include <emscripten.h>
