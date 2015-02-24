@@ -52,6 +52,6 @@ public:
 			return;
 		}
 
-		execute(script);
+		execute(script->source());
 	}
 };

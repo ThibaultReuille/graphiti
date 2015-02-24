@@ -51,6 +51,7 @@ public:
         }
 
         auto window = new GLWindow(title, width, height, this);
+        window->hud()->getShell()->bind(m_Console);
         add(window);
     }
 
@@ -140,7 +141,7 @@ public:
 
         IScript* script = m_Console->getScript("#started");
         if (script)
-            m_Console->execute(script);
+            m_Console->execute(script->source());
 
         refreshHUD();
 
