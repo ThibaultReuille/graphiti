@@ -661,6 +661,22 @@ def detect_spn():
     print("SPN detection results :")
     print(source_map)
 
+
+def console(command):
+
+    args = command.split()
+    print(args)
+
+    if args[0] == "info":
+        std.info()
+    elif args[0] == "load":
+        if len(args) < 2:
+            print("Syntax: {0} <dataset.json>")
+        else:
+            std.load_json(args[1])
+    else:
+        print("Unknown command '{0}'!".format(split[0]))
+
 def start():
 
     Scripts = [
@@ -748,11 +764,14 @@ def start():
 
     graphiti.register_script("==========", "pass")
 
+    graphiti.register_script("#console", 'demo.console') # TODO : register_callback?
+
     if len(sys.argv) == 3:
         if sys.argv[2].endswith(".json"):
-            graphiti.register_script('#started', 'std.load_json("' + sys.argv[2] + '")') 
+            graphiti.register_script('#started', 'load ' + sys.argv[2]) 
         else:
             print("Unrecognized format <'" + sys.argv[2] + "'> !")
+
 
     graphiti.create_window("OpenGraphiti : Data Visualization Engine", 0, 0)
     graphiti.create_entity("graph")
