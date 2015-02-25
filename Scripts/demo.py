@@ -10,28 +10,29 @@ import re
 import os
 import glob
 
-from Scripts import graphiti
+from Scripts import graphiti as og
 from Scripts import nx
 from Scripts import std
+from Scripts import console
 
 def clear_graph():
-    for id in graphiti.get_node_ids():
-        graphiti.remove_node(id)
+    for id in og.get_node_ids():
+        og.remove_node(id)
 
 def clear_colors():
-    graphiti.set_attribute("graphiti:space:linkmode", "string", "node_color")
-    for n in graphiti.get_node_ids():
-        graphiti.set_node_attribute(n, "graphiti:space:color", "vec4", "1.0 1.0 1.0 1.0")
+    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
+    for n in og.get_node_ids():
+        og.set_node_attribute(n, "graphiti:space:color", "vec4", "1.0 1.0 1.0 1.0")
 
 def clear_icons():
-    for n in graphiti.get_node_ids():
-        graphiti.set_node_attribute(n, "graphiti:space:icon", "string", "shapes/disk")
+    for n in og.get_node_ids():
+        og.set_node_attribute(n, "graphiti:space:icon", "string", "shapes/disk")
 
 def set_lod(value):
-    for id in graphiti.get_node_ids():
-        graphiti.set_node_attribute(id, "graphiti:space:lod", "float", str(value))
-    for id in graphiti.get_link_ids():
-        graphiti.set_link_attribute(id, "graphiti:space:lod", "float", str(value))
+    for id in og.get_node_ids():
+        og.set_node_attribute(id, "graphiti:space:lod", "float", str(value))
+    for id in og.get_link_ids():
+        og.set_link_attribute(id, "graphiti:space:lod", "float", str(value))
 
 def add_random_graph():
     node_count = int(raw_input("Number of nodes : "))
@@ -39,12 +40,12 @@ def add_random_graph():
 
     nodes = []
     for i in range(node_count):
-        id = graphiti.add_node(str(i))
+        id = og.add_node(str(i))
 
-        graphiti.set_node_attribute(id, "type", "string", str(i % 3))
+        og.set_node_attribute(id, "type", "string", str(i % 3))
 
         size = 1 + abs(math.sin(float(i)))
-        graphiti.set_node_attribute(id, "og:space:size", "float", str(size))
+        og.set_node_attribute(id, "og:space:size", "float", str(size))
 
         nodes.append(id)
 
@@ -55,87 +56,87 @@ def add_random_graph():
             dst = random.choice(nodes)
             if src != dst:
                 loop = False
-        id = graphiti.add_link(src, dst)
-        graphiti.set_link_attribute(id, "type", "string", str(j % 3))
+        id = og.add_link(src, dst)
+        og.set_link_attribute(id, "type", "string", str(j % 3))
 
 def add_neighbor():
-    if graphiti.count_selected_nodes() == 0:
+    if og.count_selected_nodes() == 0:
         print("Please select a node !")
         return
-    id = graphiti.get_selected_node(0)
+    id = og.get_selected_node(0)
     label = raw_input("New node label : ")
     t = raw_input("New node type : ")
 
-    nid = graphiti.add_node(label)
-    graphiti.set_node_attribute(nid, "type", "string", t)
+    nid = og.add_node(label)
+    og.set_node_attribute(nid, "type", "string", t)
 
-    graphiti.add_link(id, nid)
+    og.add_link(id, nid)
         
 def remove_selected_node():
-    if graphiti.count_selected_nodes() == 0:
+    if og.count_selected_nodes() == 0:
         print("Please select a node !")
         return
-    id = graphiti.get_selected_node(0)
-    graphiti.remove_node(id)
+    id = og.get_selected_node(0)
+    og.remove_node(id)
 
 def randomize_node_activity():
-    for id in graphiti.get_node_ids():
+    for id in og.get_node_ids():
         if random.uniform(0.0, 1.0) > 0.10:
             continue
         activity = random.uniform(0.0, 5.0)
-        graphiti.set_node_attribute(id, "graphiti:space:activity", "float", str(activity))
+        og.set_node_attribute(id, "graphiti:space:activity", "float", str(activity))
 
 def randomize_node_size():
-    for id in graphiti.get_node_ids():
+    for id in og.get_node_ids():
         activity = random.uniform(0.0, 5.0)
-        graphiti.set_node_attribute(id, "graphiti:space:size", "float", str(activity))
+        og.set_node_attribute(id, "graphiti:space:size", "float", str(activity))
 
 def randomize_edge_activity():
-    for id in graphiti.get_link_ids():
+    for id in og.get_link_ids():
         activity = random.uniform(0.0, 2.0)
-        graphiti.set_link_attribute(id, "graphiti:space:activity", "float", str(activity))
+        og.set_link_attribute(id, "graphiti:space:activity", "float", str(activity))
 
 def randomize_edge_width():
-    for id in graphiti.get_link_ids():
+    for id in og.get_link_ids():
         width = random.uniform(0.0, 5.0)
-        graphiti.set_link_attribute(id, "graphiti:space:width", "float", str(width))
+        og.set_link_attribute(id, "graphiti:space:width", "float", str(width))
 
 def randomize_node_icons():
     icons = glob.glob("./Resources/Countries/*.png")
     print(icons)
-    for id in graphiti.get_node_ids():
+    for id in og.get_node_ids():
         icon = "countries/" + random.choice(icons).split("/")[-1][:2].lower()
-        graphiti.set_node_attribute(id, "graphiti:space:icon", "string", icon)
+        og.set_node_attribute(id, "graphiti:space:icon", "string", icon)
 
 def randomize_edge_icons():
     icons = glob.glob("./Resources/SpaceView/EdgeStyles/*.png")
     print(icons)
-    for id in graphiti.get_link_ids():
+    for id in og.get_link_ids():
         icon = "styles/" + random.choice(icons).split("/")[-1][:-4].lower()
-        graphiti.set_link_attribute(id, "graphiti:space:icon", "string", icon)
+        og.set_link_attribute(id, "graphiti:space:icon", "string", icon)
 
 def randomize_lod():
-    for id in graphiti.get_node_ids():
-        graphiti.set_node_attribute(id, "og:space:lod", "float", str(random.random()))   
-    for id in graphiti.get_link_ids():
-        graphiti.set_link_attribute(id, "og:space:lod", "float", str(random.random()))   
+    for id in og.get_node_ids():
+        og.set_node_attribute(id, "og:space:lod", "float", str(random.random()))   
+    for id in og.get_link_ids():
+        og.set_link_attribute(id, "og:space:lod", "float", str(random.random()))   
 
 def show_edge_direction():
-    for id in graphiti.get_link_ids():
-        graphiti.set_link_attribute(id, "og:space:icon", "string", "styles/triangles")
+    for id in og.get_link_ids():
+        og.set_link_attribute(id, "og:space:icon", "string", "styles/triangles")
 
 def show_debug():
-    flag = graphiti.get_attribute("og:space:debug")
-    graphiti.set_attribute("og:space:debug", "bool", str(not flag))
+    flag = og.get_attribute("og:space:debug")
+    og.set_attribute("og:space:debug", "bool", str(not flag))
 
 def reset_icons():
-    for nid in graphiti.get_node_ids():
-        graphiti.set_node_attribute(nid, "graphiti:space:icon", "string", "shapes/disk")
+    for nid in og.get_node_ids():
+        og.set_node_attribute(nid, "graphiti:space:icon", "string", "shapes/disk")
 
 def attribute_to_icon(attribute, fun = lambda a : "shapes/disk"):
-    for nid in graphiti.get_node_ids():
-        value = graphiti.get_node_attribute(nid, attribute)
-        graphiti.set_node_attribute(nid, "graphiti:space:icon", "string", fun(value))
+    for nid in og.get_node_ids():
+        value = og.get_node_attribute(nid, attribute)
+        og.set_node_attribute(nid, "graphiti:space:icon", "string", fun(value))
 
 def countries_to_icons():
     def convert_cc_to_icon(country_code):
@@ -152,14 +153,14 @@ def attribute_to_lod(attribute, fun = lambda x : x):
     max_value = None
 
     n_values = dict()
-    for nid in graphiti.get_node_ids():
-        value = graphiti.get_node_attribute(nid, attribute)
+    for nid in og.get_node_ids():
+        value = og.get_node_attribute(nid, attribute)
         if value is None:
-            graphiti.set_node_attribute(nid, "graphiti:space:lod", "float", "-1000")
+            og.set_node_attribute(nid, "graphiti:space:lod", "float", "-1000")
             continue
         fun_value = fun(value)
         if fun_value is None:
-            graphiti.set_node_attribute(nid, "graphiti:space:lod", "float", "-1000")
+            og.set_node_attribute(nid, "graphiti:space:lod", "float", "-1000")
             continue
         fvalue = float(fun_value)
         if fvalue > max:
@@ -171,14 +172,14 @@ def attribute_to_lod(attribute, fun = lambda x : x):
         n_values[nid] = fvalue
 
     e_values = dict()
-    for eid in graphiti.get_link_ids():
-        value = graphiti.get_link_attribute(eid, attribute)
+    for eid in og.get_link_ids():
+        value = og.get_link_attribute(eid, attribute)
         if value is None:
-            graphiti.set_link_attribute(eid, "graphiti:space:lod", "float", "-1000")
+            og.set_link_attribute(eid, "graphiti:space:lod", "float", "-1000")
             continue
         fun_value = fun(value)
         if fun_value is None:
-            graphiti.set_link_attribute(eid, "graphiti:space:lod", "float", "-1000")
+            og.set_link_attribute(eid, "graphiti:space:lod", "float", "-1000")
             continue
         fvalue = float(fun_value)
         if fvalue > max:
@@ -192,48 +193,48 @@ def attribute_to_lod(attribute, fun = lambda x : x):
     for nid in n_values.keys():
         svalue = (n_values[nid] - min) / (max - min)
         print(attribute + " : " + str(n_values[nid]) + " --> lod : " + str(svalue)) 
-        graphiti.set_node_attribute(nid, "graphiti:space:lod", "float", str(svalue))
+        og.set_node_attribute(nid, "graphiti:space:lod", "float", str(svalue))
     for eid in e_values.keys():
         svalue = (e_values[eid] - min) / (max - min)
         print(attribute + " : " + str(e_values[eid]) + " --> lod : " + str(svalue)) 
-        graphiti.set_link_attribute(eid, "graphiti:space:lod", "float", str(svalue))
+        og.set_link_attribute(eid, "graphiti:space:lod", "float", str(svalue))
 
     print("LOD range : " + str(min_value) + " to " + str(max_value))
 
 def lock_unlock():
-    if graphiti.count_selected_nodes() == 0:
+    if og.count_selected_nodes() == 0:
         print ("Please select a node !")
         return
 
-    selected = graphiti.get_selected_node(0)
+    selected = og.get_selected_node(0)
     print("SELECTED : ", selected)
-    locked = graphiti.get_node_attribute(selected, "graphiti:space:locked")
+    locked = og.get_node_attribute(selected, "graphiti:space:locked")
     if locked:
-        graphiti.set_node_attribute(selected, "graphiti:space:locked", "bool", "False")
-        graphiti.set_node_attribute(selected, "og:space:mark", "int", "0");
+        og.set_node_attribute(selected, "graphiti:space:locked", "bool", "False")
+        og.set_node_attribute(selected, "og:space:mark", "int", "0");
         print("Node " + str(selected) + " unlocked.")
     else:
-        graphiti.set_node_attribute(selected, "graphiti:space:locked", "bool", "True")
-        graphiti.set_node_attribute(selected, "og:space:mark", "int", "2");
+        og.set_node_attribute(selected, "graphiti:space:locked", "bool", "True")
+        og.set_node_attribute(selected, "og:space:mark", "int", "2");
         print("Node " + str(selected) + " locked.")
 
 def color_neighbors():
-    graphiti.set_attribute("graphiti:space:linkmode", "string", "node_color")
+    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
 
-    if graphiti.count_selected_nodes() == 0:
+    if og.count_selected_nodes() == 0:
         print("Please select a node !")
         return
     
-    selected = graphiti.get_selected_node(0)
+    selected = og.get_selected_node(0)
     graph = std.load_nx_graph()
     neighbors = graph.neighbors(selected)
-    graphiti.set_node_attribute(selected, "graphiti:space:color", "vec3", "0.0 1.0 1.0")
+    og.set_node_attribute(selected, "graphiti:space:color", "vec3", "0.0 1.0 1.0")
     for node in neighbors:
-        graphiti.set_node_attribute(node, "graphiti:space:lod", "float", "1.0")
-        graphiti.set_node_attribute(node, "graphiti:space:color", "vec3", "0.0 1.0 1.0")
+        og.set_node_attribute(node, "graphiti:space:lod", "float", "1.0")
+        og.set_node_attribute(node, "graphiti:space:color", "vec3", "0.0 1.0 1.0")
 
 def show_high_degrees():
-    graphiti.set_attribute("graphiti:space:linkmode", "string", "node_color")
+    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
 
     graph = std.load_nx_graph()
     max_degree = max(nx.degree(graph).values())
@@ -241,17 +242,17 @@ def show_high_degrees():
         deg = nx.degree(graph, n[0])
         tint = 0.3 + 0.9 * float(deg) / float(max_degree)
 
-        color = graphiti.get_node_attribute(n[0], "graphiti:space:color")
+        color = og.get_node_attribute(n[0], "graphiti:space:color")
         color[0] = tint * color[0]
         color[1] = tint * color[1]
         color[2] = tint * color[2]
         color[3] = 1.0
         c = str(color[0]) + " " + str(color[1]) + " " + str(color[2])
 
-        graphiti.set_node_attribute(n[0], "graphiti:space:color", "vec3", c)
+        og.set_node_attribute(n[0], "graphiti:space:color", "vec3", c)
 
 def show_low_degrees():
-    graphiti.set_attribute("graphiti:space:linkmode", "string", "node_color")
+    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
 
     graph = std.load_nx_graph()
     max_degree = max(nx.degree(graph).values())
@@ -259,23 +260,23 @@ def show_low_degrees():
         deg = nx.degree(graph, n[0])
         tint = 0.3 + 0.9 * (1.0 - float(deg) / float(max_degree))
 
-        color = graphiti.get_node_attribute(n[0], "graphiti:space:color")
+        color = og.get_node_attribute(n[0], "graphiti:space:color")
         color[0] = tint * color[0]
         color[1] = tint * color[1]
         color[2] = tint * color[2]
         c = str(color[0]) + " " + str(color[1]) + " " + str(color[2])
 
-        graphiti.set_node_attribute(n[0], "graphiti:space:color", "vec3", c)
+        og.set_node_attribute(n[0], "graphiti:space:color", "vec3", c)
 
 def color_by_node_degree():
-    graphiti.set_attribute("graphiti:space:linkmode", "string", "node_color")
+    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
 
     print("Building node degree table ...")
-    edges = graphiti.get_link_ids()
+    edges = og.get_link_ids()
     degree_table = dict()
     for eid in edges:
-        nid1 = graphiti.get_link_node1(eid)
-        nid2 = graphiti.get_link_node2(eid)
+        nid1 = og.get_link_node1(eid)
+        nid2 = og.get_link_node2(eid)
         if nid1 not in degree_table:
             degree_table[nid1] = { "in" : 0, "out" : 0 }
         if nid2 not in degree_table:
@@ -294,7 +295,7 @@ def color_by_node_degree():
     print(m)
 
     print("Coloring ...")
-    for nid in graphiti.get_node_ids():
+    for nid in og.get_node_ids():
         if nid not in degree_table:
             t = "isolated"
         else:
@@ -307,10 +308,10 @@ def color_by_node_degree():
                 t = "sink"
             else:
                 t = "other"
-        graphiti.set_node_attribute(nid, "graphiti:space:color", "vec4", std.vec4_to_str(m[t]))
+        og.set_node_attribute(nid, "graphiti:space:color", "vec4", std.vec4_to_str(m[t]))
 
 def sphere_layout(radius):
-    ids = graphiti.get_node_ids()
+    ids = og.get_node_ids()
     for nid in ids:
         r1 = random.random() * 2 * math.pi
         r2 = random.random() * 2 * math.pi
@@ -322,10 +323,10 @@ def sphere_layout(radius):
             radius * r3 * math.sin(r1) * math.sin(r2)
         ]
 
-        graphiti.set_node_attribute(nid, "graphiti:space:position", "vec3", std.vec3_to_str(pos))
+        og.set_node_attribute(nid, "graphiti:space:position", "vec3", std.vec3_to_str(pos))
 
 def cube_layout():
-    ids = graphiti.get_node_ids()
+    ids = og.get_node_ids()
     size = int(len(ids) ** (1.0 / 3.0))
     count = 0
     for nid in ids:
@@ -338,13 +339,13 @@ def cube_layout():
         for i in range(len(pos)):
             pos[i] = 5 * (pos[i] - size / 2)
 
-        graphiti.set_node_attribute(nid, "graphiti:space:position", "vec3", std.vec3_to_str(pos))
+        og.set_node_attribute(nid, "graphiti:space:position", "vec3", std.vec3_to_str(pos))
         count += 1
 
 def conic_layout():
     graph = std.load_nx_graph()
 
-    graphiti.set_attribute("graphiti:space:linkmode", "string", "node_color")
+    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
 
     sorted_degrees = sorted(nx.degree(graph).values())
     max_degree = sorted_degrees[-1]
@@ -377,11 +378,11 @@ def conic_layout():
         # y = radius * math.sin(alpha) * math.sin(beta)
         # z = radius * math.cos(alpha)
 
-        graphiti.set_node_attribute(n[0], "graphiti:space:position", "vec3", str(x) + " " + str(y) + " " + str(z))
+        og.set_node_attribute(n[0], "graphiti:space:position", "vec3", str(x) + " " + str(y) + " " + str(z))
 
 def show_connected_components():
 
-    graphiti.set_attribute("graphiti:space:linkmode", "string", "node_color")
+    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
 
     graph = std.load_nx_graph()
     cc = nx.connected_components(graph)
@@ -393,17 +394,17 @@ def show_connected_components():
         color = str(r) + " " + str(g) + " " + str(b) 
         
         for node in list:
-            graphiti.set_node_attribute(node, "graphiti:space:color", "vec3", color)
+            og.set_node_attribute(node, "graphiti:space:color", "vec3", color)
 
 def color_nodes_by_nominal_attribute(attribute_name):
 
-    graphiti.set_attribute("graphiti:space:linkmode", "string", "edge_color")
+    og.set_attribute("graphiti:space:linkmode", "string", "edge_color")
 
-    ids = graphiti.get_node_ids()
+    ids = og.get_node_ids()
     colors = dict()
 
     for id in ids:
-        type = graphiti.get_node_attribute(id, attribute_name)
+        type = og.get_node_attribute(id, attribute_name)
         if type == None:
             print("Node " + str(id) + " has no <" + attribute_name + "> attribute !")
         color = None
@@ -415,17 +416,17 @@ def color_nodes_by_nominal_attribute(attribute_name):
             b = random.random()
             color = str(r) + " " + str(g) + " " + str(b)
             colors[type] = color
-        graphiti.set_node_attribute(id, "graphiti:space:color", "vec3", color)
+        og.set_node_attribute(id, "graphiti:space:color", "vec3", color)
 
 def color_nodes_by_type():
 
-    graphiti.set_attribute("graphiti:space:linkmode", "string", "edge_color")
+    og.set_attribute("graphiti:space:linkmode", "string", "edge_color")
 
-    ids = graphiti.get_node_ids()
+    ids = og.get_node_ids()
     colors = dict()
 
     for id in ids:
-        type = graphiti.get_node_attribute(id, "type")
+        type = og.get_node_attribute(id, "type")
         if type == None:
             print("Node " + str(id) + " has no type attribute !")
         color = None
@@ -437,17 +438,17 @@ def color_nodes_by_type():
             b = random.random()
             color = str(r) + " " + str(g) + " " + str(b)
             colors[type] = color
-        graphiti.set_node_attribute(id, "graphiti:space:color", "vec3", color)
+        og.set_node_attribute(id, "graphiti:space:color", "vec3", color)
 
 def color_edges_by_type():
 
-    graphiti.set_attribute("graphiti:space:linkmode", "string", "edge_color")
+    og.set_attribute("graphiti:space:linkmode", "string", "edge_color")
 
-    ids = graphiti.get_link_ids()
+    ids = og.get_link_ids()
     colors = dict()
 
     for id in ids:
-        type = graphiti.get_link_attribute(id, "type")
+        type = og.get_link_attribute(id, "type")
         if type == None:
             print("Edge " + str(id) + " has no type attribute !")
         color = None
@@ -459,63 +460,63 @@ def color_edges_by_type():
             b = random.random()
             color = str(r) + " " + str(g) + " " + str(b)
             colors[type] = color
-        graphiti.set_link_attribute(id, "graphiti:space:color", "vec3", color)
+        og.set_link_attribute(id, "graphiti:space:color", "vec3", color)
 
 def color_nodes_by_score():
     
-    graphiti.set_attribute("graphiti:space:linkmode", "string", "node_color")
+    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
 
-    ids = graphiti.get_node_ids()
+    ids = og.get_node_ids()
     for id in ids:
-        score = graphiti.get_node_attribute(id, "sgraph:score")
+        score = og.get_node_attribute(id, "sgraph:score")
         if score is None:
-            graphiti.set_node_attribute(id, "graphiti:space:color", "vec4", "0.5 0.5 0.5 0.5")
+            og.set_node_attribute(id, "graphiti:space:color", "vec4", "0.5 0.5 0.5 0.5")
         elif score < -50:
-            graphiti.set_node_attribute(id, "graphiti:space:color", "vec3", "1.0 0.0 0.0")
+            og.set_node_attribute(id, "graphiti:space:color", "vec3", "1.0 0.0 0.0")
         elif score > 50:
-            graphiti.set_node_attribute(id, "graphiti:space:color", "vec3", "0.0 1.0 0.0")
+            og.set_node_attribute(id, "graphiti:space:color", "vec3", "0.0 1.0 0.0")
         else:
-            graphiti.set_node_attribute(id, "graphiti:space:color", "vec3", "1.0 1.0 1.0")
+            og.set_node_attribute(id, "graphiti:space:color", "vec3", "1.0 1.0 1.0")
 
 def color_nodes_by_infected():
     
-    graphiti.set_attribute("graphiti:space:linkmode", "string", "node_color")
+    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
 
-    ids = graphiti.get_node_ids()
+    ids = og.get_node_ids()
     for id in ids:
-        score = graphiti.get_node_attribute(id, "sgraph:infected")
+        score = og.get_node_attribute(id, "sgraph:infected")
         if score is None:
-            graphiti.set_node_attribute(id, "graphiti:space:color", "vec4", "0.5 0.5 0.5 0.5")
+            og.set_node_attribute(id, "graphiti:space:color", "vec4", "0.5 0.5 0.5 0.5")
         elif score < 0:
-            graphiti.set_node_attribute(id, "graphiti:space:color", "vec3", "1.0 0.0 0.0")
+            og.set_node_attribute(id, "graphiti:space:color", "vec3", "1.0 0.0 0.0")
         elif score > 0:
-            graphiti.set_node_attribute(id, "graphiti:space:color", "vec3", "0.0 1.0 0.0")
+            og.set_node_attribute(id, "graphiti:space:color", "vec3", "0.0 1.0 0.0")
         else:
-            graphiti.set_node_attribute(id, "graphiti:space:color", "vec3", "1.0 1.0 1.0")
+            og.set_node_attribute(id, "graphiti:space:color", "vec3", "1.0 1.0 1.0")
 
 def color_nodes_by_dga_score():
 
-    graphiti.set_attribute("graphiti:space:linkmode", "string", "node_color")
+    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
 
-    ids = graphiti.get_node_ids()
+    ids = og.get_node_ids()
     for id in ids:
-        score = graphiti.get_node_attribute(id, "sgraph:dga:score")
+        score = og.get_node_attribute(id, "sgraph:dga:score")
         if score is None:
-            graphiti.set_node_attribute(id, "graphiti:space:color", "vec4", "0.5 0.5 0.5 0.5")
+            og.set_node_attribute(id, "graphiti:space:color", "vec4", "0.5 0.5 0.5 0.5")
             continue
         else:
             # DGA score is between [0 : not DGA, 100 : DGA]
             sub = score / 100;
             rgb = [1.0, 1.0 - sub, 1.0 - sub, 1.0]
-            graphiti.set_node_attribute(id, "graphiti:space:color", "vec4", std.vec4_to_str(rgb))
+            og.set_node_attribute(id, "graphiti:space:color", "vec4", std.vec4_to_str(rgb))
 
 def seed_circle_layout():
     radius = 100.0
 
-    ids = graphiti.get_node_ids()
+    ids = og.get_node_ids()
     zeros = []
     for id in ids:
-        attribute = graphiti.get_node_attribute(id, "depth")
+        attribute = og.get_node_attribute(id, "depth")
         if attribute == None:
             continue
         else:
@@ -532,10 +533,10 @@ def seed_circle_layout():
         y = 0.0
         z = radius * math.sin(angle)
 
-        graphiti.set_node_attribute(id, "graphiti:space:position", "vec3", str(x) + " " + str(y) + " " + str(z))
-        graphiti.set_node_attribute(id, "graphiti:space:locked", "bool", "True")
-        graphiti.set_node_attribute(id, "graphiti:space:activity", "float", "2.0")
-        graphiti.set_node_attribute(id, "og:space:mark", "int", "2")
+        og.set_node_attribute(id, "graphiti:space:position", "vec3", str(x) + " " + str(y) + " " + str(z))
+        og.set_node_attribute(id, "graphiti:space:locked", "bool", "True")
+        og.set_node_attribute(id, "graphiti:space:activity", "float", "2.0")
+        og.set_node_attribute(id, "og:space:mark", "int", "2")
         count += 1
 
 def globe_coordinates(latitude, longitude, delta = 0.0):
@@ -550,20 +551,20 @@ def globe_coordinates(latitude, longitude, delta = 0.0):
     ]
 
 def globe_layout():
-    ids = graphiti.get_node_ids()
+    ids = og.get_node_ids()
     for id in ids:
-        geo = graphiti.get_node_attribute(id, "world:geolocation")
+        geo = og.get_node_attribute(id, "world:geolocation")
         if geo is not None:
            pos = globe_coordinates(geo[0], geo[1])
-           graphiti.set_node_attribute(id, "graphiti:space:position", "vec3", std.vec3_to_str(pos))
-           graphiti.set_node_attribute(id, "graphiti:space:locked", "bool", "true")
+           og.set_node_attribute(id, "graphiti:space:position", "vec3", std.vec3_to_str(pos))
+           og.set_node_attribute(id, "graphiti:space:locked", "bool", "true")
 
 def randomize_timeline():
-    ids = graphiti.get_node_ids()
+    ids = og.get_node_ids()
     time = 0
     for nid in ids:
         time += 500
-        graphiti.send_command(time, "graph:set_node_attribute",
+        og.send_command(time, "graph:set_node_attribute",
                               {
                                   "id" : int(random.choice(ids)),
                                   "type" : "vec4",
@@ -578,9 +579,9 @@ def search_by_attribute(node_flag, edge_flag):
     def f(t, id, match):
         if not match:
             if t == "node":
-                graphiti.set_node_attribute(id, "graphiti:space:lod", "float", "0.0")
+                og.set_node_attribute(id, "graphiti:space:lod", "float", "0.0")
             elif t == "edge":
-                graphiti.set_link_attribute(id, "graphiti:space:lod", "float", "0.0")
+                og.set_link_attribute(id, "graphiti:space:lod", "float", "0.0")
 
     std.regex_map(pattern, attribute, node_flag, edge_flag, f)
 
@@ -590,28 +591,28 @@ def multiply_colors(v, node_flag, edge_flag):
         
 
     if node_flag:
-        for id in graphiti.get_node_ids():
-            c = graphiti.get_node_attribute(id, "graphiti:space:color")
-            graphiti.set_node_attribute(id, "graphiti:space:color", "vec4", std.vec4_to_str(f(c, v)))
+        for id in og.get_node_ids():
+            c = og.get_node_attribute(id, "graphiti:space:color")
+            og.set_node_attribute(id, "graphiti:space:color", "vec4", std.vec4_to_str(f(c, v)))
 
     if edge_flag:
-        for id in graphiti.get_link_ids():
-            c = graphiti.get_link_attribute(id, "graphiti:space:color1")
-            graphiti.set_link_attribute(id, "graphiti:space:color1", "vec4", std.vec4_to_str(f(c, v)))
-            c = graphiti.get_link_attribute(id, "graphiti:space:color2")
-            graphiti.set_link_attribute(id, "graphiti:space:color2", "vec4", std.vec4_to_str(f(c, v)))
+        for id in og.get_link_ids():
+            c = og.get_link_attribute(id, "graphiti:space:color1")
+            og.set_link_attribute(id, "graphiti:space:color1", "vec4", std.vec4_to_str(f(c, v)))
+            c = og.get_link_attribute(id, "graphiti:space:color2")
+            og.set_link_attribute(id, "graphiti:space:color2", "vec4", std.vec4_to_str(f(c, v)))
 
 def calculate_degree_map():
     degrees = dict()
 
-    for eid in graphiti.get_link_ids():
+    for eid in og.get_link_ids():
         bi = False
-        e_type = graphiti.get_link_attribute(eid, "type")
+        e_type = og.get_link_attribute(eid, "type")
         if e_type is not None and "<->" in e_type:
             bi = True
 
-        nid1 = graphiti.get_link_node1(eid)
-        nid2 = graphiti.get_link_node2(eid)
+        nid1 = og.get_link_node1(eid)
+        nid2 = og.get_link_node2(eid)
 
         if nid1 not in degrees:
             degrees[nid1] = { "in" : 0, "out" : 0 }
@@ -633,62 +634,50 @@ def detect_spn():
     degree_map = calculate_degree_map()
     source_map = dict()
 
-    for eid in graphiti.get_link_ids():
-        src = graphiti.get_link_node1(eid)
+    for eid in og.get_link_ids():
+        src = og.get_link_node1(eid)
         if src not in degree_map:
             continue
         
         if degree_map[src]["in"] == 0 and degree_map[src]["out"] >= 0:
-            dst = graphiti.get_link_node2(eid)
+            dst = og.get_link_node2(eid)
             if src not in source_map:
                 source_map[src] = [(dst, eid)]
             elif dst not in source_map[src]:
                 source_map[src].append((dst, eid))
 
-    for nid in graphiti.get_node_ids():
-        graphiti.set_node_attribute(nid, "graphiti:space:lod", "float", "0.0")
+    for nid in og.get_node_ids():
+        og.set_node_attribute(nid, "graphiti:space:lod", "float", "0.0")
         
-    for eid in graphiti.get_link_ids():
-        graphiti.set_link_attribute(eid, "graphiti:space:lod", "float", "0.0")
+    for eid in og.get_link_ids():
+        og.set_link_attribute(eid, "graphiti:space:lod", "float", "0.0")
 
     for source in source_map.keys():
-        graphiti.set_node_attribute(source, "graphiti:space:lod", "float", "1.0")
+        og.set_node_attribute(source, "graphiti:space:lod", "float", "1.0")
 
         for successor in source_map[source]:
-            graphiti.set_node_attribute(successor[0], "graphiti:space:lod", "float", "1.0")
-            graphiti.set_link_attribute(successor[1], "graphiti:space:lod", "float", "1.0")
+            og.set_node_attribute(successor[0], "graphiti:space:lod", "float", "1.0")
+            og.set_link_attribute(successor[1], "graphiti:space:lod", "float", "1.0")
 
     print("SPN detection results :")
     print(source_map)
 
-
-def console(command):
-
-    args = command.split()
-    print(args)
-
-    if args[0] == "info":
-        std.info()
-    elif args[0] == "load":
-        if len(args) < 2:
-            print("Syntax: {0} <dataset.json>")
-        else:
-            std.load_json(args[1])
-    else:
-        print("Unknown command '{0}'!".format(split[0]))
+console = console.Console()
 
 def start():
 
+    # ----- Initialization -----
+
+    og.create_window("OpenGraphiti : Data Visualization Engine", 0, 0)
+    og.create_entity("graph")
+    og.create_visualizer("space")
+
+    # ----- Console Callback ------
+
+    og.register_script("#console", 'demo.console.execute')
+
     Scripts = [
         ["Edition", [
-            ["Info", "std.info()"],
-            ["Save", "std.save_json(raw_input('Output filename : '))"],
-
-            ["-", "pass"],
-
-            ["Clear Graph", "demo.clear_graph()"],
-            ["Clear Colors", "demo.clear_colors()"],
-            ["Clear Icons", "demo.clear_icons()"],
             ["Clear LOD", "demo.set_lod(1.0)"],
             ["Zero LOD", "demo.set_lod(0.0)"],
             ["Node Type", "demo.color_nodes_by_type()"],
@@ -728,8 +717,8 @@ def start():
             ["Detect SPN", "demo.detect_spn()"]
         ]],
         ["Animation", [
-            ["Start", "graphiti.set_attribute('graphiti:space:animation', 'bool', 'True')"],
-            ["Stop", "graphiti.set_attribute('graphiti:space:animation', 'bool', 'False')"]
+            ["Start", "og.set_attribute('graphiti:space:animation', 'bool', 'True')"],
+            ["Stop", "og.set_attribute('graphiti:space:animation', 'bool', 'False')"]
         ]],
         ["Security", [
             ["Umbrella Score", "demo.color_nodes_by_score()"],
@@ -754,26 +743,22 @@ def start():
     unreg_command = ""
     for script in Scripts:
         for s in script[1]:
-            unreg_command += 'graphiti.unregister_script("' + s[0] + '")\n'
+            unreg_command += 'og.unregister_script("' + s[0] + '")\n'
 
     for script in Scripts:
         reg_command = ""
         for s in script[1]:
-            reg_command += 'graphiti.register_script("' + s[0] + '", "' + s[1] + '")\n'
-        graphiti.register_script(script[0], unreg_command + "\n" + reg_command) 
+            reg_command += 'og.register_script("' + s[0] + '", "' + s[1] + '")\n'
+        og.register_script(script[0], unreg_command + "\n" + reg_command) 
 
-    graphiti.register_script("==========", "pass")
+    og.register_script("==========", "pass")
 
-    graphiti.register_script("#console", 'demo.console') # TODO : register_callback?
+    # ----- Start -----
 
     if len(sys.argv) == 3:
         if sys.argv[2].endswith(".json"):
-            graphiti.register_script('#started', 'load ' + sys.argv[2]) 
+            og.register_script('#started', 'load ' + sys.argv[2]) 
         else:
             print("Unrecognized format <'" + sys.argv[2] + "'> !")
 
-
-    graphiti.create_window("OpenGraphiti : Data Visualization Engine", 0, 0)
-    graphiti.create_entity("graph")
-    graphiti.create_visualizer("space")
-    graphiti.start()
+    og.start()

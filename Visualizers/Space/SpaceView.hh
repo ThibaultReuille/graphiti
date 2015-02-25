@@ -257,10 +257,12 @@ class SpaceView : public GraphView
         glClearColor(bgcolor.r, bgcolor.g, bgcolor.b, bgcolor.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        /*
         #ifndef EMSCRIPTEN // NOTE : WebGL doesn't like rectangle images
             g_SpaceResources->m_Wallpaper->draw(context());
         #endif
- 
+        */
+
         glDisable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);

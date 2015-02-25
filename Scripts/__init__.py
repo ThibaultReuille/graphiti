@@ -8,6 +8,7 @@ import networkx as nx
 
 import graphiti as graphiti
 import standard as std
+import console as console
 
 import demo
 import network

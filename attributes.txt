@@ -58,8 +58,6 @@ Space View
               styles/squares
               styles/zigzag   
 
-
-
 Particle View
       TODO
 
