@@ -171,6 +171,7 @@ public:
         }
         else
         {
+            LOG("model attr: %s, %s\n", name, value);
             m_GraphModel->node(id)->attributes().set(sname, vtype, svalue);
         }
 
@@ -291,6 +292,7 @@ public:
         }
         else
         {
+            LOG("model attr: %s, %s\n", name, value);
             m_GraphModel->link(id)->attributes().set(sname, vtype, svalue);
         }
 

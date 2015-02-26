@@ -272,7 +272,6 @@ def start():
 
     Scripts = [
         ["Edition", [
-            ["Clear LOD", "demo.set_lod(1.0)"],
             ["Zero LOD", "demo.set_lod(0.0)"],
             ["Node Type", "demo.color_nodes_by_type()"],
             ["Edge Type", "demo.color_edges_by_type()"],   
@@ -293,10 +292,6 @@ def start():
             ["Dim Edges Alpha", "demo.multiply_colors([1.0, 1.0, 1.0, 0.7], False, True)"],
             ["Brighten Nodes Alpha", "demo.multiply_colors([1.0, 1.0, 1.0, 1.3], True, False)"],
             ["Brighten Edges Alpha", "demo.multiply_colors([1.0, 1.0, 1.0, 1.3], False, True)"],
-        ]],
-        ["Animation", [
-            ["Start", "og.set_attribute('og:space:animation', 'bool', 'True')"],
-            ["Stop", "og.set_attribute('og:space:animation', 'bool', 'False')"]
         ]]
     ]
 

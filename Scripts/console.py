@@ -5,11 +5,15 @@ from Scripts import nx
 import sys
 import os.path
 import glob
+import itertools
 
 import random
 import math
 
 class Script(object):
+	def __init__(self, console):
+		self.console = console
+
 	def run(self, args):
 		print("Error: run() method not implemented!")
 
@@ -19,12 +23,12 @@ class Info(Script):
 
 class Load(Script):
 	def run(self, args):
-		if len(args) != 2:
+		if len(args) < 2:
 			# TODO: og.console("Usage: {0} <filename>".format(args[0]))
 			print("Usage: {0} <filename>".format(args[0]))
 			return
 
-		std.load_json(args[1])
+		std.load_json(" ".join(args[1:]))
 
 class Save(Script):
 	def run(self, args):
@@ -54,6 +58,18 @@ class Clear(Script):
 	    for n in og.get_node_ids():
 	        og.set_node_attribute(n, "og:space:icon", "string", "shapes/disk")
 
+	def clear_activity(self):
+	    for n in og.get_node_ids():
+	        og.set_node_attribute(n, "og:space:activity", "float", "0.0")
+		for e in og.get_link_ids():
+			og.set_link_attribute(e, "og:space:activity", "float", "0.0")
+
+	def clear_lod(self):
+	    for n in og.get_node_ids():
+	        og.set_node_attribute(n, "og:space:lod", "float", "1.0")
+		for e in og.get_link_ids():
+			og.set_link_attribute(e, "og:space:lod", "float", "1.0")
+
 	def run(self, args):
 		if len(args) == 1:
 			self.clear_graph()
@@ -61,9 +77,88 @@ class Clear(Script):
 			self.clear_colors()
 		elif len(args) == 2 and args[1] == "icons":
 			self.clear_icons()
+		elif len(args) == 2 and args[1] == "activity":
+			self.clear_activity()
+		elif len(args) == 2 and args[1] == "lod":
+			self.clear_lod()
 		else:
 			print("Usage: {0} [colors|icons]".format(args[0]))
 			# TODO : og.console()
+
+class Color(Script):
+	
+	def __init__(self, console):
+		super(Color, self).__init__(console)
+
+		self.colors = {
+			"red" : [ 1.0, 0.0, 0.0, 1.0 ],
+			"green" : [ 0.0, 1.0, 0.0, 1.0 ],
+			"blue" : [ 0.0, 0.0, 1.0, 1.0 ],
+			"yellow" : [ 1.0, 1.0, 0.0, 1.0 ],
+			"cyan" : [ 0.0, 1.0, 1.0, 1.0 ],
+			"magenta" : [ 1.0, 0.0, 1.0, 1.0 ],
+			"white" : [ 1.0, 1.0, 1.0, 1.0 ],
+			"gray" : [ 0.5, 0.5, 0.5, 1.0 ],
+			"black" : [ 0.0, 0.0, 0.0, 1.0 ]
+		}
+
+		self.color_map = None
+
+	def random_color(self):
+		return [ random.random(), random.random(), random.random(), 1.0 ]
+
+	def parse_color(self, s):
+		if s in self.colors:
+			return std.vec4_to_str(self.colors[s])
+		else:
+			return std.vec4_to_str(self.colors["black"])
+
+	def lambda_assign(self, element_type, element_id, color):
+		if element_type == "node":
+			og.set_node_attribute(element_id, "og:space:color", "vec4", color)
+		elif element_type == "edge":
+			og.set_link_attribute(element_id, "og:space:color", "vec4", color)
+
+	def lambda_by(self, element_type, element_id, attr, color_map):
+		if element_type not in color_map:
+			color_map[element_type] = dict()
+
+		if element_type == "node":
+			value = og.get_node_attribute(element_id, attr)
+		elif element_type == "edge":
+			value = og.get_link_attribute(element_id, attr)
+
+		if value is None:
+			color = std.vec4_to_str(self.colors["gray"])
+		else:
+			value = "{0}".format(value)
+			if value not in color_map[element_type]:
+				color_map[element_type][value] = self.random_color()
+			color = std.vec4_to_str(color_map[element_type][value])
+
+		if element_type == "node":
+			og.set_node_attribute(element_id, "og:space:color", "vec4", color)
+		elif element_type == "edge":
+			og.set_link_attribute(element_id, "og:space:color", "vec4", color)
+
+	def run(self, args):
+
+		if len(args) == 3:
+			query = self.console.parse_query(args[1])
+			color = self.parse_color(args[2])
+			if 'nodes' in query:
+				[ self.lambda_assign("node", nid, color) for nid in query['nodes'] ]
+			if 'edges' in query:
+				[ self.lambda_assign("edge", eid, color) for eid in query['edges'] ]
+		
+		elif len(args) == 4 and args[2] == "by":
+			query = self.console.parse_query(args[1])
+			attr = args[3]
+			color_map = dict()
+			if 'nodes' in query:
+				[ self.lambda_by("node", nid, attr, color_map) for nid in query['nodes'] ]
+			if 'edges' in query:
+				[ self.lambda_by("edge", eid, attr, color_map) for eid in query['edges'] ]
 
 class Layout(Script):
 	
@@ -215,6 +310,20 @@ class Layout(Script):
 			self.seeds()
 		else:
 			self.usage(args)
+
+class Camera(Script):
+	def play(self, args):
+		og.set_attribute('og:space:animation', 'bool', 'True')
+	def stop(self, args):
+		og.set_attribute('og:space:animation', 'bool', 'False')
+	
+	def run(self, args):
+		if len(args) == 2 and args[1] == "play":
+			self.play(args)
+		elif len(args) == 2 and args[1] == "stop":
+			self.stop(args)
+		else:
+			print("Usage: {0} [play|stop]".format(args[0]))	
 
 class Topology(Script):
 
@@ -554,17 +663,34 @@ class Console(object):
 	def __init__(self):
 		self.context = {
 			"scripts" : {
-				"info" : Info(),
-				"load" : Load(),
-				"save" : Save(),
-				"clear" : Clear(),
-				"layout" : Layout(),
-				"topo" : Topology(),
-				"test" : Test(),
+				"info" : Info(self),
+				"load" : Load(self),
+				"save" : Save(self),
+				"clear" : Clear(self),
+				"color" : Color(self),
+				"layout" : Layout(self),
+				"camera" : Camera(self),
+				"topo" : Topology(self),
+				"test" : Test(self),
 
-				"opendns" : OpenDNS()
+				"opendns" : OpenDNS(self)
 			}
 		}
+
+	def parse_query(self, s):
+		query = None
+		if s == "nodes":
+			query = { "nodes" : og.get_node_ids() }
+		elif s == "edges":
+			query = { "edges" : og.get_link_ids() }
+		elif s == "all":
+			query = {
+				"nodes" : og.get_node_ids(),
+				"edges" : og.get_link_ids()
+			}
+
+		#print("query: {0}".format(query))
+		return query
 
 	def execute(self, command):
 		args = command.split()
