@@ -66,14 +66,6 @@ def remove_selected_node():
     id = og.get_selected_node(0)
     og.remove_node(id)
 
-
-
-def show_edge_direction():
-    for id in og.get_link_ids():
-        og.set_link_attribute(id, "og:space:icon", "string", "styles/triangles")
-
-
-
 def reset_icons():
     for nid in og.get_node_ids():
         og.set_node_attribute(nid, "graphiti:space:icon", "string", "shapes/disk")
@@ -163,114 +155,6 @@ def lock_unlock():
         og.set_node_attribute(selected, "og:space:mark", "int", "2");
         print("Node " + str(selected) + " locked.")
 
-def color_neighbors():
-    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
-
-    if og.count_selected_nodes() == 0:
-        print("Please select a node !")
-        return
-    
-    selected = og.get_selected_node(0)
-    graph = std.load_nx_graph()
-    neighbors = graph.neighbors(selected)
-    og.set_node_attribute(selected, "graphiti:space:color", "vec3", "0.0 1.0 1.0")
-    for node in neighbors:
-        og.set_node_attribute(node, "graphiti:space:lod", "float", "1.0")
-        og.set_node_attribute(node, "graphiti:space:color", "vec3", "0.0 1.0 1.0")
-
-def show_high_degrees():
-    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
-
-    graph = std.load_nx_graph()
-    max_degree = max(nx.degree(graph).values())
-    for n in graph.nodes(data = True):
-        deg = nx.degree(graph, n[0])
-        tint = 0.3 + 0.9 * float(deg) / float(max_degree)
-
-        color = og.get_node_attribute(n[0], "graphiti:space:color")
-        color[0] = tint * color[0]
-        color[1] = tint * color[1]
-        color[2] = tint * color[2]
-        color[3] = 1.0
-        c = str(color[0]) + " " + str(color[1]) + " " + str(color[2])
-
-        og.set_node_attribute(n[0], "graphiti:space:color", "vec3", c)
-
-def show_low_degrees():
-    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
-
-    graph = std.load_nx_graph()
-    max_degree = max(nx.degree(graph).values())
-    for n in graph.nodes(data = True):
-        deg = nx.degree(graph, n[0])
-        tint = 0.3 + 0.9 * (1.0 - float(deg) / float(max_degree))
-
-        color = og.get_node_attribute(n[0], "graphiti:space:color")
-        color[0] = tint * color[0]
-        color[1] = tint * color[1]
-        color[2] = tint * color[2]
-        c = str(color[0]) + " " + str(color[1]) + " " + str(color[2])
-
-        og.set_node_attribute(n[0], "graphiti:space:color", "vec3", c)
-
-def color_by_node_degree():
-    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
-
-    print("Building node degree table ...")
-    edges = og.get_link_ids()
-    degree_table = dict()
-    for eid in edges:
-        nid1 = og.get_link_node1(eid)
-        nid2 = og.get_link_node2(eid)
-        if nid1 not in degree_table:
-            degree_table[nid1] = { "in" : 0, "out" : 0 }
-        if nid2 not in degree_table:
-            degree_table[nid2] = { "in" : 0, "out" : 0 }
-        degree_table[nid1]["out"] += 1
-        degree_table[nid2]["in"] += 1
-
-    print("Randomizing color map ...")
-    m = dict()
-    m["isolated"] = [0.95, 0.98, 0.36, 1.0]
-    m["leaf"] = [0.06, 0.94, 0.61, 1.0]
-    m["source"] = [0.91, 0.18, 0.17, 1.0]
-    m["sink"] = [0.03, 0.65, 0.94, 1.0]
-    m["other"] = [0.77, 0.78, 0.75, 1.0]
-
-    print(m)
-
-    print("Coloring ...")
-    for nid in og.get_node_ids():
-        if nid not in degree_table:
-            t = "isolated"
-        else:
-            deg = degree_table[nid]
-            if deg["in"] == 0 and deg["out"] == 1:
-                t = "leaf"
-            elif deg["in"] == 0 and deg["out"] > 1:
-                t = "source"
-            elif deg["in"] > 0 and deg["out"] == 0:
-                t = "sink"
-            else:
-                t = "other"
-        og.set_node_attribute(nid, "graphiti:space:color", "vec4", std.vec4_to_str(m[t]))
-
-def show_connected_components():
-
-    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
-
-    graph = std.load_nx_graph()
-    cc = nx.connected_components(graph)
-
-    for list in cc:
-        r = random.random()
-        g = random.random()
-        b = random.random()
-        color = str(r) + " " + str(g) + " " + str(b) 
-        
-        for node in list:
-            og.set_node_attribute(node, "graphiti:space:color", "vec3", color)
-
 def color_nodes_by_nominal_attribute(attribute_name):
 
     og.set_attribute("graphiti:space:linkmode", "string", "edge_color")
@@ -337,54 +221,6 @@ def color_edges_by_type():
             colors[type] = color
         og.set_link_attribute(id, "graphiti:space:color", "vec3", color)
 
-def color_nodes_by_score():
-    
-    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
-
-    ids = og.get_node_ids()
-    for id in ids:
-        score = og.get_node_attribute(id, "sgraph:score")
-        if score is None:
-            og.set_node_attribute(id, "graphiti:space:color", "vec4", "0.5 0.5 0.5 0.5")
-        elif score < -50:
-            og.set_node_attribute(id, "graphiti:space:color", "vec3", "1.0 0.0 0.0")
-        elif score > 50:
-            og.set_node_attribute(id, "graphiti:space:color", "vec3", "0.0 1.0 0.0")
-        else:
-            og.set_node_attribute(id, "graphiti:space:color", "vec3", "1.0 1.0 1.0")
-
-def color_nodes_by_infected():
-    
-    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
-
-    ids = og.get_node_ids()
-    for id in ids:
-        score = og.get_node_attribute(id, "sgraph:infected")
-        if score is None:
-            og.set_node_attribute(id, "graphiti:space:color", "vec4", "0.5 0.5 0.5 0.5")
-        elif score < 0:
-            og.set_node_attribute(id, "graphiti:space:color", "vec3", "1.0 0.0 0.0")
-        elif score > 0:
-            og.set_node_attribute(id, "graphiti:space:color", "vec3", "0.0 1.0 0.0")
-        else:
-            og.set_node_attribute(id, "graphiti:space:color", "vec3", "1.0 1.0 1.0")
-
-def color_nodes_by_dga_score():
-
-    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
-
-    ids = og.get_node_ids()
-    for id in ids:
-        score = og.get_node_attribute(id, "sgraph:dga:score")
-        if score is None:
-            og.set_node_attribute(id, "graphiti:space:color", "vec4", "0.5 0.5 0.5 0.5")
-            continue
-        else:
-            # DGA score is between [0 : not DGA, 100 : DGA]
-            sub = score / 100;
-            rgb = [1.0, 1.0 - sub, 1.0 - sub, 1.0]
-            og.set_node_attribute(id, "graphiti:space:color", "vec4", std.vec4_to_str(rgb))
-
 def search_by_attribute(node_flag, edge_flag):
     pattern = raw_input("Expression : ")
     attribute = raw_input("Attribute : ")
@@ -415,62 +251,7 @@ def multiply_colors(v, node_flag, edge_flag):
             c = og.get_link_attribute(id, "graphiti:space:color2")
             og.set_link_attribute(id, "graphiti:space:color2", "vec4", std.vec4_to_str(f(c, v)))
 
-def calculate_degree_map():
-    degrees = dict()
 
-    for eid in og.get_link_ids():
-        bi = False
-        e_type = og.get_link_attribute(eid, "type")
-        if e_type is not None and "<->" in e_type:
-            bi = True
-
-        nid1 = og.get_link_node1(eid)
-        nid2 = og.get_link_node2(eid)
-
-        if nid1 not in degrees:
-            degrees[nid1] = { "in" : 0, "out" : 0 }
-        if nid2 not in degrees:
-            degrees[nid2] = { "in" : 0, "out" : 0 }
-        
-        if bi:
-            degrees[nid1]["in"] += 1
-            degrees[nid1]["out"] += 1
-            degrees[nid2]["in"] += 1
-            degrees[nid2]["out"] += 1
-        else:
-            degrees[nid1]["out"] += 1
-            degrees[nid2]["in"] += 1
-
-    return degrees
-
-def detect_spn():
-    degree_map = calculate_degree_map()
-    source_map = dict()
-
-    for eid in og.get_link_ids():
-        src = og.get_link_node1(eid)
-        if src not in degree_map:
-            continue
-        
-        if degree_map[src]["in"] == 0 and degree_map[src]["out"] >= 0:
-            dst = og.get_link_node2(eid)
-            if src not in source_map:
-                source_map[src] = [(dst, eid)]
-            elif dst not in source_map[src]:
-                source_map[src].append((dst, eid))
-
-    for nid in og.get_node_ids():
-        og.set_node_attribute(nid, "graphiti:space:lod", "float", "0.0")
-        
-    for eid in og.get_link_ids():
-        og.set_link_attribute(eid, "graphiti:space:lod", "float", "0.0")
-
-    for source in source_map.keys():
-        og.set_node_attribute(source, "graphiti:space:lod", "float", "1.0")
-
-        for successor in source_map[source]:
-            og.set_node_attribute(successor[0], "graphiti:space:lod", "float", "1.0")
-            og.set_link_attribute(successor[1], "graphiti:space:lod", "float", "1.0")
 
     print("SPN detection results :")
     print(source_map)
@@ -511,28 +292,13 @@ def start():
             ["Brighten Nodes Alpha", "demo.multiply_colors([1.0, 1.0, 1.0, 1.3], True, False)"],
             ["Brighten Edges Alpha", "demo.multiply_colors([1.0, 1.0, 1.0, 1.3], False, True)"],
         ]],
-        ["Topology", [
-            ["Neighbors", "demo.color_neighbors()"],
-            ["Connected Components", "demo.show_connected_components()"],
-            ["Edge Directions", "demo.show_edge_direction()"],
-            ["High Degrees", "demo.show_high_degrees()"],
-            ["Low Degrees", "demo.show_low_degrees()"],
-            ["Node Connections", "demo.color_by_node_degree()"],
-            ["Detect SPN", "demo.detect_spn()"]
-        ]],
         ["Animation", [
             ["Start", "og.set_attribute('og:space:animation', 'bool', 'True')"],
             ["Stop", "og.set_attribute('og:space:animation', 'bool', 'False')"]
         ]],
-        ["Security", [
-            ["Umbrella Score", "demo.color_nodes_by_score()"],
-            ["Infected Score", "demo.color_nodes_by_infected()"],
-            ["DGA Score", "demo.color_nodes_by_dga_score()"],
-        ]],
         ["Test / Debug", [
             ["Add Random Graph", "demo.add_random_graph()"],
-            ["Add Neighbor", "demo.add_neighbor()"],
-            ["Debug On/Off", "demo.show_debug()"]
+            ["Add Neighbor", "demo.add_neighbor()"]
         ]]
     ]
 
