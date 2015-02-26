@@ -15,19 +15,6 @@ from Scripts import nx
 from Scripts import std
 from Scripts import console
 
-def clear_graph():
-    for id in og.get_node_ids():
-        og.remove_node(id)
-
-def clear_colors():
-    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
-    for n in og.get_node_ids():
-        og.set_node_attribute(n, "graphiti:space:color", "vec4", "1.0 1.0 1.0 1.0")
-
-def clear_icons():
-    for n in og.get_node_ids():
-        og.set_node_attribute(n, "graphiti:space:icon", "string", "shapes/disk")
-
 def set_lod(value):
     for id in og.get_node_ids():
         og.set_node_attribute(id, "graphiti:space:lod", "float", str(value))
@@ -79,55 +66,13 @@ def remove_selected_node():
     id = og.get_selected_node(0)
     og.remove_node(id)
 
-def randomize_node_activity():
-    for id in og.get_node_ids():
-        if random.uniform(0.0, 1.0) > 0.10:
-            continue
-        activity = random.uniform(0.0, 5.0)
-        og.set_node_attribute(id, "graphiti:space:activity", "float", str(activity))
 
-def randomize_node_size():
-    for id in og.get_node_ids():
-        activity = random.uniform(0.0, 5.0)
-        og.set_node_attribute(id, "graphiti:space:size", "float", str(activity))
-
-def randomize_edge_activity():
-    for id in og.get_link_ids():
-        activity = random.uniform(0.0, 2.0)
-        og.set_link_attribute(id, "graphiti:space:activity", "float", str(activity))
-
-def randomize_edge_width():
-    for id in og.get_link_ids():
-        width = random.uniform(0.0, 5.0)
-        og.set_link_attribute(id, "graphiti:space:width", "float", str(width))
-
-def randomize_node_icons():
-    icons = glob.glob("./Resources/Countries/*.png")
-    print(icons)
-    for id in og.get_node_ids():
-        icon = "countries/" + random.choice(icons).split("/")[-1][:2].lower()
-        og.set_node_attribute(id, "graphiti:space:icon", "string", icon)
-
-def randomize_edge_icons():
-    icons = glob.glob("./Resources/SpaceView/EdgeStyles/*.png")
-    print(icons)
-    for id in og.get_link_ids():
-        icon = "styles/" + random.choice(icons).split("/")[-1][:-4].lower()
-        og.set_link_attribute(id, "graphiti:space:icon", "string", icon)
-
-def randomize_lod():
-    for id in og.get_node_ids():
-        og.set_node_attribute(id, "og:space:lod", "float", str(random.random()))   
-    for id in og.get_link_ids():
-        og.set_link_attribute(id, "og:space:lod", "float", str(random.random()))   
 
 def show_edge_direction():
     for id in og.get_link_ids():
         og.set_link_attribute(id, "og:space:icon", "string", "styles/triangles")
 
-def show_debug():
-    flag = og.get_attribute("og:space:debug")
-    og.set_attribute("og:space:debug", "bool", str(not flag))
+
 
 def reset_icons():
     for nid in og.get_node_ids():
@@ -310,76 +255,6 @@ def color_by_node_degree():
                 t = "other"
         og.set_node_attribute(nid, "graphiti:space:color", "vec4", std.vec4_to_str(m[t]))
 
-def sphere_layout(radius):
-    ids = og.get_node_ids()
-    for nid in ids:
-        r1 = random.random() * 2 * math.pi
-        r2 = random.random() * 2 * math.pi
-        r3 = 0.9 + 0.1 * random.random()
-
-        pos = [
-            radius * r3 * math.sin(r1) * math.cos(r2),
-            radius * r3 * math.cos(r1),
-            radius * r3 * math.sin(r1) * math.sin(r2)
-        ]
-
-        og.set_node_attribute(nid, "graphiti:space:position", "vec3", std.vec3_to_str(pos))
-
-def cube_layout():
-    ids = og.get_node_ids()
-    size = int(len(ids) ** (1.0 / 3.0))
-    count = 0
-    for nid in ids:
-        pos = [
-            count % size,
-            count / (size * size),
-            (count % (size * size)) / size
-        ]
-
-        for i in range(len(pos)):
-            pos[i] = 5 * (pos[i] - size / 2)
-
-        og.set_node_attribute(nid, "graphiti:space:position", "vec3", std.vec3_to_str(pos))
-        count += 1
-
-def conic_layout():
-    graph = std.load_nx_graph()
-
-    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
-
-    sorted_degrees = sorted(nx.degree(graph).values())
-    max_degree = sorted_degrees[-1]
-
-    degree_nodes = {}
-    for n in graph.nodes(data = True):
-        degree = nx.degree(graph, n[0])
-        if degree in degree_nodes:
-            degree_nodes[degree].append(n[0])
-        else:
-            degree_nodes[degree] = [n[0]]
-
-    max_radius = 30.0
-    max_height = 20
-    for n in graph.nodes(data = True):
-        degree = nx.degree(graph, n[0])
-
-        nodes = degree_nodes[degree]
-
-        radius = 1.0 + max_radius * float(1.0 - float(degree) / float(max_degree))
-        alpha = 2.0 * math.pi * random.random() #float(nodes.index(n[0])) / float(len(nodes)) 
-        # 3D
-        # beta = 2.0 * math.pi * random.random() #float(nodes.index(n[0])) / float(len(nodes)) 
-
-        x = radius * math.cos(alpha)
-        y = max_height * float(degree) / float(max_degree)
-        z = radius * math.sin(alpha)
-        # 3D
-        # x = radius * math.sin(alpha) * math.cos(beta)
-        # y = radius * math.sin(alpha) * math.sin(beta)
-        # z = radius * math.cos(alpha)
-
-        og.set_node_attribute(n[0], "graphiti:space:position", "vec3", str(x) + " " + str(y) + " " + str(z))
-
 def show_connected_components():
 
     og.set_attribute("graphiti:space:linkmode", "string", "node_color")
@@ -510,68 +385,6 @@ def color_nodes_by_dga_score():
             rgb = [1.0, 1.0 - sub, 1.0 - sub, 1.0]
             og.set_node_attribute(id, "graphiti:space:color", "vec4", std.vec4_to_str(rgb))
 
-def seed_circle_layout():
-    radius = 100.0
-
-    ids = og.get_node_ids()
-    zeros = []
-    for id in ids:
-        attribute = og.get_node_attribute(id, "depth")
-        if attribute == None:
-            continue
-        else:
-            if attribute == 0:
-                zeros.append(id)
-
-    count = 0
-    if len(zeros) == 1:
-        radius = 0.0
-    for id in zeros:
-        angle = 2.0 * math.pi * float(count) / float(len(zeros))
-
-        x = radius * math.cos(angle)
-        y = 0.0
-        z = radius * math.sin(angle)
-
-        og.set_node_attribute(id, "graphiti:space:position", "vec3", str(x) + " " + str(y) + " " + str(z))
-        og.set_node_attribute(id, "graphiti:space:locked", "bool", "True")
-        og.set_node_attribute(id, "graphiti:space:activity", "float", "2.0")
-        og.set_node_attribute(id, "og:space:mark", "int", "2")
-        count += 1
-
-def globe_coordinates(latitude, longitude, delta = 0.0):
-    globe_radius = 50
-    radLatitude = latitude * math.pi / 180.0;
-    radLongitude = longitude * math.pi / 180.0;
-
-    return [
-        (globe_radius + delta) * math.cos(radLatitude) * math.cos(radLongitude),
-        (globe_radius + delta) * math.sin(radLatitude),
-        - (globe_radius + delta) * math.cos(radLatitude) * math.sin(radLongitude)
-    ]
-
-def globe_layout():
-    ids = og.get_node_ids()
-    for id in ids:
-        geo = og.get_node_attribute(id, "world:geolocation")
-        if geo is not None:
-           pos = globe_coordinates(geo[0], geo[1])
-           og.set_node_attribute(id, "graphiti:space:position", "vec3", std.vec3_to_str(pos))
-           og.set_node_attribute(id, "graphiti:space:locked", "bool", "true")
-
-def randomize_timeline():
-    ids = og.get_node_ids()
-    time = 0
-    for nid in ids:
-        time += 500
-        og.send_command(time, "graph:set_node_attribute",
-                              {
-                                  "id" : int(random.choice(ids)),
-                                  "type" : "vec4",
-                                  "name" : "graphiti:space:color",
-                                  "value" : "1.0 0.0 0.0 1.0"
-                              }) 
-
 def search_by_attribute(node_flag, edge_flag):
     pattern = raw_input("Expression : ")
     attribute = raw_input("Attribute : ")
@@ -698,15 +511,6 @@ def start():
             ["Brighten Nodes Alpha", "demo.multiply_colors([1.0, 1.0, 1.0, 1.3], True, False)"],
             ["Brighten Edges Alpha", "demo.multiply_colors([1.0, 1.0, 1.0, 1.3], False, True)"],
         ]],
-        ["Arrangement", [
-            ["Lock / Unlock", "demo.lock_unlock()"],
-            ["Point Layout", "demo.sphere_layout(0)"],
-            ["Sphere Layout", "demo.sphere_layout(20)"],
-            ["Cube Layout", "demo.cube_layout()"],
-            ["Conic Layout", "demo.conic_layout()"],
-            ["Seed Circle Layout", "demo.seed_circle_layout()"],
-            ["Globe Layout", "demo.globe_layout()"],
-        ]],
         ["Topology", [
             ["Neighbors", "demo.color_neighbors()"],
             ["Connected Components", "demo.show_connected_components()"],
@@ -717,8 +521,8 @@ def start():
             ["Detect SPN", "demo.detect_spn()"]
         ]],
         ["Animation", [
-            ["Start", "og.set_attribute('graphiti:space:animation', 'bool', 'True')"],
-            ["Stop", "og.set_attribute('graphiti:space:animation', 'bool', 'False')"]
+            ["Start", "og.set_attribute('og:space:animation', 'bool', 'True')"],
+            ["Stop", "og.set_attribute('og:space:animation', 'bool', 'False')"]
         ]],
         ["Security", [
             ["Umbrella Score", "demo.color_nodes_by_score()"],
@@ -728,14 +532,6 @@ def start():
         ["Test / Debug", [
             ["Add Random Graph", "demo.add_random_graph()"],
             ["Add Neighbor", "demo.add_neighbor()"],
-            ["Randomize Node Activity", "demo.randomize_node_activity()"],
-            ["Randomize Node Icons", "demo.randomize_node_icons()"],
-            ["Randomize Node Size", "demo.randomize_node_size()"],
-            ["Randomize Edge Activity", "demo.randomize_edge_activity()"],
-            ["Randomize Edge Icons", "demo.randomize_edge_icons()"],
-            ["Randomize Edge Width", "demo.randomize_edge_width()"],
-            ["Randomize Timeline", "demo.randomize_timeline()"],
-            ["Randomize LOD", "demo.randomize_lod()"],
             ["Debug On/Off", "demo.show_debug()"]
         ]]
     ]
