@@ -281,6 +281,8 @@ def start():
             ["Depth to LOD", "demo.attribute_to_lod('depth', lambda a: a)"],
             ["Search by Node Attribute", "demo.search_by_attribute(True, False)"],
             ["Search by Link Attribute", "demo.search_by_attribute(False, True)"],
+            ["Add Random Graph", "demo.add_random_graph()"],
+            ["Add Neighbor", "demo.add_neighbor()"]
         ]],
         ["Colors", [
             ["Dim Nodes", "demo.multiply_colors([0.7, 0.7, 0.7, 1.0], True, False)"],
@@ -295,10 +297,6 @@ def start():
         ["Animation", [
             ["Start", "og.set_attribute('og:space:animation', 'bool', 'True')"],
             ["Stop", "og.set_attribute('og:space:animation', 'bool', 'False')"]
-        ]],
-        ["Test / Debug", [
-            ["Add Random Graph", "demo.add_random_graph()"],
-            ["Add Neighbor", "demo.add_neighbor()"]
         ]]
     ]
 

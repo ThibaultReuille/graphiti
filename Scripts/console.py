@@ -402,15 +402,13 @@ class Topology(Script):
 		elif len(args) == 2 and args[1] == "directions":
 			self.directions(args)
 		elif len(args) == 2 and args[1] == "connections":
-			self.connections()
+			self.connections(args)
 		elif len(args) >= 2 and args[1] == "degrees":
 			self.degrees(args[1:])
 		elif len(args) == 2 and args[1] == "spn":
 			self.spn(args)
 		else:
 			print("Error: {0}: Wrong arguments!".format(args[0]))
-
-
 
 class Test(Script):
 
