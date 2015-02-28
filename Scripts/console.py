@@ -103,6 +103,11 @@ class Color(Script):
 		}
 
 		self.color_map = None
+		self.color_masks = {
+			"rgba" : [ True, True, True, True ],
+			"rgb" : [ True, True, True, False ],
+			"alpha" : [ False, False, False, True ]
+		} 
 
 	def random_color(self):
 		return [ random.random(), random.random(), random.random(), 1.0 ]
@@ -141,24 +146,81 @@ class Color(Script):
 		elif element_type == "edge":
 			og.set_link_attribute(element_id, "og:space:color", "vec4", color)
 
+	def lambda_op(self, element_type, element_id, op, color_mask, factor):
+
+		def calculate(op, v1, v2, mask):
+			print(op, v1, v2, mask)
+			if op == "add":
+				r = [ v1[i] + v2[i] for i in xrange(4) ]
+			elif op == "sub":
+				r = [ v1[i] - v2[i] for i in xrange(4) ]
+			elif op == "mul":
+				r = [ v1[i] * v2[i] for i in xrange(4) ]
+			elif op == "div":
+				r = [ v1[i] / v2[i] for i in xrange(4) ]
+			elif op == "set":
+				r = v2
+			else:
+				print("Error: '{0}': Unknown operator!")
+				return
+
+			for i in xrange(4):
+				if not mask[i]:
+					r[i] = v1[i]
+			return r
+
+		if element_type == "node":
+			color = og.get_node_attribute(element_id, "og:space:color")
+			og.set_node_attribute(element_id, "og:space:color", "vec4", std.vec4_to_str(calculate(op, color, factor, color_mask)))
+		elif element_type == "edge":
+			color = og.get_link_attribute(element_id, "og:space:color1")
+			og.set_link_attribute(element_id, "og:space:color1", "vec4", std.vec4_to_str(calculate(op, color, factor, color_mask)))
+			color = og.get_link_attribute(element_id, "og:space:color2")
+			og.set_link_attribute(element_id, "og:space:color2", "vec4", std.vec4_to_str(calculate(op, color, factor, color_mask)))
+
 	def run(self, args):
 
-		if len(args) == 3:
-			query = self.console.parse_query(args[1])
-			color = self.parse_color(args[2])
+		query = self.console.query
+		if query is None:
+			print("Error: Query is empty!")
+			return
+
+		if len(args) == 2:
+			color = self.parse_color(args[1])
 			if 'nodes' in query:
 				[ self.lambda_assign("node", nid, color) for nid in query['nodes'] ]
 			if 'edges' in query:
 				[ self.lambda_assign("edge", eid, color) for eid in query['edges'] ]
 		
-		elif len(args) == 4 and args[2] == "by":
-			query = self.console.parse_query(args[1])
-			attr = args[3]
+		elif len(args) == 3 and args[1] == "by":
+			attr = args[2]
 			color_map = dict()
 			if 'nodes' in query:
 				[ self.lambda_by("node", nid, attr, color_map) for nid in query['nodes'] ]
 			if 'edges' in query:
 				[ self.lambda_by("edge", eid, attr, color_map) for eid in query['edges'] ]
+
+		elif len(args) >= 4 and args[1] in [ "mul", "div", "add", "sub", "set" ]:
+			if args[2] not in self.color_masks:
+				print("Error: '{0}': Unknown color mask!".format(args[2]))
+				return
+
+			array = [ float(i) for i in " ".join(args[3:]).split() ]
+
+			if len(array) == 1:
+				factor = [ array[0], array[0], array[0], array[0] ]
+			elif len(array) == 3:
+				factor = [ array[0], array[1], array[2], 1.0 ]
+			elif len(array) == 4:
+				factor = [ array[0], array[1], array[2], array[3] ]
+			else:
+				print("Error: Can't parse color factor!")
+				return
+
+			if 'nodes' in query:
+				[ self.lambda_op("node", nid, args[1], self.color_masks[args[2]], factor) for nid in query['nodes'] ]
+			if 'edges' in query:
+				[ self.lambda_op("edge", eid, args[1], self.color_masks[args[2]], factor) for eid in query['edges'] ]
 
 class Layout(Script):
 	
@@ -657,40 +719,76 @@ class OpenDNS(Script):
 		elif len(args) == 2 and args[1] == "dga":
 			self.dga()
 
+
+
+class Query(Script):
+	def __init__(self, console):
+		super(Query, self).__init__(console)
+
+	def run(self, args):
+		s = " ".join(args[1:]).strip()
+		if s == "nodes":
+			self.console.query = { "nodes" : og.get_node_ids() }
+		elif s == "edges":
+			self.console.query = { "edges" : og.get_link_ids() }
+		elif s == "all":
+			self.console.query = {
+				"nodes" : og.get_node_ids(),
+				"edges" : og.get_link_ids()
+			}	
+		else:
+			print("Error: Invalid query!")
+			return
+
+		print("Query:")
+		for key in self.console.query.keys():
+			print(". {0}: {1} element(s).".format(key, len(self.console.query[key])))
+
+class Set(Script):
+	def __init__(self, console):
+		super(Set, self).__init__(console)
+
+	def run(self, args):
+		if len(args) < 4:
+			print("Usage: {0} <type> <name> <value>".format(args[0]))
+			return
+
+		if 'nodes' in self.console.query:
+			[ og.set_node_attribute(nid, args[2], args[1], " ".join(args[3:])) for nid in self.console.query['nodes'] ]
+		if 'edges' in self.console.query:
+			[ og.set_link_attribute(nid, args[2], args[1], " ".join(args[3:])) for eid in self.console.query['edges'] ]
+
+class Help(Script):
+	def __init__(self, console):
+		super(Help, self).__init__(console)
+
+	def run(self, args):
+		print("Avalailable commands:")
+		print(", ".join(self.console.context['scripts'].keys()))
+
 # ----- Callbacks -----
 
 class Console(object):
 	def __init__(self):
 		self.context = {
 			"scripts" : {
+				"query" : Query(self),
 				"info" : Info(self),
 				"load" : Load(self),
 				"save" : Save(self),
+				"set" : Set(self),
 				"clear" : Clear(self),
 				"color" : Color(self),
 				"layout" : Layout(self),
 				"camera" : Camera(self),
 				"topo" : Topology(self),
 				"test" : Test(self),
+				"help" : Help(self),
 
 				"opendns" : OpenDNS(self)
 			}
 		}
-
-	def parse_query(self, s):
-		query = None
-		if s == "nodes":
-			query = { "nodes" : og.get_node_ids() }
-		elif s == "edges":
-			query = { "edges" : og.get_link_ids() }
-		elif s == "all":
-			query = {
-				"nodes" : og.get_node_ids(),
-				"edges" : og.get_link_ids()
-			}
-
-		#print("query: {0}".format(query))
-		return query
+		self.query = None
 
 	def execute(self, command):
 		args = command.split()
