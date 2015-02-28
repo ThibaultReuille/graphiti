@@ -756,7 +756,7 @@ class Set(Script):
 		if 'nodes' in self.console.query:
 			[ og.set_node_attribute(nid, args[2], args[1], " ".join(args[3:])) for nid in self.console.query['nodes'] ]
 		if 'edges' in self.console.query:
-			[ og.set_link_attribute(nid, args[2], args[1], " ".join(args[3:])) for eid in self.console.query['edges'] ]
+			[ og.set_link_attribute(eid, args[2], args[1], " ".join(args[3:])) for eid in self.console.query['edges'] ]
 
 class Help(Script):
 	def __init__(self, console):
