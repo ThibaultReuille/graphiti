@@ -542,10 +542,10 @@ public:
             tl -= glm::vec3(0, m_WidgetDimension.y, 0);
             lodtextWidget->text().set("LOD Min/Max", m_Font);
             m_TopLeftWidgetGroup->add(m_Slider4 = new SliderWidget("slider4", NULL, tl, glm::vec2(m_WidgetDimension.x * 5, m_WidgetDimension.y / 4)));
-            m_Slider4->value(0.0);
+            m_Slider4->setValue(0.0);
             tl.y -= m_WidgetSpacing + m_WidgetDimension.y / 4;
             m_TopLeftWidgetGroup->add(m_Slider5 = new SliderWidget("slider5", NULL, tl, glm::vec2(m_WidgetDimension.x * 5, m_WidgetDimension.y / 4)));
-            m_Slider5->value(1.0);
+            m_Slider5->setValue(1.0);
             tl.y -= m_WidgetSpacing + m_WidgetDimension.y / 4;
 
             m_TopLeftWidgetGroup->add(m_CheckBox1 = new CheckBoxWidget("checkbox 1", NULL, tl, checkboxDimension));

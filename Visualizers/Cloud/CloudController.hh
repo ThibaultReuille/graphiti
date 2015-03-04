@@ -33,11 +33,11 @@ public:
 
 		m_WidgetGroup->add(m_SliderWidget1 = new SliderWidget("slider1", NULL, tl, glm::vec2(m_WidgetDimension.x * 5, m_WidgetDimension.y / 2)));
 		tl.y -= m_WidgetSpacing + m_WidgetDimension.y / 2;
-        m_SliderWidget1->value(0.0f);
+        m_SliderWidget1->setValue(0.0f);
 
         m_WidgetGroup->add(m_SliderWidget2 = new SliderWidget("slider2", NULL, tl, glm::vec2(m_WidgetDimension.x * 5, m_WidgetDimension.y / 2)));
 		tl.y -= m_WidgetSpacing + m_WidgetDimension.y / 2;
-		m_SliderWidget2->value(0.0f);
+		m_SliderWidget2->setValue(0.0f);
 	}
 
 	virtual ~CloudController()
@@ -190,12 +190,12 @@ public:
 			if (msg->Name == "slider1" && msg->Message == "update")
 			{
 				m_CloudView->getPointCloud().m_FilterZ.Active = true;
-				m_CloudView->getPointCloud().m_FilterZ.Value = m_SliderWidget1->value();
+				m_CloudView->getPointCloud().m_FilterZ.Value = m_SliderWidget1->getValue();
 			}
 			else if (msg->Name == "slider2")
 			{
 				m_CloudView->getPointCloud().m_FilterZ.Active = true;
-				m_CloudView->getPointCloud().m_FilterZ.Threshold = m_SliderWidget2->value();
+				m_CloudView->getPointCloud().m_FilterZ.Threshold = m_SliderWidget2->getValue();
 			}
 			else if (msg->Name == "view")
 			{

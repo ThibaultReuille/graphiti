@@ -277,28 +277,28 @@ public:
 
 			if (msg->Name == "slider1" && msg->Message == "update")
 			{
-				float value = 5.0f * m_Menu->getSlider1()->value();
+				float value = 5.0f * m_Menu->getSlider1()->getValue();
 				m_GraphView->setNodeSize(value);
 			}
             else if (msg->Name == "slider2" && msg->Message == "update")
             {
-                float value = 3.0f * m_Menu->getSlider2()->value();
+                float value = 3.0f * m_Menu->getSlider2()->getValue();
                 m_GraphView->setEdgeSize(value);
             }
             else if (msg->Name == "slider3" && msg->Message == "update")
             {
-                float x = m_Menu->getSlider3()->value();
+                float x = m_Menu->getSlider3()->getValue();
                 float value = 20.0f * x * x;
                 m_GraphView->setTemperature(value);
             }
             else if (msg->Name == "slider4" && msg->Message == "update")
             {
-                float value = m_Menu->getSlider4()->value();
+                float value = m_Menu->getSlider4()->getValue();
                 g_SpaceResources->LODSlice[0] = value;
             }
             else if (msg->Name == "slider5" && msg->Message == "update")
             {
-                float value = m_Menu->getSlider5()->value();
+                float value = m_Menu->getSlider5()->getValue();
                 g_SpaceResources->LODSlice[1] = value;
             }
 			
