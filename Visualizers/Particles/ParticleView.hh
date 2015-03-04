@@ -34,6 +34,7 @@ public:
     ParticleView()
     {
         m_GraphEntity = NULL;
+        setPhysics(false);
 
         m_Sphere = new SphereMesh(3.0, 7, 10);
         m_Sphere->getVertexBuffer().mute("a_Texcoord", true);
@@ -270,7 +271,6 @@ public:
 
     virtual IVariable* getEdgeAttribute(Edge::ID id, std::string& name)
     {
-        // TODO : ParticleView::getEdgeAttribute
         (void) id;
         (void) name;
         return NULL;

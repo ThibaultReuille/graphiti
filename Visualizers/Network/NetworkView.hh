@@ -76,39 +76,58 @@ public:
 		ResourceManager::getInstance().unload(m_NodeShader);
 	}
 
-	void addNode(const Node& node)
-	{
-		m_NodeBuffer.push(&node, sizeof(Node));
-        m_NeedsUpdate = true;
-	}
-
-	void addEdge(const Edge& edge)
-	{
-		m_EdgeBuffer.push(&edge, sizeof(Edge));
-        m_NeedsUpdate = true;
-	}
-
-	void update()
-	{
-        if (!m_NeedsUpdate)
+    void createParticles()
+    {
+        static bool m_FirstUpdate = true;
+        if (!m_FirstUpdate)
             return;
 
-		// --- Define Node Geometry ---
-
+        // ----- Node Particle Geometry -----
         m_NodeParticleBuffer << glm::vec3(0, 0, 0);
         m_NodeParticleBuffer.describe("a_Origin", 3, GL_FLOAT, sizeof(NodeParticle), 0);
         m_NodeParticleBuffer.generate(Buffer::STATIC);
 
-        m_NodeBuffer.describe("a_Position", 3, GL_FLOAT, sizeof(Node), 0);
-        m_NodeBuffer.describe("a_Size", 1, GL_FLOAT, sizeof(Node), sizeof(glm::vec3));
-        m_NodeBuffer.describe("a_Color", 4, GL_FLOAT, sizeof(Node), sizeof(glm::vec3) + sizeof(GL_FLOAT));
-        m_NodeBuffer.generate(Buffer::DYNAMIC);
-
-        // --- Define Edge Geometry ---
-       
+        // ----- Edge Particle Geometry -----
         m_EdgeParticleBuffer << glm::vec3(0, 0, 0);
         m_EdgeParticleBuffer.describe("a_Origin", 3, GL_FLOAT, sizeof(EdgeParticle), 0);
         m_EdgeParticleBuffer.generate(Buffer::STATIC);
+
+        m_FirstUpdate = false;
+    }
+
+	void update()
+	{
+        // ----- Create Particles
+
+        createParticles();
+    
+        // -----
+
+        if (!m_NeedsUpdate)
+            return;
+
+		// --- Define Node Instances
+
+        static bool m_NodeBufferFirstUpdate = true;
+
+        if (!m_NodeBufferFirstUpdate)
+            m_NodeBuffer.update();
+
+        m_NodeBuffer.describe("a_Position", 3, GL_FLOAT, sizeof(Node), 0);
+        m_NodeBuffer.describe("a_Size", 1, GL_FLOAT, sizeof(Node), sizeof(glm::vec3));
+        m_NodeBuffer.describe("a_Color", 4, GL_FLOAT, sizeof(Node), sizeof(glm::vec3) + sizeof(GL_FLOAT));
+
+        if (m_NodeBufferFirstUpdate)
+            m_NodeBuffer.generate(Buffer::DYNAMIC);
+
+        m_NodeBufferFirstUpdate = false;
+
+        // --- Define Edge Instances
+
+        static bool m_EdgeBufferFirstUpdate = true;
+       
+        if (!m_EdgeBufferFirstUpdate)
+            m_EdgeBuffer.update();
 
         m_EdgeBuffer.describe("a_SourcePosition", 3, GL_FLOAT, sizeof(Edge), 0);
         m_EdgeBuffer.describe("a_SourceColor",    4, GL_FLOAT, sizeof(Edge), sizeof(glm::vec3));
@@ -116,7 +135,12 @@ public:
         m_EdgeBuffer.describe("a_TargetColor",    4, GL_FLOAT, sizeof(Edge), 2 * sizeof(glm::vec3) + sizeof(glm::vec4));
         m_EdgeBuffer.describe("a_Width",          1, GL_FLOAT, sizeof(Edge), 2 * sizeof(glm::vec3) + 2 * sizeof(glm::vec4));
         
-        m_EdgeBuffer.generate(Buffer::DYNAMIC);  
+        if (m_EdgeBufferFirstUpdate)
+            m_EdgeBuffer.generate(Buffer::DYNAMIC);
+        
+        m_EdgeBufferFirstUpdate = false;
+
+        // -----
 
         m_NeedsUpdate = false;     
 	}
@@ -187,8 +211,15 @@ public:
         drawNodes(context, camera, transformation);
     }
 
+    // ----- Nodes Accessors -----
+
     inline Buffer& getNodes() { return m_NodeBuffer; }
-    inline Buffer& getEdges() { return m_EdgeBuffer; }
+    
+    void addNode(const Node& node)
+    {
+        m_NodeBuffer.push(&node, sizeof(Node));
+        m_NeedsUpdate = true;
+    }
 
     inline Node getNode(Node::ID id)
     {
@@ -200,6 +231,16 @@ public:
     inline void setNode(Node::ID id, const Node& node)
     {
         m_NodeBuffer.set(id, &node, sizeof(Node));
+        m_NeedsUpdate = true;
+    }
+
+    // ----- Edges Accessors -----
+
+    inline Buffer& getEdges() { return m_EdgeBuffer; }
+
+    void addEdge(const Edge& edge)
+    {
+        m_EdgeBuffer.push(&edge, sizeof(Edge));
         m_NeedsUpdate = true;
     }
 
@@ -239,9 +280,7 @@ public:
 		LOG("[NETWORK] Creating network view ...\n");
 
 		m_GraphEntity = NULL;
-
 		m_Font = new Font();
-
 		m_Graph = new GPUGraph();
 	}
 
@@ -284,6 +323,10 @@ public:
 	{
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
+        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
 
 		Transformation transformation;
 
@@ -427,7 +470,7 @@ public:
         edge.SourceColor = n1.Color;
 
         edge.TargetPosition = n2.Position;
-        edge.TargetColor = n2.Color;
+        edge.TargetColor =  n2.Color;
 
         edge.Width = 0.5; // NOTE : Half of the node size
 
@@ -458,7 +501,16 @@ public:
         checkEdgeUID(uid);
         GPUGraph::Edge::ID id = m_EdgeMap.getLocalID(uid);
 
-        if (name == "space:color1" && type == RD_VEC4)
+        if (name == "space:color" && type == RD_VEC4)
+        {
+            vvec4.set(value);
+            
+            GPUGraph::Edge edge = m_Graph->getEdge(id);
+            edge.SourceColor = vvec4.value();
+            edge.TargetColor = vvec4.value();
+            m_Graph->setEdge(id, edge);
+        }
+        else if (name == "space:color1" && type == RD_VEC4)
         {
             vvec4.set(value);
             
