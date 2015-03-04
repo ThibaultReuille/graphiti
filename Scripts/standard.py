@@ -77,7 +77,7 @@ edge_attributes = [
 ]
 
 def info():
-    print (str(graphiti.count_nodes()) + " nodes, " + str(graphiti.count_links()) + " links.")
+    print (str(graphiti.count_nodes()) + " nodes, " + str(graphiti.count_edges()) + " edges.")
 
 def get_attribute_info(attribute):
     t = type(attribute)
@@ -97,7 +97,7 @@ def get_attribute_info(attribute):
 
 def load_json(json_filename):
     nodes = {}
-    links = {}
+    edges = {}
     global node_attributes
     global edge_attributes
 
@@ -145,10 +145,10 @@ def load_json(json_filename):
     print(". Loading edges ...")
     for e in data["edges"]:
         if "src" in e:
-            eid = graphiti.add_link(nodes[e["src"]], nodes[e["dst"]])
+            eid = graphiti.add_edge(nodes[e["src"]], nodes[e["dst"]])
         else:
-            eid = graphiti.add_link(nodes[e['source']], nodes[e['target']])
-        links[e["id"]] = eid
+            eid = graphiti.add_edge(nodes[e['source']], nodes[e['target']])
+        edges[e["id"]] = eid
 
         for key in e.keys():
             if key in reserved_attributes:
@@ -157,7 +157,7 @@ def load_json(json_filename):
             if att_info is None:
                 print("Error: Couldn't parse key '" + key + "' with value '" + str(n[key]) + "'!")
                 continue
-            graphiti.set_link_attribute(eid, key, att_info[0], att_info[1])
+            graphiti.set_edge_attribute(eid, key, att_info[0], att_info[1])
 
     if "timeline" in data:
         print(". Loading timeline ...")
@@ -166,9 +166,9 @@ def load_json(json_filename):
             if c[1].startswith("graph:"):
                 if c[1] in ["graph:remove_node", "graph:set_node_attribute"]:
                     c[2]["id"] = nodes[c[2]["id"]]
-                elif c[1] in ["graph:remove_link", "graph:set_link_attribute"]:
-                    c[2]["id"] = links[c[2]["id"]]
-                elif c[1] in ["graph:add_link"]:
+                elif c[1] in ["graph:remove_edge", "graph:set_edge_attribute"]:
+                    c[2]["id"] = edges[c[2]["id"]]
+                elif c[1] in ["graph:add_edge"]:
                     c[2]["src"] = nodes[c[2]["src"]]
                     c[2]["dst"] = nodes[c[2]["dst"]]
             graphiti.send_command(c[0], c[1], c[2])
@@ -199,15 +199,15 @@ def save_json(filename):
 
         graph["nodes"].append(node)
 
-    for id in graphiti.get_link_ids():
+    for id in graphiti.get_edge_ids():
         edge = dict()
         edge["id"] = id
-        edge["src"] = graphiti.get_link_node1(id)
-        edge["dst"] = graphiti.get_link_node2(id)
+        edge["src"] = graphiti.get_edge_node1(id)
+        edge["dst"] = graphiti.get_edge_node2(id)
 
         for attribute in edge_attributes:
             name = attribute['name']
-            value = graphiti.get_link_attribute(id, name)
+            value = graphiti.get_edge_attribute(id, name)
             if value is None:
                 continue
             edge[name] = value
@@ -238,9 +238,9 @@ def load_nx_graph():
                     value = filter(lambda x: not (x in "[,]"), value)
                 graph.node[id][a['name']] = value
 
-    for id in graphiti.get_link_ids():
-        node1 = graphiti.get_link_node1(id)
-        node2 = graphiti.get_link_node2(id)
+    for id in graphiti.get_edge_ids():
+        node1 = graphiti.get_edge_node1(id)
+        node2 = graphiti.get_edge_node2(id)
         graph.add_edge(node1, node2)
     
     return graph
@@ -273,15 +273,15 @@ def regex_map(expression, attribute, node_flag, edge_flag, f, translate = True):
                 f("node", nid, r.match(str(value)))
 
     if edge_flag:
-        for eid in graphiti.get_link_ids():
+        for eid in graphiti.get_edge_ids():
             value = None
 
             if attribute == "node1":
-                value = graphiti.get_link_node1(eid)
+                value = graphiti.get_edge_node1(eid)
             elif attribute == "node2":
-                value = graphiti.get_link_node2(eid)
+                value = graphiti.get_edge_node2(eid)
             else:
-                value = graphiti.get_link_attribute(eid, attribute)
+                value = graphiti.get_edge_attribute(eid, attribute)
 
             if value is None:
                 f("edge", eid, None)

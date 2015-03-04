@@ -148,7 +148,7 @@ public:
     {
         unsigned long vid = m_NodeMap.getLocalID(uid);
 
-        // TODO : Remove node links
+        // TODO : Remove node edges
         // TODO : Remove node spheres
 
         m_GeoNodes.remove(vid);
@@ -166,7 +166,7 @@ public:
         if (name == "world:geolocation" && type == RD_VEC2)
         {
            vvec2.set(value);
-           // TODO : Update links when position changes
+           // TODO : Update edges when position changes
            m_GeoNodes[vid]->setPosition(glm::vec3(miller(vvec2.value()[0], vvec2.value()[1]), 0));
         }
         else if (name == "world:color" && type == RD_VEC3)

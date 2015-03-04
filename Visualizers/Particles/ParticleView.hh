@@ -221,7 +221,7 @@ public:
         m_NodeMap.addRemoteID(uid, id);
     }
 
-    virtual void onAddLink(Link::ID uid, Node::ID uid1, Node::ID uid2)
+    virtual void onAddEdge(Edge::ID uid, Node::ID uid1, Node::ID uid2)
     {
         checkNodeUID(uid1);
         checkNodeUID(uid2);
@@ -268,9 +268,9 @@ public:
         return NULL;
     }
 
-    virtual IVariable* getLinkAttribute(Link::ID id, std::string& name)
+    virtual IVariable* getEdgeAttribute(Edge::ID id, std::string& name)
     {
-        // TODO : ParticleView::getLinkAttribute
+        // TODO : ParticleView::getEdgeAttribute
         (void) id;
         (void) name;
         return NULL;
@@ -301,12 +301,12 @@ public:
         (void) sphere;
     }
 
-    virtual void onRemoveLink(Link::ID id)
+    virtual void onRemoveEdge(Edge::ID id)
     {
         (void) id;
     }
 
-    virtual void onSetLinkAttribute(Link::ID id, const std::string& name, VariableType type, const std::string& value)
+    virtual void onSetEdgeAttribute(Edge::ID id, const std::string& name, VariableType type, const std::string& value)
     {
         (void) id;
         (void) name;
@@ -314,7 +314,7 @@ public:
         (void) value;
     }
 
-    virtual void onAddNeighbor(const std::pair<Node::ID, Link::ID>& element, const char* label, Node::ID neighbor)
+    virtual void onAddNeighbor(const std::pair<Node::ID, Edge::ID>& element, const char* label, Node::ID neighbor)
     {
         (void) element;
         (void) label;
@@ -342,11 +342,11 @@ public:
             throw;
         }
     }
-    void checkLinkUID(Link::ID uid)
+    void checkEdgeUID(Edge::ID uid)
     {
         if (!m_EdgeMap.containsRemoteID(uid))
         {
-            LOG("Link UID %lu not found !\n", uid);
+            LOG("Edge UID %lu not found !\n", uid);
             throw;
         }
     }
@@ -362,7 +362,7 @@ private:
     std::vector<ParticleNode> m_Nodes;
     std::vector<ParticleEdge> m_Edges;
     TranslationMap<ParticleNode::ID, Node::ID> m_NodeMap;
-    TranslationMap<ParticleEdge::ID, Link::ID> m_EdgeMap;
+    TranslationMap<ParticleEdge::ID, Edge::ID> m_EdgeMap;
 
     OpenCL m_OpenCL;
     OpenCL::Context* m_Context;

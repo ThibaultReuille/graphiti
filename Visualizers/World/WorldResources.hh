@@ -18,7 +18,7 @@ public:
 
 		EarthRadius = 20.0f;
 		EarthNodeSize = 0.25;
-		EarthGeoLinkShader = ResourceManager::getInstance().loadShader("curve", Assets_curve_vert, sizeof(Assets_curve_vert), Assets_curve_frag, sizeof(Assets_curve_frag));
+		EarthGeoEdgeShader = ResourceManager::getInstance().loadShader("curve", Assets_curve_vert, sizeof(Assets_curve_vert), Assets_curve_frag, sizeof(Assets_curve_frag));
 	}
 
 	~WorldResources()
@@ -29,7 +29,7 @@ public:
 
 		delete EarthGeoCube;
 		ResourceManager::getInstance().unload(EarthGeoPointShader);
-		ResourceManager::getInstance().unload(EarthGeoLinkShader);
+		ResourceManager::getInstance().unload(EarthGeoEdgeShader);
 	}
 
 	GraphModel* Model;
@@ -37,7 +37,7 @@ public:
 	Light Sun;
 	Material EarthGeoPointMaterial;
 	Shader::Program* EarthGeoPointShader;
-    Shader::Program* EarthGeoLinkShader;
+    Shader::Program* EarthGeoEdgeShader;
     float EarthRadius;
 	Cube* EarthGeoCube;
     float EarthNodeSize;

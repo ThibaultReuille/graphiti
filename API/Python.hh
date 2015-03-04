@@ -461,9 +461,9 @@ static PyObject* getNodeAttribute(PyObject* self, PyObject* args)
 	}
 }
 
-// ----- Links -----
+// ----- Edges -----
 
-static PyObject* addLink(PyObject* self, PyObject* args)
+static PyObject* addEdge(PyObject* self, PyObject* args)
 {
 	Node::ID id1;
 	Node::ID id2;
@@ -472,26 +472,26 @@ static PyObject* addLink(PyObject* self, PyObject* args)
 
 	PROTECT_PARSE(PyArg_ParseTuple(args, "kk", &id1, &id2))
 
-	return PyLong_FromLong(API::Graph::addLink(id1, id2));
+	return PyLong_FromLong(API::Graph::addEdge(id1, id2));
 }
-static PyObject* removeLink(PyObject* self, PyObject* args)
+static PyObject* removeEdge(PyObject* self, PyObject* args)
 {
-	Link::ID id;
+	Edge::ID id;
 
 	(void)self;
 
 	PROTECT_PARSE(PyArg_ParseTuple(args, "k", &id))
 
-	API::Graph::removeLink(id);
+	API::Graph::removeEdge(id);
 	return Py_BuildValue("");
 }
-static PyObject* countLinks(PyObject* self, PyObject* args)
+static PyObject* countEdges(PyObject* self, PyObject* args)
 {
 	(void)self;
 	(void)args;
-	return PyLong_FromLong(API::Graph::countLinks());
+	return PyLong_FromLong(API::Graph::countEdges());
 }
-static PyObject* getLinkIDs(PyObject* self, PyObject* args)
+static PyObject* getEdgeIDs(PyObject* self, PyObject* args)
 {
 	PyObject* result = NULL;
 	PyObject* item = NULL;
@@ -499,7 +499,7 @@ static PyObject* getLinkIDs(PyObject* self, PyObject* args)
 	(void)self;
 	(void)args;
 
-	std::vector<Link::ID> ids = API::Graph::getLinkIDs();
+	std::vector<Edge::ID> ids = API::Graph::getEdgeIDs();
 
 	result = PyList_New(ids.size());
 	if (result)
@@ -515,29 +515,29 @@ static PyObject* getLinkIDs(PyObject* self, PyObject* args)
 
 	return result;
 }
-static PyObject* getLinkNode1(PyObject* self, PyObject* args)
+static PyObject* getEdgeNode1(PyObject* self, PyObject* args)
 {
-	Link::ID id;
+	Edge::ID id;
 
 	(void)self;
 
 	PROTECT_PARSE(PyArg_ParseTuple(args, "k", &id))
 
-	return PyLong_FromLong(API::Graph::getLinkNode1(id));
+	return PyLong_FromLong(API::Graph::getEdgeNode1(id));
 }
-static PyObject* getLinkNode2(PyObject* self, PyObject* args)
+static PyObject* getEdgeNode2(PyObject* self, PyObject* args)
 {
-	Link::ID id;
+	Edge::ID id;
 
 	(void)self;
 
 	PROTECT_PARSE(PyArg_ParseTuple(args, "k", &id))
 
-	return PyLong_FromLong(API::Graph::getLinkNode2(id));
+	return PyLong_FromLong(API::Graph::getEdgeNode2(id));
 }
-static PyObject* setLinkAttribute(PyObject* self, PyObject* args)
+static PyObject* setEdgeAttribute(PyObject* self, PyObject* args)
 {
-	Link::ID id;
+	Edge::ID id;
 	char* name = NULL;
 	char* type = NULL;
 	char* value = NULL;
@@ -546,20 +546,20 @@ static PyObject* setLinkAttribute(PyObject* self, PyObject* args)
 
 	PROTECT_PARSE(PyArg_ParseTuple(args, "ksss", &id, &name, &type, &value))
 
-	API::Graph::setLinkAttribute(id, name, type, value);
+	API::Graph::setEdgeAttribute(id, name, type, value);
 
 	return Py_BuildValue("");
 }
-static PyObject* getLinkAttribute(PyObject* self, PyObject* args)
+static PyObject* getEdgeAttribute(PyObject* self, PyObject* args)
 {
-	Link::ID id;
+	Edge::ID id;
 	char* key = NULL;
 
 	(void) self;
 
 	PROTECT_PARSE(PyArg_ParseTuple(args, "ks", &id, &key))
 
-	IVariable* attribute = API::Graph::getLinkAttribute(id, key);
+	IVariable* attribute = API::Graph::getEdgeAttribute(id, key);
 
 	if (attribute == NULL)
 		return Py_BuildValue("");
@@ -739,15 +739,15 @@ static PyMethodDef g_Module[] =
         {"get_node_label",        API::Python::Graph::getNodeLabel,        METH_VARARGS, "Get node label" },
         {"set_node_attribute",    API::Python::Graph::setNodeAttribute,    METH_VARARGS, "Set node attribute"},
         {"get_node_attribute",    API::Python::Graph::getNodeAttribute,    METH_VARARGS, "Get node attribute"},
-        // ----- Links -----
-        {"add_link",              API::Python::Graph::addLink,             METH_VARARGS, "Add link to the graph"},
-        {"remove_link",           API::Python::Graph::removeLink,          METH_VARARGS, "Remove link from the graph"},
-        {"count_links",           API::Python::Graph::countLinks,          METH_VARARGS, "Count links"},
-        {"get_link_ids",          API::Python::Graph::getLinkIDs,          METH_VARARGS, "Get link IDs" },
-        {"get_link_node1",        API::Python::Graph::getLinkNode1,        METH_VARARGS, "Get the link node #1" },
-        {"get_link_node2",        API::Python::Graph::getLinkNode2,        METH_VARARGS, "Get the link node #2" },
-        {"set_link_attribute",    API::Python::Graph::setLinkAttribute,    METH_VARARGS, "Set link attribute"},
-        {"get_link_attribute",    API::Python::Graph::getLinkAttribute,    METH_VARARGS, "Get link attribute"},
+        // ----- Edges -----
+        {"add_edge",              API::Python::Graph::addEdge,             METH_VARARGS, "Add edge to the graph"},
+        {"remove_edge",           API::Python::Graph::removeEdge,          METH_VARARGS, "Remove edge from the graph"},
+        {"count_edges",           API::Python::Graph::countEdges,          METH_VARARGS, "Count edges"},
+        {"get_edge_ids",          API::Python::Graph::getEdgeIDs,          METH_VARARGS, "Get edge IDs" },
+        {"get_edge_node1",        API::Python::Graph::getEdgeNode1,        METH_VARARGS, "Get the edge node #1" },
+        {"get_edge_node2",        API::Python::Graph::getEdgeNode2,        METH_VARARGS, "Get the edge node #2" },
+        {"set_edge_attribute",    API::Python::Graph::setEdgeAttribute,    METH_VARARGS, "Set edge attribute"},
+        {"get_edge_attribute",    API::Python::Graph::getEdgeAttribute,    METH_VARARGS, "Get edge attribute"},
         // ----- Spheres -----
         {"add_sphere",            API::Python::Graph::addSphere,           METH_VARARGS, "Add sphere to the graph"},
         // ----- Helpers -----

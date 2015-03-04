@@ -2,21 +2,21 @@
 
 #include "Entities/Graph/GraphModel.hh"
 
-class LinkAttractionForce : public Physics::IForce
+class EdgeAttractionForce : public Physics::IForce
 {
 public:
-	LinkAttractionForce()
+	EdgeAttractionForce()
 	{
 	    m_GraphModel = NULL;
 	    m_NodeTranslationMap = NULL;
 		m_MinNodeDistance = 10.0f;
 	}
 
-	virtual ~LinkAttractionForce()
+	virtual ~EdgeAttractionForce()
 	{
 	}
 
-	void bind(GraphModel* model, NodeTranslationMap* nodeTranslationMap, LinkTranslationMap* edgeTranslationMap)
+	void bind(GraphModel* model, NodeTranslationMap* nodeTranslationMap, EdgeTranslationMap* edgeTranslationMap)
 	{
 		m_GraphModel = model;
 		m_NodeTranslationMap = nodeTranslationMap;
@@ -37,9 +37,9 @@ public:
 		const float volume = 20 * 20 * 20; // NOTE : Graph should fit in this cube
 		float k = pow(volume / m_GraphModel->countNodes(), 1.0 / 3.0);
 
-		// Calculate link attractive forces
-		std::vector<Link>::iterator itl;
-		for (itl = m_GraphModel->links_begin(); itl != m_GraphModel->links_end(); ++itl)
+		// Calculate edge attractive forces
+		std::vector<Edge>::iterator itl;
+		for (itl = m_GraphModel->edges_begin(); itl != m_GraphModel->edges_end(); ++itl)
 		{
 			SpaceEdge::ID eid = m_EdgeTranslationMap->getLocalID(itl->id());
 			if (!g_SpaceResources->isEdgeVisible(edges[eid]->getLOD()))
@@ -70,7 +70,7 @@ public:
 private:
 	GraphModel* m_GraphModel;
 	NodeTranslationMap* m_NodeTranslationMap;
-	LinkTranslationMap* m_EdgeTranslationMap;
+	EdgeTranslationMap* m_EdgeTranslationMap;
 
 	float m_MinNodeDistance;
 };

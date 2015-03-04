@@ -4,8 +4,8 @@ class SpaceResources
 {
 public:
 	enum NodeMode { ALL, COLORS, MARKS, NONE };
-	enum LinkMode { NODE_COLOR, LINK_COLOR };
 	enum EdgeMode { WIDE_LINES, LINES, OFF };
+	enum EdgeColorMode { NODE_COLOR, LINK_COLOR };
 
 	SpaceResources()
 	{
@@ -29,7 +29,7 @@ public:
 			ShowNodeLOD = false;
 			ShowEdgeLOD = false;
 
-			m_LinkMode = NODE_COLOR;
+			m_EdgeColorMode = NODE_COLOR;
 		}
 
 		// Nodes
@@ -302,7 +302,7 @@ public:
 		// Edges
 		{
             EdgeActivityIcon = new Icon();
-            EdgeActivityIcon->load("link_activity", Assets_Particle_metaball_png, sizeof(Assets_Particle_metaball_png));
+            EdgeActivityIcon->load("edge_activity", Assets_Particle_metaball_png, sizeof(Assets_Particle_metaball_png));
 
 		    EdgeShader = ResourceManager::getInstance().loadShader("graph:edges",
 		            Assets_Shaders_Primitives_wideline_vert, sizeof(Assets_Shaders_Primitives_wideline_vert),
@@ -397,7 +397,7 @@ public:
 	// Edges
     Shader::Program* EdgeShader;
     Icon* EdgeStyleIcon;
-	LinkMode m_LinkMode;
+	EdgeColorMode m_EdgeColorMode;
 	Icon* EdgeActivityIcon;
 
 	// Spheres

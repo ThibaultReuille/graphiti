@@ -41,8 +41,8 @@ def on_started():
         graphiti.set_node_attribute(nid, "og:world:size", "float", str(city["size"]))
         dico[city['name']] = nid
 
-    eid = graphiti.add_link(dico['Paris'], dico['San Francisco'])
-    graphiti.set_link_attribute(eid, "og:world:color", "vec4", "0.0 1.0 0.0 1.0")
+    eid = graphiti.add_edge(dico['Paris'], dico['San Francisco'])
+    graphiti.set_edge_attribute(eid, "og:world:color", "vec4", "0.0 1.0 0.0 1.0")
 
 def start():
 

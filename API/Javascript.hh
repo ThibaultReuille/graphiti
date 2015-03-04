@@ -31,9 +31,9 @@ namespace Javascript
 
 		void setNodeAttribute(Node::ID id, const std::string& name, const std::string& type, const std::string& value) { API::Graph::setNodeAttribute(id, name.c_str(), type.c_str(), value.c_str()); }
 
-		void setEdgeAttribute(Link::ID id, const std::string& name, const std::string& type, const std::string& value) { API::Graph::setLinkAttribute(id, name.c_str(), type.c_str(), value.c_str()); }
+		void setEdgeAttribute(Edge::ID id, const std::string& name, const std::string& type, const std::string& value) { API::Graph::setEdgeAttribute(id, name.c_str(), type.c_str(), value.c_str()); }
 
-		std::pair<Node::ID, Link::ID> addNeighbor(const std::string& label, Node::ID neighbor) { return API::Graph::addNeighbor(label.c_str(), neighbor); }
+		std::pair<Node::ID, Edge::ID> addNeighbor(const std::string& label, Node::ID neighbor) { return API::Graph::addNeighbor(label.c_str(), neighbor); }
 	}
 }
 
@@ -82,13 +82,13 @@ EMSCRIPTEN_BINDINGS(my_module)
 	function("countSelectedNodes", &API::Graph::countSelectedNodes);
 	function("getSelectedNode", &API::Graph::getSelectedNode);
 
-	function("addEdge", &API::Graph::addLink);
-	function("removeEdge", &API::Graph::removeLink);
-	function("countEdges", &API::Graph::countLinks);
-	function("getEdgeID", &API::Graph::getLinkID);
-	function("getEdgeIDs", &API::Graph::getLinkIDs);
-	function("getEdgeNode1", &API::Graph::getLinkNode1);
-	function("getEdgeNode2", &API::Graph::getLinkNode2);
+	function("addEdge", &API::Graph::addEdge);
+	function("removeEdge", &API::Graph::removeEdge);
+	function("countEdges", &API::Graph::countEdges);
+	function("getEdgeID", &API::Graph::getEdgeID);
+	function("getEdgeIDs", &API::Graph::getEdgeIDs);
+	function("getEdgeNode1", &API::Graph::getEdgeNode1);
+	function("getEdgeNode2", &API::Graph::getEdgeNode2);
 	function("setEdgeAttribute", &Javascript::Graph::setEdgeAttribute, allow_raw_pointers());
 	// TODO : function("getEdgeAttribute")
 }

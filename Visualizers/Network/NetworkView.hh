@@ -411,9 +411,9 @@ public:
         }
     }
 
-    void onAddLink(Link::ID uid, Node::ID uid1, Node::ID uid2) override
+    void onAddEdge(Edge::ID uid, Node::ID uid1, Node::ID uid2) override
     {
-        LOG("onAddLink(%lu, %lu, %lu)\n", uid, uid1, uid2);
+        LOG("onAddEdge(%lu, %lu, %lu)\n", uid, uid1, uid2);
 
         GPUGraph::Node::ID nid1 = m_NodeMap.getLocalID(uid1);
         GPUGraph::Node::ID nid2 = m_NodeMap.getLocalID(uid2);
@@ -441,14 +441,14 @@ public:
         edge_count++;
     }
 
-    void onRemoveLink(Link::ID uid) override
+    void onRemoveEdge(Edge::ID uid) override
     {
-        LOG("onRemoveLink(%lu)\n", uid);
+        LOG("onRemoveEdge(%lu)\n", uid);
     }
 
-    void onSetLinkAttribute(Link::ID uid, const std::string& name, VariableType type, const std::string& value) override
+    void onSetEdgeAttribute(Edge::ID uid, const std::string& name, VariableType type, const std::string& value) override
     {
-        LOG("onSetLinkAttribute(%lu %s, %i, %s)\n", uid, name.c_str(), (int)type, value.c_str());
+        LOG("onSetEdgeAttribute(%lu %s, %i, %s)\n", uid, name.c_str(), (int)type, value.c_str());
 
         FloatVariable vfloat;
         Vec3Variable vvec3;
@@ -497,7 +497,7 @@ public:
     	return NULL;
     }
 
-    virtual IVariable* getLinkAttribute(Link::ID id, std::string& name)
+    virtual IVariable* getEdgeAttribute(Edge::ID id, std::string& name)
     {
     	(void) id;
     	(void) name;

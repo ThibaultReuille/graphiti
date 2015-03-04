@@ -70,19 +70,19 @@ private:
     float m_Size;
 };
 
-class EarthGeoLink : public Scene::Node
+class EarthGeoEdge : public Scene::Node
 {
 public:
     typedef unsigned long ID;
 
-    EarthGeoLink(Scene::Node* node1, Scene::Node* node2)
+    EarthGeoEdge(Scene::Node* node1, Scene::Node* node2)
     : m_Node1(node1), m_Node2(node2)
     {
         m_Activity = 0.0f;
         update();
     }
 
-    ~EarthGeoLink()
+    ~EarthGeoEdge()
     {
     }
 
@@ -123,12 +123,12 @@ public:
 
     void draw(Context* context, const glm::mat4& projection, const glm::mat4& view, const glm::mat4& model)
     {
-        g_WorldResources->EarthGeoLinkShader->use();
-        g_WorldResources->EarthGeoLinkShader->uniform("u_ModelViewProjection").set(projection * view * model);
-        g_WorldResources->EarthGeoLinkShader->uniform("u_Tint").set(glm::vec4(1.0, 1.0, 1.0, 1.0));
+        g_WorldResources->EarthGeoEdgeShader->use();
+        g_WorldResources->EarthGeoEdgeShader->uniform("u_ModelViewProjection").set(projection * view * model);
+        g_WorldResources->EarthGeoEdgeShader->uniform("u_Tint").set(glm::vec4(1.0, 1.0, 1.0, 1.0));
 
         Buffer& vertexBuffer = m_Curve.getVertexBuffer();
-        context->geometry().bind(vertexBuffer, *g_WorldResources->EarthGeoLinkShader);
+        context->geometry().bind(vertexBuffer, *g_WorldResources->EarthGeoEdgeShader);
         context->geometry().drawArrays(GL_LINE_STRIP, 0, vertexBuffer.size() / sizeof(BezierCurve::Vertex));
         context->geometry().unbind(vertexBuffer);
     }
@@ -138,7 +138,7 @@ public:
         (void) min;
         (void) max;
 
-        // TODO : EarthGeoLink::isOverlap
+        // TODO : EarthGeoEdge::isOverlap
         return false;
     }
 
@@ -263,7 +263,7 @@ public:
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
-		m_GeoLinks.draw(context, projection, view, transformation.state());
+		m_GeoEdges.draw(context, projection, view, transformation.state());
 		glDisable(GL_BLEND);
 	}
 
@@ -280,18 +280,18 @@ public:
     {
         EarthGeoPoint::ID vid = m_NodeMap.getLocalID(uid);
 
-        for (unsigned int i = 0; i < m_GeoLinks.size(); i++)
+        for (unsigned int i = 0; i < m_GeoEdges.size(); i++)
         {
-            if (m_GeoLinks[i] != NULL)
+            if (m_GeoEdges[i] != NULL)
             {
-                EarthGeoLink* link = static_cast<EarthGeoLink*>(m_GeoLinks[i]);
+                EarthGeoEdge* edge = static_cast<EarthGeoEdge*>(m_GeoEdges[i]);
 
-                if (link->getNode1() == vid || link->getNode2() == vid)
+                if (edge->getNode1() == vid || edge->getNode2() == vid)
                 {
-                    m_GeoLinks.remove(i);
-                    m_LinkMap.removeLocalID(i);
+                    m_GeoEdges.remove(i);
+                    m_EdgeMap.removeLocalID(i);
 
-                    LOG("Link %i removed with node\n", i);
+                    LOG("Edge %i removed with node\n", i);
                 }
             }
         }
@@ -314,7 +314,7 @@ public:
         if (name == "world:geolocation" && type == RD_VEC2)
         {
            vvec2.set(value);
-           // TODO : Update links when position changes
+           // TODO : Update edges when position changes
            m_GeoNodes[vid]->setPosition(spherical(vvec2.value()[0], vvec2.value()[1], 0.0f));
            glm::quat rotation;
            rotation = glm::angleAxis(glm::radians(vvec2.value()[0] - 90), glm::vec3(0, 0, 1)) * rotation;
@@ -344,26 +344,26 @@ public:
         }
     }
 
-    void onAddLink(Link::ID uid, Node::ID uid1, Node::ID uid2)
+    void onAddEdge(Edge::ID uid, Node::ID uid1, Node::ID uid2)
     {
         EarthGeoPoint::ID vid1 = m_NodeMap.getLocalID(uid1);
         EarthGeoPoint::ID vid2 = m_NodeMap.getLocalID(uid2);
 
-        EarthGeoLink::ID lid = m_GeoLinks.add(new EarthGeoLink(m_GeoNodes[vid1], m_GeoNodes[vid2]));
+        EarthGeoEdge::ID lid = m_GeoEdges.add(new EarthGeoEdge(m_GeoNodes[vid1], m_GeoNodes[vid2]));
 
-        m_LinkMap.addRemoteID(uid, lid);
+        m_EdgeMap.addRemoteID(uid, lid);
     }
 
-    void onRemoveLink(Link::ID uid)
+    void onRemoveEdge(Edge::ID uid)
     {
-        SpaceEdge::ID vid = m_LinkMap.getLocalID(uid);
-        m_GeoLinks.remove(vid);
-        m_LinkMap.eraseRemoteID(uid, vid);
+        SpaceEdge::ID vid = m_EdgeMap.getLocalID(uid);
+        m_GeoEdges.remove(vid);
+        m_EdgeMap.eraseRemoteID(uid, vid);
     }
 
-    void onSetLinkAttribute(Link::ID uid, const std::string& name, VariableType type, const std::string& value)
+    void onSetEdgeAttribute(Edge::ID uid, const std::string& name, VariableType type, const std::string& value)
     {
-        SpaceEdge::ID vid = m_LinkMap.getLocalID(uid);
+        SpaceEdge::ID vid = m_EdgeMap.getLocalID(uid);
 
         Vec2Variable vvec2;
         Vec3Variable vvec3;
@@ -372,12 +372,12 @@ public:
         if (name == "world:color" && type == RD_VEC3)
         {
             vvec3.set(value);
-            static_cast<EarthGeoLink*>(m_GeoLinks[vid])->setColor(glm::vec4(vvec3.value(), 1.0));
+            static_cast<EarthGeoEdge*>(m_GeoEdges[vid])->setColor(glm::vec4(vvec3.value(), 1.0));
         }
         else if (name == "world:color" && type == RD_VEC4)
         {
             vvec4.set(value);
-            static_cast<EarthGeoLink*>(m_GeoLinks[vid])->setColor(vvec4.value());
+            static_cast<EarthGeoEdge*>(m_GeoEdges[vid])->setColor(vvec4.value());
         }
         else
         {
@@ -405,8 +405,8 @@ private:
 	Material m_SphereMaterial;
 
 	Scene::NodeVector m_GeoNodes;
-	Scene::NodeVector m_GeoLinks;
+	Scene::NodeVector m_GeoEdges;
 
     NodeTranslationMap m_NodeMap;
-    LinkTranslationMap m_LinkMap;
+    EdgeTranslationMap m_EdgeMap;
 };

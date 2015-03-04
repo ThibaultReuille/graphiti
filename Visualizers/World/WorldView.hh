@@ -18,7 +18,7 @@
 #include "Visualizers/World/WorldMap.hh"
 
 typedef TranslationMap<SpaceNode::ID, Node::ID> NodeTranslationMap;
-typedef TranslationMap<SpaceEdge::ID, Link::ID> LinkTranslationMap;
+typedef TranslationMap<SpaceEdge::ID, Edge::ID> EdgeTranslationMap;
 
 class WorldView : public GraphView
 {
@@ -121,9 +121,9 @@ public:
 		return NULL;
 	}
 
-	virtual IVariable* getLinkAttribute(Link::ID id, std::string& name)
+	virtual IVariable* getEdgeAttribute(Edge::ID id, std::string& name)
 	{
-		LOG("[WORLDVIEW] getLinkAttribute(%lu, %s)\n", id, name.c_str());
+		LOG("[WORLDVIEW] getEdgeAttribute(%lu, %s)\n", id, name.c_str());
 		return NULL;
 	}
 
@@ -164,22 +164,22 @@ public:
 		(void) label;
 	}
 
-	void onAddLink(Link::ID uid, Node::ID uid1, Node::ID uid2)
+	void onAddEdge(Edge::ID uid, Node::ID uid1, Node::ID uid2)
 	{
-	    m_Earth->onAddLink(uid, uid1, uid2);
-	    // m_WorldMap->onAddLink(uid, uid1, uid2);
+	    m_Earth->onAddEdge(uid, uid1, uid2);
+	    // m_WorldMap->onAddEdge(uid, uid1, uid2);
 	}
 
-	void onRemoveLink(Link::ID uid)
+	void onRemoveEdge(Edge::ID uid)
 	{
-	    m_Earth->onRemoveLink(uid);
-	    // m_WorldMap->onAddLink(uid);
+	    m_Earth->onRemoveEdge(uid);
+	    // m_WorldMap->onAddEdge(uid);
 	}
 
-	void onSetLinkAttribute(Link::ID uid, const std::string& name, VariableType type, const std::string& value)
+	void onSetEdgeAttribute(Edge::ID uid, const std::string& name, VariableType type, const std::string& value)
 	{
-        m_Earth->onSetLinkAttribute(uid, name, type, value);
-        // m_WorldMap->onSetLinkAttribute(uid, name, type, value);
+        m_Earth->onSetEdgeAttribute(uid, name, type, value);
+        // m_WorldMap->onSetEdgeAttribute(uid, name, type, value);
 	}
 
 	void onAddSphere(Sphere::ID id, const char* label)
@@ -194,7 +194,7 @@ public:
         (void) sphere;
     }
 
-	void onAddNeighbor(const std::pair<Node::ID, Link::ID>& element, const char* label, Node::ID neighbor)
+	void onAddNeighbor(const std::pair<Node::ID, Edge::ID>& element, const char* label, Node::ID neighbor)
 	{
 		(void) element;
 		(void) label;

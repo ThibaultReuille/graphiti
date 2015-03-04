@@ -24,16 +24,16 @@ public:
     virtual void onTagNode(Node::ID uid, Sphere::ID sphere)
     { (void) uid; (void) sphere; }
 
-    virtual void onAddLink(Link::ID uid, Node::ID uid1, Node::ID uid2)
+    virtual void onAddEdge(Edge::ID uid, Node::ID uid1, Node::ID uid2)
     { (void) uid; (void) uid1; (void) uid2; }
 
-    virtual void onRemoveLink(Link::ID uid)
+    virtual void onRemoveEdge(Edge::ID uid)
     { (void) uid; }
 
-    virtual void onSetLinkAttribute(Link::ID uid, const std::string& name, VariableType type, const std::string& value)
+    virtual void onSetEdgeAttribute(Edge::ID uid, const std::string& name, VariableType type, const std::string& value)
     { (void) uid; (void) name; (void) type; (void) value; }
 
-    virtual void onAddNeighbor(const std::pair<Node::ID, Link::ID>& element, const char* label, Node::ID neighbor)
+    virtual void onAddNeighbor(const std::pair<Node::ID, Edge::ID>& element, const char* label, Node::ID neighbor)
     { (void) element; (void) label; (void) neighbor; }
 
     virtual void onAddSphere(Sphere::ID uid, const char* label)
@@ -45,7 +45,7 @@ class GraphView : public EntityView, public GraphListener
 public:
     virtual IVariable* getNodeAttribute(Node::ID id, std::string& name) = 0;
 
-    virtual IVariable* getLinkAttribute(Link::ID id, std::string& name) = 0;
+    virtual IVariable* getEdgeAttribute(Edge::ID id, std::string& name) = 0;
 };
 
 class GraphController : public EntityController, public GraphListener
@@ -210,50 +210,50 @@ public:
         }
     }
 
-    // ---- Links -----
+    // ---- Edges -----
 
-    Link::ID addLink(Node::ID uid1, Node::ID uid2)
+    Edge::ID addEdge(Node::ID uid1, Node::ID uid2)
     {
-        Link::ID uid;
-        Link::Data data;
+        Edge::ID uid;
+        Edge::Data data;
         data.Node1 = uid1;
         data.Node2 = uid2;
 
-        uid = m_GraphModel->addLink(Link::DEFAULT, data);
+        uid = m_GraphModel->addEdge(Edge::DEFAULT, data);
 
         for (auto l : listeners())
-            static_cast<GraphListener*>(l)->onAddLink(uid, uid1, uid2);
+            static_cast<GraphListener*>(l)->onAddEdge(uid, uid1, uid2);
 
         return uid;
     }
 
-    void removeLink(Link::ID id)
+    void removeEdge(Edge::ID id)
     {
-        m_GraphModel->removeLink(id);
+        m_GraphModel->removeEdge(id);
 
         for (auto l : listeners())
-            static_cast<GraphListener*>(l)->onRemoveLink(id);
+            static_cast<GraphListener*>(l)->onRemoveEdge(id);
     }
 
-    unsigned long countLinks() { return m_GraphModel->countLinks(); }
+    unsigned long countEdges() { return m_GraphModel->countEdges(); }
 
-    Link::ID getLinkID(unsigned int i) { return m_GraphModel->link(i)->id(); }
+    Edge::ID getEdgeID(unsigned int i) { return m_GraphModel->edge(i)->id(); }
 
-    std::vector<Link::ID> getLinkIDs()
+    std::vector<Edge::ID> getEdgeIDs()
     {
-        std::vector<Link::ID> result;
+        std::vector<Edge::ID> result;
 
-        for (auto it = m_GraphModel->links_begin(); it != m_GraphModel->links_end(); ++it)
+        for (auto it = m_GraphModel->edges_begin(); it != m_GraphModel->edges_end(); ++it)
             result.push_back(it->id());
 
         return result;
     }
 
-    Node::ID getLinkNode1(Link::ID id) { return m_GraphModel->link(id)->data().Node1; }
+    Node::ID getEdgeNode1(Edge::ID id) { return m_GraphModel->edge(id)->data().Node1; }
 
-    Node::ID getLinkNode2(Link::ID id) { return m_GraphModel->link(id)->data().Node2; }
+    Node::ID getEdgeNode2(Edge::ID id) { return m_GraphModel->edge(id)->data().Node2; }
 
-    void setLinkAttribute(Link::ID id, const char* name, const char* type, const char* value)
+    void setEdgeAttribute(Edge::ID id, const char* name, const char* type, const char* value)
     {
         std::string sname(name);
         std::string stype(type);
@@ -291,14 +291,14 @@ public:
         }
         else
         {
-            m_GraphModel->link(id)->attributes().set(sname, vtype, svalue);
+            m_GraphModel->edge(id)->attributes().set(sname, vtype, svalue);
         }
 
         for (auto l : listeners())
-            static_cast<GraphListener*>(l)->onSetLinkAttribute(id, sname, vtype, svalue);
+            static_cast<GraphListener*>(l)->onSetEdgeAttribute(id, sname, vtype, svalue);
     }
 
-    IVariable* getLinkAttribute(Link::ID id, const char* name)
+    IVariable* getEdgeAttribute(Edge::ID id, const char* name)
     {
         std::string sname(name);
 
@@ -316,13 +316,13 @@ public:
             for (auto v : views())
             {
                 if (view == std::string(v->name()))
-                    return static_cast<GraphView*>(v)->getLinkAttribute(id, rest);
+                    return static_cast<GraphView*>(v)->getEdgeAttribute(id, rest);
             }
             return NULL;
         }
         else
         {
-            IVariable* attribute = m_GraphModel->link(id)->attributes().get(sname);
+            IVariable* attribute = m_GraphModel->edge(id)->attributes().get(sname);
             if (attribute)
                 return attribute->duplicate();
             else
@@ -349,17 +349,17 @@ public:
 
     // ----- Helpers -----
 
-    std::pair<Node::ID, Link::ID> addNeighbor(const char* label, Node::ID neighbor)
+    std::pair<Node::ID, Edge::ID> addNeighbor(const char* label, Node::ID neighbor)
     {
-        std::pair<Node::ID, Link::ID> element;
+        std::pair<Node::ID, Edge::ID> element;
         Node::Type ntype = Node::DISK;
         Node::Data ndata;
 
         ndata.Label = std::string(label);
 
-        Link::Data ldata = Link::Data();
+        Edge::Data ldata = Edge::Data();
 
-        element = m_GraphModel->addNeighbor(ntype, ndata, Link::DEFAULT, ldata, neighbor);
+        element = m_GraphModel->addNeighbor(ntype, ndata, Edge::DEFAULT, ldata, neighbor);
 
         for (auto l : listeners())
             static_cast<GraphListener*>(l)->onAddNeighbor(element, label, neighbor);

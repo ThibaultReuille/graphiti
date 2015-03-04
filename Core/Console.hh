@@ -20,11 +20,6 @@ public:
 
 	virtual void send(const Variables& input, Variables& output)
 	{
-		LOG("Input\n");
-		input.dump();
-		LOG("Output\n");
-		output.dump();
-
 		std::string logtext;
 		if (input.getString("log", logtext))
 			notifyListeners(new ConsoleMessage(logtext));

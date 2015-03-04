@@ -3,7 +3,7 @@
 #include <raindance/Core/Variables.hh>
 
 class Node;
-class Link;
+class Edge;
 class Sphere;
 class GraphModel;
 
@@ -92,7 +92,7 @@ private:
 	Variables m_Attributes;
 };
 
-class Link
+class Edge
 {
 public:
 	typedef enum Type
@@ -108,11 +108,11 @@ public:
 		Node::ID Node2;
 	};
 
-	Link()
+	Edge()
 	{
 	}
 
-	Link(Type type, ID id, Data data)
+	Edge(Type type, ID id, Data data)
 	{
 		set(type, id, data);
 	}
@@ -202,7 +202,7 @@ public:
 	GraphModel()
 	{
 		m_NodeCounter = 0;
-		m_LinkCounter = 0;
+		m_EdgeCounter = 0;
 	}
 
 	~GraphModel()
@@ -235,11 +235,11 @@ public:
 					++itsn;
 		}
 
-		std::vector<Link>::iterator itl;
-		for (itl = m_Links.begin(); itl != m_Links.end();)
+		std::vector<Edge>::iterator itl;
+		for (itl = m_Edges.begin(); itl != m_Edges.end();)
 		{
 			if (itl->data().Node1 == id || itl->data().Node2 == id)
-				m_Links.erase(itl);
+				m_Edges.erase(itl);
 			else
 				++itl;
 		}
@@ -283,42 +283,42 @@ public:
 	inline const std::set<Node::ID>::iterator selectedNodes_begin() { return m_SelectedNodes.begin(); }
 	inline const std::set<Node::ID>::iterator selectedNodes_end() { return m_SelectedNodes.end(); }
 
-	// ----- Links -----
+	// ----- Edges -----
 
-	Link::ID addLink(Link::Type type, Link::Data data)
+	Edge::ID addEdge(Edge::Type type, Edge::Data data)
 	{
-		Link l(type, m_LinkCounter, data);
-		m_Links.push_back(l);
-		m_LinkCounter++;
+		Edge l(type, m_EdgeCounter, data);
+		m_Edges.push_back(l);
+		m_EdgeCounter++;
 
 		return l.id();
 	}
 
-	void removeLink(Link::ID id)
+	void removeEdge(Edge::ID id)
 	{
-		std::vector<Link>::iterator it;
-		for (it = m_Links.begin(); it != m_Links.end(); ++it)
+		std::vector<Edge>::iterator it;
+		for (it = m_Edges.begin(); it != m_Edges.end(); ++it)
 		{
 			if (it->id() == id)
 			{
-				m_Links.erase(it);
+				m_Edges.erase(it);
 				break;
 			}
 		}
 	}
 
-	Link* link(Link::ID id)
+	Edge* edge(Edge::ID id)
 	{
-		std::vector<Link>::iterator itl;
-		for (itl = m_Links.begin(); itl != m_Links.end(); ++itl)
+		std::vector<Edge>::iterator itl;
+		for (itl = m_Edges.begin(); itl != m_Edges.end(); ++itl)
 			if (itl->id() == id)
 				return &(*itl);
 		return NULL;
 	}
 
-    inline unsigned long countLinks() const { return m_Links.size(); }
-	inline const std::vector<Link>::iterator links_begin() { return m_Links.begin(); }
-	inline const std::vector<Link>::iterator links_end() { return m_Links.end(); }
+    inline unsigned long countEdges() const { return m_Edges.size(); }
+	inline const std::vector<Edge>::iterator edges_begin() { return m_Edges.begin(); }
+	inline const std::vector<Edge>::iterator edges_end() { return m_Edges.end(); }
 
 	// ----- Spheres -----
 
@@ -346,7 +346,7 @@ public:
 
 	// ----- Helpers -----
 
-	std::pair<Node::ID, Link::ID> addNeighbor(Node::Type ntype, Node::Data ndata, Link::Type ltype, Link::Data ldata, Node::ID neighbor)
+	std::pair<Node::ID, Edge::ID> addNeighbor(Node::Type ntype, Node::Data ndata, Edge::Type ltype, Edge::Data ldata, Node::ID neighbor)
 	{
 		Node n(ntype, m_NodeCounter, ndata);
 		m_Nodes.push_back(n);
@@ -354,18 +354,18 @@ public:
 		ldata.Node1 = neighbor;
 		ldata.Node2 = n.id();
 
-		Link l(ltype, m_LinkCounter, ldata);
-		m_Links.push_back(l);
+		Edge l(ltype, m_EdgeCounter, ldata);
+		m_Edges.push_back(l);
 
 		m_NodeCounter++;
-		m_LinkCounter++;
+		m_EdgeCounter++;
 
-		return std::pair<Node::ID, Link::ID>(n.id(), l.id());
+		return std::pair<Node::ID, Edge::ID>(n.id(), l.id());
 	}
 
 private:
 	std::vector<Node> m_Nodes;
-	std::vector<Link> m_Links;
+	std::vector<Edge> m_Edges;
 	std::vector<Sphere> m_Spheres;
 
 	std::set<Node::ID> m_SelectedNodes;
@@ -373,5 +373,5 @@ private:
 	Variables m_Attributes;
 
 	Node::ID m_NodeCounter;
-	Link::ID m_LinkCounter;
+	Edge::ID m_EdgeCounter;
 };

@@ -20,7 +20,7 @@ class Script(object):
 
 class Info(Script):
 	def run(self, args):
-		self.console.log("{0} nodes, {1} edges.".format(og.count_nodes(), og.count_links()))
+		self.console.log("{0} nodes, {1} edges.".format(og.count_nodes(), og.count_edges()))
 
 
 class Load(Script):
@@ -52,7 +52,7 @@ class Clear(Script):
 	        og.remove_node(id)
 
 	def clear_colors(self):
-	    og.set_attribute("og:space:linkmode", "string", "node_color")
+	    og.set_attribute("og:space:edgemode", "string", "node_color")
 	    for n in og.get_node_ids():
 	        og.set_node_attribute(n, "og:space:color", "vec4", "1.0 1.0 1.0 1.0")
 
@@ -63,14 +63,14 @@ class Clear(Script):
 	def clear_activity(self):
 	    for n in og.get_node_ids():
 	        og.set_node_attribute(n, "og:space:activity", "float", "0.0")
-		for e in og.get_link_ids():
-			og.set_link_attribute(e, "og:space:activity", "float", "0.0")
+		for e in og.get_edge_ids():
+			og.set_edge_attribute(e, "og:space:activity", "float", "0.0")
 
 	def clear_lod(self):
 	    for n in og.get_node_ids():
 	        og.set_node_attribute(n, "og:space:lod", "float", "1.0")
-		for e in og.get_link_ids():
-			og.set_link_attribute(e, "og:space:lod", "float", "1.0")
+		for e in og.get_edge_ids():
+			og.set_edge_attribute(e, "og:space:lod", "float", "1.0")
 
 	def run(self, args):
 		if len(args) == 1:
@@ -124,7 +124,7 @@ class Color(Script):
 		if element_type == "node":
 			og.set_node_attribute(element_id, "og:space:color", "vec4", color)
 		elif element_type == "edge":
-			og.set_link_attribute(element_id, "og:space:color", "vec4", color)
+			og.set_edge_attribute(element_id, "og:space:color", "vec4", color)
 
 	def lambda_by(self, element_type, element_id, attr, color_map):
 		if element_type not in color_map:
@@ -133,7 +133,7 @@ class Color(Script):
 		if element_type == "node":
 			value = og.get_node_attribute(element_id, attr)
 		elif element_type == "edge":
-			value = og.get_link_attribute(element_id, attr)
+			value = og.get_edge_attribute(element_id, attr)
 
 		if value is None:
 			color = std.vec4_to_str(self.colors["gray"])
@@ -146,7 +146,7 @@ class Color(Script):
 		if element_type == "node":
 			og.set_node_attribute(element_id, "og:space:color", "vec4", color)
 		elif element_type == "edge":
-			og.set_link_attribute(element_id, "og:space:color", "vec4", color)
+			og.set_edge_attribute(element_id, "og:space:color", "vec4", color)
 
 	def lambda_op(self, element_type, element_id, op, color_mask, factor):
 
@@ -174,10 +174,10 @@ class Color(Script):
 			color = og.get_node_attribute(element_id, "og:space:color")
 			og.set_node_attribute(element_id, "og:space:color", "vec4", std.vec4_to_str(calculate(op, color, factor, color_mask)))
 		elif element_type == "edge":
-			color = og.get_link_attribute(element_id, "og:space:color1")
-			og.set_link_attribute(element_id, "og:space:color1", "vec4", std.vec4_to_str(calculate(op, color, factor, color_mask)))
-			color = og.get_link_attribute(element_id, "og:space:color2")
-			og.set_link_attribute(element_id, "og:space:color2", "vec4", std.vec4_to_str(calculate(op, color, factor, color_mask)))
+			color = og.get_edge_attribute(element_id, "og:space:color1")
+			og.set_edge_attribute(element_id, "og:space:color1", "vec4", std.vec4_to_str(calculate(op, color, factor, color_mask)))
+			color = og.get_edge_attribute(element_id, "og:space:color2")
+			og.set_edge_attribute(element_id, "og:space:color2", "vec4", std.vec4_to_str(calculate(op, color, factor, color_mask)))
 
 	def run(self, args):
 
@@ -267,7 +267,7 @@ class Layout(Script):
 	def cone(self):
 	    graph = std.load_nx_graph()
 
-	    og.set_attribute("og:space:linkmode", "string", "node_color")
+	    og.set_attribute("og:space:edgemode", "string", "node_color")
 
 	    sorted_degrees = sorted(nx.degree(graph).values())
 	    max_degree = sorted_degrees[-1]
@@ -389,7 +389,7 @@ class Camera(Script):
 class Topology(Script):
 
 	def neighbors(self, args):
-	    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
+	    og.set_attribute("graphiti:space:edgemode", "string", "node_color")
 
 	    if og.count_selected_nodes() == 0:
 	        self.console.log("Please select a node !")
@@ -404,7 +404,7 @@ class Topology(Script):
 	        og.set_node_attribute(node, "graphiti:space:color", "vec3", "0.0 1.0 1.0")
 
 	def connected_components(self, args):
-	    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
+	    og.set_attribute("graphiti:space:edgemode", "string", "node_color")
 
 	    graph = std.load_nx_graph()
 	    cc = nx.connected_components(graph)
@@ -419,18 +419,18 @@ class Topology(Script):
 	            og.set_node_attribute(node, "graphiti:space:color", "vec3", color)
 
 	def directions(self, args):
-	    for id in og.get_link_ids():
-	        og.set_link_attribute(id, "og:space:icon", "string", "styles/triangles")
+	    for id in og.get_edge_ids():
+	        og.set_edge_attribute(id, "og:space:icon", "string", "styles/triangles")
 
 	def connections(self, args):
-	    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
+	    og.set_attribute("graphiti:space:edgemode", "string", "node_color")
 
 	    # Building node degree table ...
-	    edges = og.get_link_ids()
+	    edges = og.get_edge_ids()
 	    degree_table = dict()
 	    for eid in edges:
-	        nid1 = og.get_link_node1(eid)
-	        nid2 = og.get_link_node2(eid)
+	        nid1 = og.get_edge_node1(eid)
+	        nid2 = og.get_edge_node2(eid)
 	        if nid1 not in degree_table:
 	            degree_table[nid1] = { "in" : 0, "out" : 0 }
 	        if nid2 not in degree_table:
@@ -463,7 +463,7 @@ class Topology(Script):
 	        og.set_node_attribute(nid, "graphiti:space:color", "vec4", std.vec4_to_str(m[t]))
 
 	def degrees_high(self):
-	    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
+	    og.set_attribute("graphiti:space:edgemode", "string", "node_color")
 
 	    graph = std.load_nx_graph()
 	    max_degree = max(nx.degree(graph).values())
@@ -481,7 +481,7 @@ class Topology(Script):
 	        og.set_node_attribute(n[0], "graphiti:space:color", "vec3", c)
 
 	def degrees_low(self):
-	    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
+	    og.set_attribute("graphiti:space:edgemode", "string", "node_color")
 
 	    graph = std.load_nx_graph()
 	    max_degree = max(nx.degree(graph).values())
@@ -510,14 +510,14 @@ class Topology(Script):
 	def get_degree_map(self):
 	    degrees = dict()
 
-	    for eid in og.get_link_ids():
+	    for eid in og.get_edge_ids():
 	        bi = False
-	        e_type = og.get_link_attribute(eid, "type")
+	        e_type = og.get_edge_attribute(eid, "type")
 	        if e_type is not None and "<->" in e_type:
 	            bi = True
 
-	        nid1 = og.get_link_node1(eid)
-	        nid2 = og.get_link_node2(eid)
+	        nid1 = og.get_edge_node1(eid)
+	        nid2 = og.get_edge_node2(eid)
 
 	        if nid1 not in degrees:
 	            degrees[nid1] = { "in" : 0, "out" : 0 }
@@ -539,13 +539,13 @@ class Topology(Script):
 	    degree_map = self.get_degree_map()
 	    source_map = dict()
 
-	    for eid in og.get_link_ids():
-	        src = og.get_link_node1(eid)
+	    for eid in og.get_edge_ids():
+	        src = og.get_edge_node1(eid)
 	        if src not in degree_map:
 	            continue
 	        
 	        if degree_map[src]["in"] == 0 and degree_map[src]["out"] >= 0:
-	            dst = og.get_link_node2(eid)
+	            dst = og.get_edge_node2(eid)
 	            if src not in source_map:
 	                source_map[src] = [(dst, eid)]
 	            elif dst not in source_map[src]:
@@ -554,15 +554,15 @@ class Topology(Script):
 	    for nid in og.get_node_ids():
 	        og.set_node_attribute(nid, "og:space:lod", "float", "0.0")
 	        
-	    for eid in og.get_link_ids():
-	        og.set_link_attribute(eid, "og:space:lod", "float", "0.0")
+	    for eid in og.get_edge_ids():
+	        og.set_edge_attribute(eid, "og:space:lod", "float", "0.0")
 
 	    for source in source_map.keys():
 	        og.set_node_attribute(source, "og:space:lod", "float", "1.0")
 
 	        for successor in source_map[source]:
 	            og.set_node_attribute(successor[0], "og:space:lod", "float", "1.0")
-	            og.set_link_attribute(successor[1], "og:space:lod", "float", "1.0")
+	            og.set_edge_attribute(successor[1], "og:space:lod", "float", "1.0")
 
 	def run(self, args):
 		if len(args) == 2 and args[1] == "neighbors":
@@ -601,9 +601,9 @@ class Test(Script):
 	            continue
 	        activity = random.uniform(0.0, 5.0)
 	        og.set_node_attribute(id, "og:space:activity", "float", str(activity))
-  	    for id in og.get_link_ids():
+  	    for id in og.get_edge_ids():
 	        activity = random.uniform(0.0, 2.0)
-	        og.set_link_attribute(id, "og:space:activity", "float", str(activity))
+	        og.set_edge_attribute(id, "og:space:activity", "float", str(activity))
 
 	def randomize_icons(self):
 	    icons = glob.glob("./Assets/Countries/*.png")
@@ -612,15 +612,15 @@ class Test(Script):
 	        og.set_node_attribute(id, "og:space:icon", "string", icon)
 
 	    icons = glob.glob("./Assets/SpaceView/EdgeStyles/*.png")
-	    for id in og.get_link_ids():
+	    for id in og.get_edge_ids():
 	        icon = "styles/" + random.choice(icons).split("/")[-1][:-4].lower()
-	        og.set_link_attribute(id, "og:space:icon", "string", icon)
+	        og.set_edge_attribute(id, "og:space:icon", "string", icon)
 
 	def randomize_lod(self):
 	    for id in og.get_node_ids():
 	        og.set_node_attribute(id, "og:space:lod", "float", str(random.random()))   
-	    for id in og.get_link_ids():
-	        og.set_link_attribute(id, "og:space:lod", "float", str(random.random()))   
+	    for id in og.get_edge_ids():
+	        og.set_edge_attribute(id, "og:space:lod", "float", str(random.random()))   
 
 	def randomize_node_size(self):
 	    for id in og.get_node_ids():
@@ -628,9 +628,9 @@ class Test(Script):
 	        og.set_node_attribute(id, "og:space:size", "float", str(activity))
 
 	def randomize_edge_width(self):
-	    for id in og.get_link_ids():
+	    for id in og.get_edge_ids():
 	        width = random.uniform(0.0, 5.0)
-	        og.set_link_attribute(id, "og:space:width", "float", str(width))
+	        og.set_edge_attribute(id, "og:space:width", "float", str(width))
 
 	def randomize(self, args):
 		if len(args) == 2 and args[1] == "activity":
@@ -676,8 +676,8 @@ class Test(Script):
 		        dst = random.choice(nodes)
 		        if src != dst:
 		            loop = False
-		    id = og.add_link(src, dst)
-		    og.set_link_attribute(id, "type", "string", str(j % 3))
+		    id = og.add_edge(src, dst)
+		    og.set_edge_attribute(id, "type", "string", str(j % 3))
 
 	def add_neighbor(self, args):
 		if og.count_selected_nodes() == 0:
@@ -688,7 +688,7 @@ class Test(Script):
 		if len(args) >= 2:
 		    label = args[1]
 		    nid = og.add_node(label)
-		    og.add_link(sid, nid)
+		    og.add_edge(sid, nid)
 
 		    if len(args) >= 3:
 		    	og.set_node_attribute(nid, "type", "string", args[2])
@@ -709,7 +709,7 @@ class Test(Script):
 
 class OpenDNS(Script):
 	def score(self):
-	    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
+	    og.set_attribute("graphiti:space:edgemode", "string", "node_color")
 
 	    ids = og.get_node_ids()
 	    for id in ids:
@@ -725,7 +725,7 @@ class OpenDNS(Script):
 
 	def infected(self):
 	    
-	    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
+	    og.set_attribute("graphiti:space:edgemode", "string", "node_color")
 
 	    ids = og.get_node_ids()
 	    for id in ids:
@@ -741,7 +741,7 @@ class OpenDNS(Script):
 
 	def dga(self):
 
-	    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
+	    og.set_attribute("graphiti:space:edgemode", "string", "node_color")
 
 	    ids = og.get_node_ids()
 	    for id in ids:
@@ -774,11 +774,11 @@ class Query(Script):
 		if s == "nodes":
 			self.console.query = { "nodes" : og.get_node_ids() }
 		elif s == "edges":
-			self.console.query = { "edges" : og.get_link_ids() }
+			self.console.query = { "edges" : og.get_edge_ids() }
 		elif s == "all":
 			self.console.query = {
 				"nodes" : og.get_node_ids(),
-				"edges" : og.get_link_ids()
+				"edges" : og.get_edge_ids()
 			}	
 		else:
 			self.console.log("Error: Invalid query!")
@@ -805,7 +805,7 @@ class Set(Script):
 		if 'nodes' in self.console.query:
 			[ og.set_node_attribute(nid, args[2], args[1], " ".join(args[3:])) for nid in self.console.query['nodes'] ]
 		if 'edges' in self.console.query:
-			[ og.set_link_attribute(eid, args[2], args[1], " ".join(args[3:])) for eid in self.console.query['edges'] ]
+			[ og.set_edge_attribute(eid, args[2], args[1], " ".join(args[3:])) for eid in self.console.query['edges'] ]
 
 class Remove(Script):
 	def __init__(self, console):
@@ -815,7 +815,7 @@ class Remove(Script):
 		if 'nodes' in self.console.query:
 			[ og.remove_node(nid) for nid in self.console.query['nodes'] ]
 		if 'edges' in self.console.query:
-			[ og.remove_link(eid) for eid in self.console.query['edges'] ]
+			[ og.remove_edge(eid) for eid in self.console.query['edges'] ]
 
 class Map(Script):
 	def __init__(self, console):
@@ -844,9 +844,9 @@ class Map(Script):
 	 		self.console.log("og.set_node_attribute({0}, {1}, {2}, {3})".format(element_id, dst_name, dst_type, target))
 			og.set_node_attribute(element_id, dst_name, dst_type, target)
 		elif element_type == "edge":
-			source = og.get_link_attribute(element_id, src_name)
+			source = og.get_edge_attribute(element_id, src_name)
 	 		target = self.attr_convert(src_type, source, dst_type, options)
-			og.set_link_attribute(element_id, dst_name, dst_type, target)
+			og.set_edge_attribute(element_id, dst_name, dst_type, target)
 
 	def run(self, args):
 		if len(args) < 6 and args[3] == 'to':

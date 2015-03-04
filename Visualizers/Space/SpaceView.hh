@@ -29,7 +29,7 @@
 #include "Visualizers/Space/SpaceResources.hh"
 
 typedef TranslationMap<SpaceNode::ID, Node::ID> NodeTranslationMap;
-typedef TranslationMap<SpaceEdge::ID, Link::ID> LinkTranslationMap;
+typedef TranslationMap<SpaceEdge::ID, Edge::ID> EdgeTranslationMap;
 #include "Visualizers/Space/SpaceForces.hh"
 
 #include "Pack.hh"
@@ -106,7 +106,7 @@ class SpaceView : public GraphView
         m_Camera.lookAt(glm::vec3(0, 0, -5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
         m_CameraAnimation = false;
 
-        m_LinkAttractionForce.bind(m_GraphEntity->model(), &m_NodeMap, &m_LinkMap);
+        m_EdgeAttractionForce.bind(m_GraphEntity->model(), &m_NodeMap, &m_EdgeMap);
         m_NodeRepulsionForce.bind(m_GraphEntity->model(), &m_NodeMap);
 
         m_GraphEntity->views().push_back(this);
@@ -131,10 +131,10 @@ class SpaceView : public GraphView
             if (*itl == NULL)
                 continue;
 
-            SpaceEdge* link = static_cast<SpaceEdge*>(*itl);
+            SpaceEdge* edge = static_cast<SpaceEdge*>(*itl);
 
-            SpaceNode::ID node1 = link->getNode1();
-            SpaceNode::ID node2 = link->getNode2();
+            SpaceNode::ID node1 = edge->getNode1();
+            SpaceNode::ID node2 = edge->getNode2();
 
             nodeDegrees[node1]++;
             nodeDegrees[node2]++;
@@ -219,9 +219,9 @@ class SpaceView : public GraphView
         return NULL;
     }
 
-    virtual IVariable* getLinkAttribute(Link::ID uid, std::string& name)
+    virtual IVariable* getEdgeAttribute(Edge::ID uid, std::string& name)
     {
-        SpaceEdge::ID id = m_LinkMap.getLocalID(uid);
+        SpaceEdge::ID id = m_EdgeMap.getLocalID(uid);
 
         if (name == "activity")
         {
@@ -434,7 +434,7 @@ class SpaceView : public GraphView
     void idle() override
     {
         updateNodes();
-        updateLinks();
+        updateEdges();
         updateSpheres();
 
         // NOTE : We use the octree when we are not running the physics.
@@ -480,7 +480,7 @@ class SpaceView : public GraphView
 
         // Calculate graph forces
         m_NodeRepulsionForce.apply(m_SpaceNodes);
-        m_LinkAttractionForce.apply(m_SpaceNodes, m_SpaceEdges);
+        m_EdgeAttractionForce.apply(m_SpaceNodes, m_SpaceEdges);
         m_DustAttractor.apply(m_SpaceNodes);
         // m_GravitationForce.apply(m_SpaceNodes);
 
@@ -498,7 +498,7 @@ class SpaceView : public GraphView
         m_DirtyOctree = true;
     }
 
-    void updateLinks()
+    void updateEdges()
     {
         if (g_SpaceResources->ShowEdges || g_SpaceResources->ShowEdgeActivity)
         {
@@ -611,11 +611,11 @@ class SpaceView : public GraphView
             throw;
         }
     }
-    void checkLinkUID(Link::ID uid)
+    void checkEdgeUID(Edge::ID uid)
     {
-        if (!m_LinkMap.containsRemoteID(uid))
+        if (!m_EdgeMap.containsRemoteID(uid))
         {
-            LOG("Link UID %lu not found !\n", uid);
+            LOG("Edge UID %lu not found !\n", uid);
             throw;
         }
     }
@@ -638,13 +638,13 @@ class SpaceView : public GraphView
             vbool.set(value);
             m_CameraAnimation = vbool.value();
         }
-        else if (name == "space:linkmode" && type == RD_STRING)
+        else if (name == "space:edgemode" && type == RD_STRING)
         {
             vstring.set(value);
             if (value == "node_color")
-                g_SpaceResources->m_LinkMode = SpaceResources::NODE_COLOR;
-            else if (value == "link_color")
-                g_SpaceResources->m_LinkMode = SpaceResources::LINK_COLOR;
+                g_SpaceResources->m_EdgeColorMode = SpaceResources::NODE_COLOR;
+            else if (value == "edge_color")
+                g_SpaceResources->m_EdgeColorMode = SpaceResources::LINK_COLOR;
         }
         else if (name == "space:camera:position" && type == RD_VEC3)
         {
@@ -680,12 +680,12 @@ class SpaceView : public GraphView
         {
             if (m_SpaceEdges[i] != NULL)
             {
-                SpaceEdge* link = static_cast<SpaceEdge*>(m_SpaceEdges[i]);
+                SpaceEdge* edge = static_cast<SpaceEdge*>(m_SpaceEdges[i]);
 
-                if (link->getNode1() == vid || link->getNode2() == vid)
+                if (edge->getNode1() == vid || edge->getNode2() == vid)
                 {
                     m_SpaceEdges.remove(i);
-                    m_LinkMap.removeLocalID(i);
+                    m_EdgeMap.removeLocalID(i);
                 }
             }
         }
@@ -784,7 +784,7 @@ class SpaceView : public GraphView
         (void) sphere;
     }
 
-    void onAddLink(Link::ID uid, Node::ID uid1, Node::ID uid2) override
+    void onAddEdge(Edge::ID uid, Node::ID uid1, Node::ID uid2) override
     {
         checkNodeUID(uid1);
         checkNodeUID(uid2);
@@ -794,37 +794,37 @@ class SpaceView : public GraphView
 
         SpaceEdge::ID lid = m_SpaceEdges.add(new SpaceEdge(m_SpaceNodes[node1], m_SpaceNodes[node2]));
 
-        m_LinkMap.addRemoteID(uid, lid);
+        m_EdgeMap.addRemoteID(uid, lid);
         m_DirtyOctree = true;
     }
 
-    void onRemoveLink(Link::ID uid) override
+    void onRemoveEdge(Edge::ID uid) override
     {
-        checkLinkUID(uid);
+        checkEdgeUID(uid);
 
-        SpaceEdge::ID vid = m_LinkMap.getLocalID(uid);
+        SpaceEdge::ID vid = m_EdgeMap.getLocalID(uid);
 
         m_SpaceEdges.remove(vid);
-        m_LinkMap.eraseRemoteID(uid, vid);
+        m_EdgeMap.eraseRemoteID(uid, vid);
 
         m_DirtyOctree = true;
     }
 
-    void onSetLinkAttribute(Link::ID uid, const std::string& name, VariableType type, const std::string& value) override
+    void onSetEdgeAttribute(Edge::ID uid, const std::string& name, VariableType type, const std::string& value) override
     {
-        checkLinkUID(uid);
+        checkEdgeUID(uid);
 
         FloatVariable vfloat;
          Vec3Variable vvec3;
          Vec4Variable vvec4;
          StringVariable vstring;
 
-        SpaceEdge::ID id = m_LinkMap.getLocalID(uid);
+        SpaceEdge::ID id = m_EdgeMap.getLocalID(uid);
 
         if (name == "space:color" && (type == RD_VEC3 || type == RD_VEC4))
          {
-             checkLinkUID(uid);
-             SpaceEdge::ID id = m_LinkMap.getLocalID(uid);
+             checkEdgeUID(uid);
+             SpaceEdge::ID id = m_EdgeMap.getLocalID(uid);
 
              glm::vec4 c;
             if (type == RD_VEC3)
@@ -844,16 +844,16 @@ class SpaceView : public GraphView
          }
         else if (name == "space:color1" && type == RD_VEC4)
         {
-            checkLinkUID(uid);
-            SpaceEdge::ID id = m_LinkMap.getLocalID(uid);
+            checkEdgeUID(uid);
+            SpaceEdge::ID id = m_EdgeMap.getLocalID(uid);
             vvec4.set(value);
             static_cast<SpaceEdge*>(m_SpaceEdges[id])->setColor(0, vvec4.value());
              static_cast<SpaceEdge*>(m_SpaceEdges[id])->setDirty(true);
         }
         else if (name == "space:color2" && type == RD_VEC4)
         {
-            checkLinkUID(uid);
-            SpaceEdge::ID id = m_LinkMap.getLocalID(uid);
+            checkEdgeUID(uid);
+            SpaceEdge::ID id = m_EdgeMap.getLocalID(uid);
             vvec4.set(value);
             static_cast<SpaceEdge*>(m_SpaceEdges[id])->setColor(1, vvec4.value());
             static_cast<SpaceEdge*>(m_SpaceEdges[id])->setDirty(true);
@@ -892,7 +892,7 @@ class SpaceView : public GraphView
         m_SpaceSpheres.add(new SpaceSphere());
     }
 
-    void onAddNeighbor(const std::pair<Node::ID, Link::ID>& element, const char* label, Node::ID neighbor) override
+    void onAddNeighbor(const std::pair<Node::ID, Edge::ID>& element, const char* label, Node::ID neighbor) override
     {
         checkNodeUID(neighbor);
 
@@ -901,7 +901,7 @@ class SpaceView : public GraphView
         SpaceNode::ID vid = pushNodeVertexAround(element.first, label, m_SpaceNodes[nid]->getPosition(), 2);
         SpaceEdge::ID lid = m_SpaceEdges.add(new SpaceEdge(m_SpaceNodes[nid], m_SpaceNodes[vid]));
 
-        m_LinkMap.addRemoteID(element.second, lid);
+        m_EdgeMap.addRemoteID(element.second, lid);
 
         m_DirtyOctree = true;
     }
@@ -913,7 +913,7 @@ class SpaceView : public GraphView
     inline Scene::NodeVector& getSpheres() { return m_SpaceSpheres; }
 
     inline NodeTranslationMap& getNodeMap() { return m_NodeMap; }
-    inline LinkTranslationMap& getLinkMap() { return m_LinkMap; }
+    inline EdgeTranslationMap& getEdgeMap() { return m_EdgeMap; }
 
     inline GraphContext* context() { return static_cast<GraphContext*>(m_GraphEntity->context()); }
     inline GraphModel* model() { return static_cast<GraphModel*>(m_GraphEntity->model()); }
@@ -928,7 +928,7 @@ class SpaceView : public GraphView
     bool m_CameraAnimation;
 
     NodeTranslationMap m_NodeMap;
-    LinkTranslationMap m_LinkMap;
+    EdgeTranslationMap m_EdgeMap;
 
     Scene::NodeVector m_SpaceNodes;
     Scene::NodeVector m_SpaceEdges;
@@ -940,7 +940,7 @@ class SpaceView : public GraphView
     PhysicsMode m_PhysicsMode;
     unsigned int m_Iterations;
 
-    LinkAttractionForce m_LinkAttractionForce;
+    EdgeAttractionForce m_EdgeAttractionForce;
     NodeRepulsionForce m_NodeRepulsionForce;
     Physics::GravitationForce m_GravitationForce;
     DustAttractor m_DustAttractor;

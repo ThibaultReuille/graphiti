@@ -117,7 +117,7 @@ public:
         if (linePosition[0] != nodePosition[0] || linePosition[1] != nodePosition[1])
             needsPositionUpdate = true;
 
-        if (g_SpaceResources->m_LinkMode == SpaceResources::LINK_COLOR)
+        if (g_SpaceResources->m_EdgeColorMode == SpaceResources::LINK_COLOR)
         {
             if (m_Dirty || needsPositionUpdate)
             {
@@ -126,7 +126,7 @@ public:
                 m_WideLine.update();
             }
         }
-        else if (g_SpaceResources->m_LinkMode == SpaceResources::NODE_COLOR)
+        else if (g_SpaceResources->m_EdgeColorMode == SpaceResources::NODE_COLOR)
         {
             glm::vec4 lineColor[2] =
             {
@@ -168,7 +168,7 @@ public:
     void setColor(unsigned int vertex, const glm::vec4& color)
     {
         m_WideLine.setColor(vertex, color);
-        g_SpaceResources->m_LinkMode = SpaceResources::LINK_COLOR;
+        g_SpaceResources->m_EdgeColorMode = SpaceResources::LINK_COLOR;
     }
 
     inline glm::vec4 getColor(unsigned int vertex) { return m_WideLine.getColor(vertex); }

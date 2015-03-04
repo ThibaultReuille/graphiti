@@ -17,12 +17,12 @@ def color_diff():
     for n in graphiti.get_node_ids():
         s = graphiti.get_node_attribute(n, 'diffstatus')
         graphiti.set_node_attribute(n, "graphiti:space:color", "vec3", colors[s])
-    for e in graphiti.get_link_ids():
-        s = graphiti.get_link_attribute(e, 'diffstatus')
+    for e in graphiti.get_edge_ids():
+        s = graphiti.get_edge_attribute(e, 'diffstatus')
         try:
-            graphiti.set_link_attribute(e, "graphiti:space:color", "vec3", colors[s])
+            graphiti.set_edge_attribute(e, "graphiti:space:color", "vec3", colors[s])
         except KeyError:
-            print("link: {}".format(e))
+            print("edge: {}".format(e))
             print("diffstatus: {}".format(s))
             sys.exit(-1)
 
@@ -35,7 +35,7 @@ def search_by_attribute(node_flag, edge_flag):
             if t == "node":
                 graphiti.set_node_attribute(id, "graphiti:space:lod", "float", "0.0")
             elif t == "edge":
-                graphiti.set_link_attribute(id, "graphiti:space:lod", "float", "0.0")
+                graphiti.set_edge_attribute(id, "graphiti:space:lod", "float", "0.0")
 
     std.regex_map(pattern, attribute, node_flag, edge_flag, f, False)
 
@@ -56,7 +56,7 @@ def start():
             ["Country Icons", "demo.countries_to_icons()"],
             ["Depth to LOD", "demo.attribute_to_lod('depth', lambda a: a)"],
             ["Search by Node Attribute", "diff.search_by_attribute(True, False)"],
-            ["Search by Link Attribute", "diff.search_by_attribute(False, True)"],
+            ["Search by Edge Attribute", "diff.search_by_attribute(False, True)"],
         ]],
         ["Colors", [
             ["Dim Nodes", "demo.multiply_colors([0.7, 0.7, 0.7, 1.0], True, False)"],

@@ -196,9 +196,9 @@ public:
 		return NULL;
 	}
 
-	virtual IVariable* getLinkAttribute(Link::ID id, std::string& name)
+	virtual IVariable* getEdgeAttribute(Edge::ID id, std::string& name)
 	{
-		LOG("[CLOUDVIEW] getLinkAttribute(%lu, %s)\n", id, name.c_str());
+		LOG("[CLOUDVIEW] getEdgeAttribute(%lu, %s)\n", id, name.c_str());
 		return NULL;
 	}
 
@@ -369,19 +369,19 @@ public:
 		(void) sphere;
 	}
 
-	void onAddLink(Link::ID uid, Node::ID uid1, Node::ID uid2)
+	void onAddEdge(Edge::ID uid, Node::ID uid1, Node::ID uid2)
 	{
 		(void) uid;
 		(void) uid1;
 		(void) uid2;
 	}
 
-	void onRemoveLink(Link::ID id)
+	void onRemoveEdge(Edge::ID id)
 	{
 		(void) id;
 	}
 
-	void onSetLinkAttribute(Link::ID id, const std::string& name, VariableType type, const std::string& value)
+	void onSetEdgeAttribute(Edge::ID id, const std::string& name, VariableType type, const std::string& value)
 	{
 		(void) id;
 		(void) name;
@@ -401,7 +401,7 @@ public:
 		(void) mark;
 	}
 
-	void onAddNeighbor(const std::pair<Node::ID, Link::ID>& element, const char* label, Node::ID neighbor)
+	void onAddNeighbor(const std::pair<Node::ID, Edge::ID>& element, const char* label, Node::ID neighbor)
 	{
 		(void) element;
 		(void) label;

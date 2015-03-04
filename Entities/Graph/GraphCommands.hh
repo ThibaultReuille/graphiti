@@ -126,11 +126,11 @@ public:
     } m_Input;
 };
 
-class GraphCommand_AddLink : public GraphCommand
+class GraphCommand_AddEdge : public GraphCommand
 {
 public:
-    GraphCommand_AddLink(GraphEntity* graph, Node::ID uid1, Node::ID uid2)
-    : GraphCommand(graph, "AddLink")
+    GraphCommand_AddEdge(GraphEntity* graph, Node::ID uid1, Node::ID uid2)
+    : GraphCommand(graph, "AddEdge")
     {
         m_Input.UID1 = uid1;
         m_Input.UID2 = uid2;
@@ -139,8 +139,8 @@ public:
     virtual Sequence::Status play(Timecode timecode)
     {
         (void) timecode;
-        m_Output.UID = m_Graph->addLink(m_Input.UID1, m_Input.UID2);
-        LOG("[COMMAND] AddLink { Input : (%lu, %lu), Output : (%lu) }\n", m_Input.UID1, m_Input.UID2, m_Output.UID);
+        m_Output.UID = m_Graph->addEdge(m_Input.UID1, m_Input.UID2);
+        LOG("[COMMAND] AddEdge { Input : (%lu, %lu), Output : (%lu) }\n", m_Input.UID1, m_Input.UID2, m_Output.UID);
         return KILL;
     }
 
@@ -150,14 +150,14 @@ public:
         Node::ID UID2;
     } m_Input;
 
-    struct Output { Link::ID UID; } m_Output;
+    struct Output { Edge::ID UID; } m_Output;
 };
 
-class GraphCommand_RemoveLink : public GraphCommand
+class GraphCommand_RemoveEdge : public GraphCommand
 {
 public:
-    GraphCommand_RemoveLink(GraphEntity* graph, Link::ID id)
-    : GraphCommand(graph, "RemoveLink")
+    GraphCommand_RemoveEdge(GraphEntity* graph, Edge::ID id)
+    : GraphCommand(graph, "RemoveEdge")
     {
         m_Input.UID = id;
     }
@@ -165,19 +165,19 @@ public:
     virtual Sequence::Status play(Timecode timecode)
     {
         (void) timecode;
-        m_Graph->removeLink(m_Input.UID);
-        LOG("[COMMAND] RemoveLink { Input : (%lu) }\n", m_Input.UID);
+        m_Graph->removeEdge(m_Input.UID);
+        LOG("[COMMAND] RemoveEdge { Input : (%lu) }\n", m_Input.UID);
         return KILL;
     }
 
     struct Input { Node::ID UID; } m_Input;
 };
 
-class GraphCommand_SetLinkAttribute : public GraphCommand
+class GraphCommand_SetEdgeAttribute : public GraphCommand
 {
 public:
-    GraphCommand_SetLinkAttribute(GraphEntity* graph, Link::ID uid, const char* name, const char* type, const char* value)
-    : GraphCommand(graph, "SetLinkAttribute")
+    GraphCommand_SetEdgeAttribute(GraphEntity* graph, Edge::ID uid, const char* name, const char* type, const char* value)
+    : GraphCommand(graph, "SetEdgeAttribute")
     {
         m_Input.UID = uid;
         m_Input.Name = std::string(name);
@@ -188,8 +188,8 @@ public:
     virtual Sequence::Status play(Timecode timecode)
     {
         (void) timecode;
-        m_Graph->setLinkAttribute(m_Input.UID, m_Input.Name.c_str(), m_Input.Type.c_str(), m_Input.Value.c_str());
-        LOG("[COMMAND] SetLinkAttribute { Input : (%lu, %s, %s, %s) }\n", m_Input.UID, m_Input.Name.c_str(), m_Input.Type.c_str(), m_Input.Value.c_str());
+        m_Graph->setEdgeAttribute(m_Input.UID, m_Input.Name.c_str(), m_Input.Type.c_str(), m_Input.Value.c_str());
+        LOG("[COMMAND] SetEdgeAttribute { Input : (%lu, %s, %s, %s) }\n", m_Input.UID, m_Input.Name.c_str(), m_Input.Type.c_str(), m_Input.Value.c_str());
         return KILL;
     }
 
@@ -257,30 +257,30 @@ public:
                 static_cast<StringVariable*>(value)->value().c_str());
     }
 
-    // Link Commands
+    // Edge Commands
 
-    static GraphCommand_AddLink* AddLink(GraphEntity* graph, const Variables& variables)
+    static GraphCommand_AddEdge* AddEdge(GraphEntity* graph, const Variables& variables)
     {
         IVariable* src = getVariable("src", RD_INT, variables);
         IVariable* dst = getVariable("dst", RD_INT, variables);
         if (src == NULL || dst == NULL)
             return NULL;
 
-        return new GraphCommand_AddLink(graph,
+        return new GraphCommand_AddEdge(graph,
                 static_cast<IntVariable*>(src)->value(),
                 static_cast<IntVariable*>(dst)->value());
     }
 
-    static GraphCommand_RemoveLink* RemoveLink(GraphEntity* graph, const Variables& variables)
+    static GraphCommand_RemoveEdge* RemoveEdge(GraphEntity* graph, const Variables& variables)
     {
         IVariable* id = getVariable("id", RD_INT, variables);
         if (id == NULL)
             return NULL;
 
-        return new GraphCommand_RemoveLink(graph, static_cast<IntVariable*>(id)->value());
+        return new GraphCommand_RemoveEdge(graph, static_cast<IntVariable*>(id)->value());
     }
 
-    static GraphCommand_SetLinkAttribute* SetLinkAttribute(GraphEntity* graph, const Variables& variables)
+    static GraphCommand_SetEdgeAttribute* SetEdgeAttribute(GraphEntity* graph, const Variables& variables)
     {
         IVariable* id = getVariable("id", RD_INT, variables);
         IVariable* name = getVariable("name", RD_STRING, variables);
@@ -289,7 +289,7 @@ public:
         if (id == NULL || name == NULL || type == NULL || value == NULL)
             return NULL;
 
-        return new GraphCommand_SetLinkAttribute(graph,
+        return new GraphCommand_SetEdgeAttribute(graph,
                 static_cast<IntVariable*>(id)->value(),
                 static_cast<StringVariable*>(name)->value().c_str(),
                 static_cast<StringVariable*>(type)->value().c_str(),

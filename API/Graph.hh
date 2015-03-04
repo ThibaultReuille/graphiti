@@ -83,64 +83,64 @@ extern "C"
         return getActiveGraph()->getNodeAttribute(id, name);
     }
 
-    // ---- Links -----
+    // ---- Edges -----
 
-    Link::ID addLink(Node::ID uid1, Node::ID uid2)
+    Edge::ID addEdge(Node::ID uid1, Node::ID uid2)
     {
-        // LOG("[API] addLink(%lu, %lu)\n", uid1, uid2);
-        return getActiveGraph()->addLink(uid1, uid2);
+        // LOG("[API] addEdge(%lu, %lu)\n", uid1, uid2);
+        return getActiveGraph()->addEdge(uid1, uid2);
     }
 
-    void removeLink(Link::ID id)
+    void removeEdge(Edge::ID id)
     {
-        // LOG("[API] removeLink(%lu)\n", id);
-        return getActiveGraph()->removeLink(id);
+        // LOG("[API] removeEdge(%lu)\n", id);
+        return getActiveGraph()->removeEdge(id);
     }
 
-    unsigned long countLinks()
+    unsigned long countEdges()
     {
-        // LOG("[API] countLinks()\n");
-        return getActiveGraph()->countLinks();
+        // LOG("[API] countEdges()\n");
+        return getActiveGraph()->countEdges();
     }
 
-    Link::ID getLinkID(unsigned int i)
+    Edge::ID getEdgeID(unsigned int i)
     {
-        // LOG("[API] getLinkID(%lu)\n", i);
-        return getActiveGraph()->getLinkID(i);
+        // LOG("[API] getEdgeID(%lu)\n", i);
+        return getActiveGraph()->getEdgeID(i);
     }
 }
 
-    std::vector<Link::ID> getLinkIDs()
+    std::vector<Edge::ID> getEdgeIDs()
     {
-        // LOG("[API] getLinkIDs()\n");
-        return getActiveGraph()->getLinkIDs();
+        // LOG("[API] getEdgeIDs()\n");
+        return getActiveGraph()->getEdgeIDs();
     }
 
 extern "C"
 {
-    Node::ID getLinkNode1(Link::ID id)
+    Node::ID getEdgeNode1(Edge::ID id)
     {
-        // LOG("[API] getLinkNode1(%lu)", id);
-        return getActiveGraph()->getLinkNode1(id);
+        // LOG("[API] getEdgeNode1(%lu)", id);
+        return getActiveGraph()->getEdgeNode1(id);
     }
 
-    Node::ID getLinkNode2(Link::ID id)
+    Node::ID getEdgeNode2(Edge::ID id)
     {
-        // LOG("[API] getLinkNode2(%lu)", id);
-        return getActiveGraph()->getLinkNode2(id);
+        // LOG("[API] getEdgeNode2(%lu)", id);
+        return getActiveGraph()->getEdgeNode2(id);
     }
 
-    void setLinkAttribute(Link::ID id, const char* name, const char* type, const char* value)
+    void setEdgeAttribute(Edge::ID id, const char* name, const char* type, const char* value)
     {
-        // LOG("[API] setLinkAttribute(%lu, '%s', '%s', '%s')\n", id, name, type, value);
-        return getActiveGraph()->setLinkAttribute(id, name, type, value);
+        // LOG("[API] setEdgeAttribute(%lu, '%s', '%s', '%s')\n", id, name, type, value);
+        return getActiveGraph()->setEdgeAttribute(id, name, type, value);
     }
 }
 
-    IVariable* getLinkAttribute(Link::ID id, const char* name)
+    IVariable* getEdgeAttribute(Edge::ID id, const char* name)
     {
-        // LOG("[API] getLinkAttribute(%lu, '%s')\n", id, name);
-        return getActiveGraph()->getLinkAttribute(id, name);
+        // LOG("[API] getEdgeAttribute(%lu, '%s')\n", id, name);
+        return getActiveGraph()->getEdgeAttribute(id, name);
     }
 
 extern "C"
@@ -155,7 +155,7 @@ extern "C"
 }
     // ----- Helpers -----
 
-    std::pair<Node::ID, Link::ID> addNeighbor(const char* label, Node::ID neighbor)
+    std::pair<Node::ID, Edge::ID> addNeighbor(const char* label, Node::ID neighbor)
     {
         // LOG("[API] addNeighbor('%s', %lu)\n", label, neighbor);
         return getActiveGraph()->addNeighbor(label, neighbor);
@@ -195,12 +195,12 @@ extern "C"
             command = GraphCommandFactory::RemoveNode(graph, variables);
         else if (sname == "graph:set_node_attribute")
             command = GraphCommandFactory::SetNodeAttribute(graph, variables);
-        else if (sname == "graph:add_link")
-            command = GraphCommandFactory::AddLink(graph, variables);
-        else if (sname == "graph:remove_link")
-            command = GraphCommandFactory::RemoveLink(graph, variables);
-        else if (sname == "graph:set_link_attribute")
-            command = GraphCommandFactory::SetLinkAttribute(graph, variables);
+        else if (sname == "graph:add_edge")
+            command = GraphCommandFactory::AddEdge(graph, variables);
+        else if (sname == "graph:remove_edge")
+            command = GraphCommandFactory::RemoveEdge(graph, variables);
+        else if (sname == "graph:set_edge_attribute")
+            command = GraphCommandFactory::SetEdgeAttribute(graph, variables);
         else
             LOG("[API] Unknown command type '%s'!\n", name);
 
