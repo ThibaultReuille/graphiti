@@ -6,6 +6,7 @@ import sys
 import os.path
 import glob
 import itertools
+import argparse
 
 import random
 import math
@@ -655,11 +656,58 @@ class Test(Script):
 	    flag = og.get_attribute("og:space:debug")
 	    og.set_attribute("og:space:debug", "bool", str(not flag))
 
+	def random_graph(self, args):
+		node_count = 1000
+		edge_count = 1000
+
+		if len(args) >= 3:
+			node_count = int(args[2])
+		if len(args) >= 4:
+			edge_count = int(args[3])
+
+		nodes = list()
+		for i in range(node_count):
+		    id = og.add_node(str(i))
+		    og.set_node_attribute(id, "type", "string", str(i % 3))
+		    size = 1 + abs(math.sin(float(i)))
+		    og.set_node_attribute(id, "og:space:size", "float", str(size))
+		    nodes.append(id)
+
+		for j in range(edge_count):
+		    loop = True
+		    while loop:
+		        src = random.choice(nodes)
+		        dst = random.choice(nodes)
+		        if src != dst:
+		            loop = False
+		    id = og.add_link(src, dst)
+		    og.set_link_attribute(id, "type", "string", str(j % 3))
+
+	def add_neighbor(self, args):
+		if og.count_selected_nodes() == 0:
+		    print("Please select a node !")
+		    return
+		sid = og.get_selected_node(0)
+
+		if len(args) >= 2:
+		    label = args[1]
+		    nid = og.add_node(label)
+		    og.add_link(sid, nid)
+
+		    if len(args) >= 3:
+		    	og.set_node_attribute(nid, "type", "string", args[2])
+		else:
+			print("Error: {0}: Wrong arguments!".format(args[0]))
+
 	def run(self, args):
 		if len(args) > 2 and args[1] == "randomize":
 			self.randomize(args[1:])
 		elif len(args) >= 2 and args[1] == "debug":
 			self.debug(args[1:])
+		elif len(args) >= 2 and args[1] == "graph":
+			self.random_graph(args)
+		elif len(args) >= 3 and args[1] == "neighbor":
+			self.add_neighbor(args[1:])
 		else:
 			print("Error: {0}: Wrong arguments!".format(args[0]))
 
@@ -758,6 +806,62 @@ class Set(Script):
 		if 'edges' in self.console.query:
 			[ og.set_link_attribute(eid, args[2], args[1], " ".join(args[3:])) for eid in self.console.query['edges'] ]
 
+class Remove(Script):
+	def __init__(self, console):
+		super(Remove, self).__init__(console)
+
+	def run(self, args):
+		if 'nodes' in self.console.query:
+			[ og.remove_node(nid) for nid in self.console.query['nodes'] ]
+		if 'edges' in self.console.query:
+			[ og.remove_node(eid) for eid in self.console.query['edges'] ]
+
+class Map(Script):
+	def __init__(self, console):
+		super(Map, self).__init__(console)
+
+	def attr_convert(self, src_type, src_value, dst_type, options):
+		if src_type != dst_type:
+			raise Exception("Mapping from {0} to {1} not supported!".format(src_type, dst_type))
+		print(src_type, src_value, dst_type)
+		if dst_type == "vec2":
+			return std.vec2_to_str(src_value)
+		elif dst_type == "vec3":
+			return std.vec3_to_str(value)
+		elif dst_type == "vec4":
+			return std.vec4_to_str(value)
+		else:
+			if len(options) == 2 and options[0] == "--format":
+				value = options[1].format(src_value)
+				return value
+			else:
+				return "{0}".format(src_value)
+
+	def lambda_map(self, element_type, element_id, src_type, src_name, dst_type, dst_name, options = None):
+		print(element_type, element_id, src_type, src_name, dst_type, dst_name)
+
+		if element_type == "node":
+			source = og.get_node_attribute(element_id, src_name)
+	 		target = self.attr_convert(src_type, source, dst_type, options)
+	 		print("og.set_node_attribute({0}, {1}, {2}, {3})".format(element_id, dst_name, dst_type, target))
+			og.set_node_attribute(element_id, dst_name, dst_type, target)
+		elif element_type == "edge":
+			source = og.get_link_attribute(element_id, src_name)
+	 		target = self.attr_convert(src_type, source, dst_type, options)
+			og.set_link_attribute(element_id, dst_name, dst_type, target)
+
+	def run(self, args):
+		if len(args) < 6 and args[3] == 'to':
+			print("Usage: {0} <src type> <src attribute> to <dst type> <dst attribute> [options]".format(args[0]))
+			return
+
+		if 'nodes' in self.console.query:
+			for nid in self.console.query['nodes']:
+				self.lambda_map("node", nid, args[1], args[2], args[4], args[5], args[6:])				
+		if 'edges' in self.console.query:
+			for eid in self.console.query['edges']:
+				self.lambda_map("edge", eid, args[1], args[2], args[4], args[5], args[6:])			
+		
 class Help(Script):
 	def __init__(self, console):
 		super(Help, self).__init__(console)
@@ -777,6 +881,8 @@ class Console(object):
 				"load" : Load(self),
 				"save" : Save(self),
 				"set" : Set(self),
+				"remove" : Remove(self),
+				"map" : Map(self),
 				"clear" : Clear(self),
 				"color" : Color(self),
 				"layout" : Layout(self),
@@ -788,7 +894,7 @@ class Console(object):
 				"opendns" : OpenDNS(self)
 			}
 		}
-		self.query = None
+		self.query = dict()
 
 	def execute(self, command):
 		args = command.split()

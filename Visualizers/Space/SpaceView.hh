@@ -739,28 +739,33 @@ class SpaceView : public GraphView
         }
         else if (name == "space:lod" && type == RD_FLOAT)
         {
-             vfloat.set(value);
-             m_SpaceNodes[id]->setLOD(vfloat.value());
+            vfloat.set(value);
+            m_SpaceNodes[id]->setLOD(vfloat.value());
         }
         else if (name == "space:activity" && type == RD_FLOAT)
          {
-             vfloat.set(value);
-             static_cast<SpaceNode*>(m_SpaceNodes[id])->setActivity(vfloat.value());
+            vfloat.set(value);
+            static_cast<SpaceNode*>(m_SpaceNodes[id])->setActivity(vfloat.value());
          }
         else if (name == "space:icon" && type == RD_STRING)
          {
-             vstring.set(value);
-             static_cast<SpaceNode*>(m_SpaceNodes[id])->setIcon(vstring.value());
+            vstring.set(value);
+
+            // NOTE : Icon names are lowercase for simplicity
+            std::string lower = vstring.value();
+            std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+
+            static_cast<SpaceNode*>(m_SpaceNodes[id])->setIcon(lower);
          }
         else if (name == "space:mark" && type == RD_INT)
          {
-             vint.set(value);
-             m_SpaceNodes[id]->setMark(static_cast<int>(vint.value()));
+            vint.set(value);
+            m_SpaceNodes[id]->setMark(static_cast<int>(vint.value()));
          }
         else if (name == "space:size" && type == RD_FLOAT)
          {
-             vfloat.set(value);
-             static_cast<SpaceNode*>(m_SpaceNodes[id])->setSize(vfloat.value());
+            vfloat.set(value);
+            static_cast<SpaceNode*>(m_SpaceNodes[id])->setSize(vfloat.value());
          }
     }
  

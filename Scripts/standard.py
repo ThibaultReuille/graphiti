@@ -60,11 +60,11 @@ node_attributes = [
 ]
 
 edge_attributes = [
-    { 'name' : "type",                     'type' : 'string' },
-    { 'name' : "depth",                    'type' : 'float' },
+    { 'name' : "type",               'type' : 'string' },
+    { 'name' : "depth",              'type' : 'float' },
 
-    { 'name' : "sgraph:first_seen",        'type' : 'string' },
-    { 'name' : "sgraph:last_seen",         'type' : 'string' },
+    { 'name' : "sgraph:first_seen",  'type' : 'string' },
+    { 'name' : "sgraph:last_seen",   'type' : 'string' },
 
     { 'name' : "og:space:activity", 'type' : 'float' },
     { 'name' : "og:space:color1",   'type' : "vec4" },
