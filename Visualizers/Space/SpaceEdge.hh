@@ -9,7 +9,7 @@ public:
     typedef unsigned long ID;
 
     SpaceEdge(Scene::Node* node1, Scene::Node* node2)
-    : m_Node1(node1), m_Node2(node2)
+    : Scene::Node(), m_Node1(node1), m_Node2(node2)
     {
         m_Activity = 0.0f;
         m_TextureID = 0;

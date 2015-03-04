@@ -38,12 +38,12 @@ class Save(Script):
 			# TODO: og.console("Usage: {0} <filename>".format(args[0]))
 			self.console.log("Usage: {0} <filename>".format(args[0]))
 			return
-
 		if os.path.isfile(args[1]):
 			self.console.log("Error: File already exists!")
 			return
 		
 		std.save_json(args[1])
+		self.console.log("File saved in '{0}'.".format(args[1]))
 
 class Clear(Script):
 
@@ -784,7 +784,7 @@ class Query(Script):
 			self.console.log("Error: Invalid query!")
 			return
 
-		s = ""
+		s = "Entities: "
 		key_count = 0
 		for key in self.console.query.keys():
 			if key_count > 0:

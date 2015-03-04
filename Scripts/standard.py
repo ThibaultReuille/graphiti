@@ -185,8 +185,6 @@ def save_json(filename):
     global node_attributes
     global edge_attributes
     
-    print("Saving graph into '" + filename + "' ...")
-
     for id in graphiti.get_node_ids():
         node = dict()
         node["id"] = id
@@ -218,7 +216,6 @@ def save_json(filename):
 
     with open(filename, 'w') as outfile:
         json.dump(graph, outfile, indent=True, sort_keys=True)
-    print("Done.")
 
 def load_nx_graph():
 

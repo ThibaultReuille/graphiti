@@ -48,10 +48,10 @@ public:
     virtual void apply(OctreeElement* element)
     {
         Scene::Node* node = static_cast<Scene::Node*>(element);
-        if (node->getMark() != m_Pass)
+        if (node->getPass() != m_Pass)
         {
             node->draw(m_Context, m_Camera->getProjectionMatrix(), m_Camera->getViewMatrix(), m_Transformation->state());
-            node->setMark(m_Pass);
+            node->setPass(m_Pass);
             m_DrawCount++;
         }
     }
@@ -760,7 +760,7 @@ class SpaceView : public GraphView
         else if (name == "space:mark" && type == RD_INT)
          {
             vint.set(value);
-            m_SpaceNodes[id]->setMark(static_cast<int>(vint.value()));
+            static_cast<SpaceNode*>(m_SpaceNodes[id])->setMark(static_cast<int>(vint.value()));
          }
         else if (name == "space:size" && type == RD_FLOAT)
          {

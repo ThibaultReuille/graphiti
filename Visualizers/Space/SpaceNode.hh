@@ -11,12 +11,13 @@ public:
     typedef unsigned long ID;
 
     SpaceNode(const char* label)
+    : Scene::Node()
     {
         m_ID = 0;
         m_TextureID = 0;
         m_Color = glm::vec4(1.0, 1.0, 1.0, 1.0);
-        m_Size = 1.0f;
         m_Mark = 0;
+        m_Size = 1.0f;
         m_Label.set(label, g_SpaceResources->NodeFont);
         m_Activity = 0.0;
     }
@@ -92,6 +93,10 @@ public:
 
     inline void setLabel(const char* label) { m_Label.set(label, g_SpaceResources->NodeFont); }
 
+    inline void setMark(int mark) { m_Mark = mark; }
+    inline int getMark() { return m_Mark; }
+
+
     inline void setSize(float size) { m_Size = size; }
     inline float getSize() { return m_Size; }
     inline float getScreenSize() { return g_SpaceResources->NodeIconSize * m_Size; }
@@ -118,8 +123,8 @@ private:
     ID m_ID;
     unsigned int m_TextureID;
     glm::vec4 m_Color;
+    int m_Mark;
     float m_Size;
-    unsigned int m_Mark;
     Text m_Label;
     float m_Activity;
 };
