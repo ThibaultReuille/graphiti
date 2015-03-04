@@ -1,7 +1,7 @@
 #pragma once
 
 #include <raindance/Core/Context.hh>
-#include <raindance/Core/Console/Shell.hh>
+#include <raindance/Core/Scheduler.hh>
 
 #if EMSCRIPTEN
 # include <emscripten.h>
@@ -11,20 +11,49 @@
 # include <raindance/Core/Console/PythonConsole.hh>
 #endif
 
-class GraphitiConsole :
-#ifdef EMSCRIPTEN
-	public JavascriptConsole, public IListener
+#include <graphiti/Entities/MVC.hh>
+
+class GraphitiConsoleBase : public Entity
 {
 public:
-	GraphitiConsole(int argc, char** argv) : JavascriptConsole(argc, argv) {}
+	GraphitiConsoleBase() : Entity(Entity::CONSOLE) {}
+
+	virtual void send(const Variables& input, Variables& output)
+	{
+		LOG("Input\n");
+		input.dump();
+		LOG("Output\n");
+		output.dump();
+
+		std::string logtext;
+		if (input.getString("log", logtext))
+			notifyListeners(new ConsoleMessage(logtext));
+	}
+
+	virtual EntityContext* context() { return NULL; }
+	virtual EntityModel* model() { return NULL; }
+};
+
+#ifdef EMSCRIPTEN
+
+	class GraphitiConsole : public GraphitiConsoleBase, public JavascriptConsole
+	{
+	public:
+		GraphitiConsole(int argc, char** argv) : JavascriptConsole(argc, argv) {}
+	};
+
 #else
 # ifndef NO_PYTHON
-	public PythonConsole, public IListener
+
+	class GraphitiConsole : public GraphitiConsoleBase, public PythonConsole
 	{
 	public:
 		GraphitiConsole(int argc, char** argv) : PythonConsole(argc, argv) {}
+	};
+
 # else
-	public Console, public IListener
+
+	class GraphitiConsole : public GraphitiConsoleBase
 	{
 	public:
 		GraphitiConsole(int argc, char** argv) { (void) argc; (void) argv; }
@@ -36,22 +65,7 @@ public:
 			LOG("[CONSOLE] Couldn't execute script \"%s\" !\n", script->name().c_str());
 			return false;
 		}
+	};
+
 # endif
 #endif
-	virtual void notify(IMessage* message)
-	{
-		IMessage::Type type = message->type();
-		if (type != IMessage::SCRIPT)
-			return;
-
-		auto msg = static_cast<ScriptMessage*>(message);
-		IScript* script = getScript(msg->Name);
-		if (script == NULL)
-		{
-			LOG("[CONSOLE] Couldn't find script \"%s\" !", msg->Name.c_str());
-			return;
-		}
-
-		execute(script->source());
-	}
-};

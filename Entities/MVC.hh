@@ -6,8 +6,6 @@
 #include <raindance/Core/GUI/View.hh>
 #include <raindance/Core/Manager.hh>
 
-#include "Core/Console.hh"
-
 // TODO : This should probably all be moved into the Raindance engine
 
 // ------------------------
@@ -115,7 +113,8 @@ public:
     enum Type
     {
         GRAPH,
-        TIME_SERIES
+        TIME_SERIES,
+        CONSOLE
     };
 
     Entity(Type type) : m_Type(type) {};
@@ -128,7 +127,7 @@ public:
         for (auto v : views())
             delete v;
 
-        // TODO : Why does it crash ?
+        // TODO : Why is that crashing ?
         // for (auto l : listeners())
         //    delete l;
     }
@@ -182,8 +181,7 @@ public:
         unsigned long pos1 = name.find(":");
         std::string category = name.substr (0, pos1);
 
-        // TODO : Remove 'raindance' attribute namespace whenever possible.
-        if (category == "raindance" || category == "graphiti" || category == "og")
+        if (category == "graphiti" || category == "og")
         {
             std::string rest = name.substr(pos1 + 1);
             unsigned long pos2 = rest.find(":");
@@ -205,6 +203,12 @@ public:
             else
                 return NULL;
         }
+    }
+
+    virtual void notifyListeners(IMessage* message) 
+    {
+        for (auto l : m_Listeners)
+            l->notify(message);
     }
 
     virtual EntityContext* context() = 0;
@@ -252,11 +256,4 @@ public:
 
 // ------------------------
 
-class Root
-{
-public:
-    virtual Context* context() = 0;
-    virtual GraphitiConsole* console() = 0;
-    virtual EntityManager& entities() = 0;
-    virtual EntityVisualizerManager& visualizers() = 0;
-};
+

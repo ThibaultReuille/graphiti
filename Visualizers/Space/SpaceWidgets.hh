@@ -562,22 +562,20 @@ public:
             checkbox2TextWidget->text().set("Edge LOD", m_Font);
             tl -= glm::vec3(checkboxDimension.x + m_WidgetSpacing, m_WidgetDimension.y, 0);
 
-            // ----- Bottom right part -----
+            // ----- Top Right part -----
 
-            m_BottomRightWidgetGroup = new WidgetGroup("bottom right", WidgetGroup::BOTTOM_RIGHT);
+            m_TopRightWidgetGroup = new WidgetGroup("top right", WidgetGroup::TOP_RIGHT);
 
             glm::vec2 timelineDimension = glm::vec2(400, 32);
 
-            float logoSize = 64;
+            glm::vec3 tr = glm::vec3(-m_WidgetSpacing - timelineDimension.x, -m_WidgetSpacing, 0);
+            m_TimelineWidget = new TimelineWidget("timeline", NULL, tr, timelineDimension);
+            m_TopRightWidgetGroup->add(m_TimelineWidget);
 
-            glm::vec3 br = glm::vec3(-m_WidgetSpacing - logoSize - timelineDimension.x - m_WidgetSpacing, m_WidgetSpacing + timelineDimension.y, 0);
-            m_TimelineWidget = new TimelineWidget("timeline", NULL, br, timelineDimension);
-            m_BottomRightWidgetGroup->add(m_TimelineWidget);
+            tr.y -= timelineDimension.y + 5;
 
-            br.y += m_WidgetSpacing + m_WidgetDimension.y - 5;
-
-            m_ClockWidget = new ClockWidget("clock", NULL, br, m_WidgetDimension);
-            m_BottomRightWidgetGroup->add(m_ClockWidget);
+            m_ClockWidget = new ClockWidget("clock", NULL, tr, m_WidgetDimension);
+            m_TopRightWidgetGroup->add(m_ClockWidget);
 
         }
     }
@@ -595,7 +593,7 @@ public:
         pick = m_TopLeftWidgetGroup->pickWidget(pos);
         if (pick != NULL)
             return pick;
-        pick = m_BottomRightWidgetGroup->pickWidget(pos);
+        pick = m_TopRightWidgetGroup->pickWidget(pos);
         if (pick != NULL)
             return pick;
         return NULL;
@@ -604,7 +602,7 @@ public:
     virtual ~SpaceMenu()
     {
         delete m_TopLeftWidgetGroup;
-        delete m_BottomRightWidgetGroup;
+        delete m_TopRightWidgetGroup;
         delete m_Font;
     }
 
@@ -615,14 +613,14 @@ public:
         m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
         m_TopLeftWidgetGroup->reshape(width, height);
-        m_BottomRightWidgetGroup->reshape(width, height);
+        m_TopRightWidgetGroup->reshape(width, height);
     }
 
 	virtual void draw(Context* context)
 	{
 		glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
         m_TopLeftWidgetGroup->draw(context, glm::mat4(), m_Camera.getViewMatrix(), m_Camera.getProjectionMatrix());
-        m_BottomRightWidgetGroup->draw(context, glm::mat4(), m_Camera.getViewMatrix(), m_Camera.getProjectionMatrix());
+        m_TopRightWidgetGroup->draw(context, glm::mat4(), m_Camera.getViewMatrix(), m_Camera.getProjectionMatrix());
     }
 
     inline Font* getFont() { return m_Font; }
@@ -650,7 +648,7 @@ private:
     glm::vec2 m_WidgetDimension;
     float m_WidgetSpacing;
     WidgetGroup* m_TopLeftWidgetGroup;
-    WidgetGroup* m_BottomRightWidgetGroup;
+    WidgetGroup* m_TopRightWidgetGroup;
 
     PointerWidget* m_PointerWidget;
     MarkerWidget* m_MarkerWidget;

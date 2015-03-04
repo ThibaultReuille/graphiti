@@ -1,9 +1,10 @@
 #pragma once
 
 #include <raindance/Core/GUI/Window.hh>
-#include <raindance/Core/GUI/HUD.hh>
 
+#include <graphiti/Core/HUD.hh>
 #include <graphiti/Entities/MVC.hh>
+#include <graphiti/Entities/Root.hh>
 
 class GLWindow : public Window
 {
@@ -13,7 +14,7 @@ public:
     {
         m_ActiveVisualizer = 0;
 
-        m_HUD = new HUD(getViewport());
+        m_HUD = new GraphitiHUD(getViewport());
         m_HUD->bind(parent->context());
 
         m_Parent = parent;
@@ -118,18 +119,18 @@ public:
 
     void onKey(int key, int scancode, int action, int mods) override
     {     
-         m_HUD->onKey(key, scancode, action, mods);
-
-        if (key == GLFW_KEY_N && action == 1 /* DOWN */)
+        if (key == GLFW_KEY_N && action == GLFW_PRESS && mods == GLFW_MOD_ALT)
             selectNextVisualizer();
-        else if (key == GLFW_KEY_M && action == 1 /* DOWN */)
+        else if (key == GLFW_KEY_M && action == GLFW_PRESS && mods == GLFW_MOD_ALT)
         {
             Geometry::getMetrics().dump();
             Geometry::getMetrics().reset();
             ResourceManager::getInstance().dump();
         }
         else
-        {
+        { 
+            m_HUD->onKey(key, scancode, action, mods);
+
             auto visualizer = getActiveVisualizer();
             if (visualizer)
                 visualizer->controller()->onKey(key, scancode, action, mods);
@@ -148,7 +149,7 @@ public:
             visualizer->controller()->onScroll(xoffset, yoffset);
     }
 
-    inline HUD* hud() { return m_HUD; }
+    inline GraphitiHUD* hud() { return m_HUD; }
 
     inline Root* getParent() { return m_Parent; }
 
@@ -156,5 +157,6 @@ private:
     Root* m_Parent;
     std::vector<EntityVisualizer*> m_Visualizers;
     int m_ActiveVisualizer;
-    HUD* m_HUD;
+
+    GraphitiHUD* m_HUD;
 };

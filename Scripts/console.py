@@ -16,17 +16,18 @@ class Script(object):
 		self.console = console
 
 	def run(self, args):
-		print("Error: run() method not implemented!")
+		self.console.log("Error: run() method not implemented!")
 
 class Info(Script):
 	def run(self, args):
-		std.info()
+		self.console.log("{0} nodes, {1} edges.".format(og.count_nodes(), og.count_links()))
+
 
 class Load(Script):
 	def run(self, args):
 		if len(args) < 2:
 			# TODO: og.console("Usage: {0} <filename>".format(args[0]))
-			print("Usage: {0} <filename>".format(args[0]))
+			self.console.log("Usage: {0} <filename>".format(args[0]))
 			return
 
 		std.load_json(" ".join(args[1:]))
@@ -35,11 +36,11 @@ class Save(Script):
 	def run(self, args):
 		if len(args) != 2:
 			# TODO: og.console("Usage: {0} <filename>".format(args[0]))
-			print("Usage: {0} <filename>".format(args[0]))
+			self.console.log("Usage: {0} <filename>".format(args[0]))
 			return
 
 		if os.path.isfile(args[1]):
-			print("Error: File already exists!")
+			self.console.log("Error: File already exists!")
 			return
 		
 		std.save_json(args[1])
@@ -83,7 +84,7 @@ class Clear(Script):
 		elif len(args) == 2 and args[1] == "lod":
 			self.clear_lod()
 		else:
-			print("Usage: {0} [colors|icons]".format(args[0]))
+			self.console.log("Usage: {0} [colors|icons]".format(args[0]))
 			# TODO : og.console()
 
 class Color(Script):
@@ -150,7 +151,6 @@ class Color(Script):
 	def lambda_op(self, element_type, element_id, op, color_mask, factor):
 
 		def calculate(op, v1, v2, mask):
-			print(op, v1, v2, mask)
 			if op == "add":
 				r = [ v1[i] + v2[i] for i in xrange(4) ]
 			elif op == "sub":
@@ -162,7 +162,7 @@ class Color(Script):
 			elif op == "set":
 				r = v2
 			else:
-				print("Error: '{0}': Unknown operator!")
+				self.console.log("Error: '{0}': Unknown operator!")
 				return
 
 			for i in xrange(4):
@@ -183,7 +183,7 @@ class Color(Script):
 
 		query = self.console.query
 		if query is None:
-			print("Error: Query is empty!")
+			self.console.log("Error: Query is empty!")
 			return
 
 		if len(args) == 2:
@@ -203,7 +203,7 @@ class Color(Script):
 
 		elif len(args) >= 4 and args[1] in [ "mul", "div", "add", "sub", "set" ]:
 			if args[2] not in self.color_masks:
-				print("Error: '{0}': Unknown color mask!".format(args[2]))
+				self.console.log("Error: '{0}': Unknown color mask!".format(args[2]))
 				return
 
 			array = [ float(i) for i in " ".join(args[3:]).split() ]
@@ -215,7 +215,7 @@ class Color(Script):
 			elif len(array) == 4:
 				factor = [ array[0], array[1], array[2], array[3] ]
 			else:
-				print("Error: Can't parse color factor!")
+				self.console.log("Error: Can't parse color factor!")
 				return
 
 			if 'nodes' in query:
@@ -234,8 +234,6 @@ class Layout(Script):
 		radius = 20
 		if len(args) == 2:
 			radius = float(args[1])
-
-		print(args, radius)
 
 		ids = og.get_node_ids()
 		for nid in ids:
@@ -356,7 +354,7 @@ class Layout(Script):
 	        count += 1
 
 	def usage(self, args):
-		print("Usage: {0} [point|cube|sphere|cone|globe|seeds]".format(args[0]))
+		self.console.log("Usage: {0} [point|cube|sphere|cone|globe|seeds]".format(args[0]))
 
 	def run(self, args):
 		if len(args) == 2 and args[1] == "point":
@@ -386,7 +384,7 @@ class Camera(Script):
 		elif len(args) == 2 and args[1] == "stop":
 			self.stop(args)
 		else:
-			print("Usage: {0} [play|stop]".format(args[0]))	
+			self.console.log("Usage: {0} [play|stop]".format(args[0]))	
 
 class Topology(Script):
 
@@ -394,7 +392,7 @@ class Topology(Script):
 	    og.set_attribute("graphiti:space:linkmode", "string", "node_color")
 
 	    if og.count_selected_nodes() == 0:
-	        print("Please select a node !")
+	        self.console.log("Please select a node !")
 	        return
 	    
 	    selected = og.get_selected_node(0)
@@ -507,7 +505,7 @@ class Topology(Script):
 		elif len(args) == 2 and args[1] == "low":
 			self.degrees_low()
 		else:
-			print("Error: {0}: Wrong arguments!".format(args[0]))
+			self.console.log("Error: {0}: Wrong arguments!".format(args[0]))
 
 	def get_degree_map(self):
 	    degrees = dict()
@@ -580,7 +578,7 @@ class Topology(Script):
 		elif len(args) == 2 and args[1] == "spn":
 			self.spn(args)
 		else:
-			print("Error: {0}: Wrong arguments!".format(args[0]))
+			self.console.log("Error: {0}: Wrong arguments!".format(args[0]))
 
 class Test(Script):
 
@@ -609,13 +607,11 @@ class Test(Script):
 
 	def randomize_icons(self):
 	    icons = glob.glob("./Assets/Countries/*.png")
-	    print(icons)
 	    for id in og.get_node_ids():
 	        icon = "countries/" + random.choice(icons).split("/")[-1][:2].lower()
 	        og.set_node_attribute(id, "og:space:icon", "string", icon)
 
 	    icons = glob.glob("./Assets/SpaceView/EdgeStyles/*.png")
-	    print(icons)
 	    for id in og.get_link_ids():
 	        icon = "styles/" + random.choice(icons).split("/")[-1][:-4].lower()
 	        og.set_link_attribute(id, "og:space:icon", "string", icon)
@@ -650,7 +646,7 @@ class Test(Script):
 		elif len(args) == 3 and args[1] == "edge" and args[2] == "width":
 			self.randomize_edge_width()
 		else:
-			print("Error: {0}: Wrong arguments!".format(args[0]))
+			self.console.log("Error: {0}: Wrong arguments!".format(args[0]))
 
 	def debug(self, args):
 	    flag = og.get_attribute("og:space:debug")
@@ -685,7 +681,7 @@ class Test(Script):
 
 	def add_neighbor(self, args):
 		if og.count_selected_nodes() == 0:
-		    print("Please select a node !")
+		    self.console.log("Please select a node !")
 		    return
 		sid = og.get_selected_node(0)
 
@@ -697,7 +693,7 @@ class Test(Script):
 		    if len(args) >= 3:
 		    	og.set_node_attribute(nid, "type", "string", args[2])
 		else:
-			print("Error: {0}: Wrong arguments!".format(args[0]))
+			self.console.log("Error: {0}: Wrong arguments!".format(args[0]))
 
 	def run(self, args):
 		if len(args) > 2 and args[1] == "randomize":
@@ -709,7 +705,7 @@ class Test(Script):
 		elif len(args) >= 3 and args[1] == "neighbor":
 			self.add_neighbor(args[1:])
 		else:
-			print("Error: {0}: Wrong arguments!".format(args[0]))
+			self.console.log("Error: {0}: Wrong arguments!".format(args[0]))
 
 class OpenDNS(Script):
 	def score(self):
@@ -785,12 +781,17 @@ class Query(Script):
 				"edges" : og.get_link_ids()
 			}	
 		else:
-			print("Error: Invalid query!")
+			self.console.log("Error: Invalid query!")
 			return
 
-		print("Query:")
+		s = ""
+		key_count = 0
 		for key in self.console.query.keys():
-			print(". {0}: {1} element(s).".format(key, len(self.console.query[key])))
+			if key_count > 0:
+				s += ", "
+			s += "#{0}={1}".format(key, len(self.console.query[key]))
+			key_count += 1
+		self.console.log(s)
 
 class Set(Script):
 	def __init__(self, console):
@@ -798,7 +799,7 @@ class Set(Script):
 
 	def run(self, args):
 		if len(args) < 4:
-			print("Usage: {0} <type> <name> <value>".format(args[0]))
+			self.console.log("Usage: {0} <type> <name> <value>".format(args[0]))
 			return
 
 		if 'nodes' in self.console.query:
@@ -814,7 +815,7 @@ class Remove(Script):
 		if 'nodes' in self.console.query:
 			[ og.remove_node(nid) for nid in self.console.query['nodes'] ]
 		if 'edges' in self.console.query:
-			[ og.remove_node(eid) for eid in self.console.query['edges'] ]
+			[ og.remove_link(eid) for eid in self.console.query['edges'] ]
 
 class Map(Script):
 	def __init__(self, console):
@@ -823,7 +824,6 @@ class Map(Script):
 	def attr_convert(self, src_type, src_value, dst_type, options):
 		if src_type != dst_type:
 			raise Exception("Mapping from {0} to {1} not supported!".format(src_type, dst_type))
-		print(src_type, src_value, dst_type)
 		if dst_type == "vec2":
 			return std.vec2_to_str(src_value)
 		elif dst_type == "vec3":
@@ -838,12 +838,10 @@ class Map(Script):
 				return "{0}".format(src_value)
 
 	def lambda_map(self, element_type, element_id, src_type, src_name, dst_type, dst_name, options = None):
-		print(element_type, element_id, src_type, src_name, dst_type, dst_name)
-
 		if element_type == "node":
 			source = og.get_node_attribute(element_id, src_name)
 	 		target = self.attr_convert(src_type, source, dst_type, options)
-	 		print("og.set_node_attribute({0}, {1}, {2}, {3})".format(element_id, dst_name, dst_type, target))
+	 		self.console.log("og.set_node_attribute({0}, {1}, {2}, {3})".format(element_id, dst_name, dst_type, target))
 			og.set_node_attribute(element_id, dst_name, dst_type, target)
 		elif element_type == "edge":
 			source = og.get_link_attribute(element_id, src_name)
@@ -852,7 +850,7 @@ class Map(Script):
 
 	def run(self, args):
 		if len(args) < 6 and args[3] == 'to':
-			print("Usage: {0} <src type> <src attribute> to <dst type> <dst attribute> [options]".format(args[0]))
+			self.console.log("Usage: {0} <src type> <src attribute> to <dst type> <dst attribute> [options]".format(args[0]))
 			return
 
 		if 'nodes' in self.console.query:
@@ -867,8 +865,8 @@ class Help(Script):
 		super(Help, self).__init__(console)
 
 	def run(self, args):
-		print("Avalailable commands:")
-		print(", ".join(self.console.context['scripts'].keys()))
+		self.console.log("Avalailable commands:")
+		self.console.log(", ".join(self.console.context['scripts'].keys()))
 
 # ----- Callbacks -----
 
@@ -896,10 +894,13 @@ class Console(object):
 		}
 		self.query = dict()
 
+	def log(self, text):
+		og.console({ 'log' : text })
+
 	def execute(self, command):
 		args = command.split()
 		if 'scripts' in self.context and args[0] in self.context['scripts']:
 			self.context['scripts'][args[0]].run(args)
 		else:
 			# TODO: og.console("{0}: Command not found!".format(args[0]))
-			print("{0}: Command not found!".format(args[0]))
+			self.log("{0}: Command not found!".format(args[0]))

@@ -46,8 +46,13 @@ extern "C" {
 
 	void screenshot(const char* filename)
 	{
-	    // LOG("[API] screenshot(%s)\n", filename);
+	    LOG("[API] screenshot(%s)\n", filename);
 		// TODO : g_Graphiti->screenshot(filename);
+	}
+
+	void console(const Variables& input, Variables& output)
+	{
+		g_Graphiti->console()->send(input, output);
 	}
 
 	// ----- Entities -----

@@ -31,7 +31,6 @@ public:
 		m_IsDragging = false;
 
 		m_Menu = new SpaceMenu();
-		m_ShowMenu = true;
 	}
 
 	virtual ~SpaceController()
@@ -57,8 +56,7 @@ public:
 
 	void draw() override
 	{
-		if (m_ShowMenu)
-			m_Menu->draw(m_GraphContext);
+		m_Menu->draw(m_GraphContext);
 	}
 
 	void idle() override
@@ -102,12 +100,7 @@ public:
 
 	void onKey(int key, int scancode, int action, int mods) override
 	{
-		if (action == GLFW_PRESS && key == GLFW_KEY_TAB)
-		{
-			m_ShowMenu = !m_ShowMenu;
-			return;
-		}
-		else if (action == GLFW_PRESS && key == GLFW_KEY_SPACE)
+		if (action == GLFW_PRESS && key == GLFW_KEY_SPACE && mods == GLFW_MOD_ALT)
 		{
 		    if (m_GraphContext->sequencer().clock().state() == Clock::STARTED)
 		        m_GraphContext->sequencer().clock().pause();
@@ -115,7 +108,7 @@ public:
 		        m_GraphContext->sequencer().clock().start();
 		    return;
 		}
-
+		
 		if (m_HasTarget)
 			m_SphericalCameraController.onKey(key, scancode, action, mods);
 		else
@@ -434,7 +427,6 @@ private:
 	SpaceView* m_GraphView;
 
 	SpaceMenu* m_Menu;
-	bool m_ShowMenu;
 
 	SphericalCameraController m_SphericalCameraController;
 	FirstPersonCameraController m_FirstPersonCameraController;

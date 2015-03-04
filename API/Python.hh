@@ -170,7 +170,7 @@ static PyObject* start(PyObject* self, PyObject* args)
 
 static PyObject* createWindow(PyObject* self, PyObject* args)
 {
-	(void)self;
+	(void) self;
 
 	char* title = NULL;
 	int width, height;
@@ -184,7 +184,7 @@ static PyObject* createWindow(PyObject* self, PyObject* args)
 
 static PyObject* createVisualizer(PyObject* self, PyObject* args)
 {
-	(void)self;
+	(void) self;
 
 	char* name = NULL;
 
@@ -199,13 +199,36 @@ static PyObject* screenshot(PyObject* self, PyObject* args)
 {
 	char* filename = NULL;
 
-	(void)self;
+	(void) self;
 
 	PROTECT_PARSE(PyArg_ParseTuple(args, "s", &filename))
 
 	API::screenshot(filename);
 
 	return Py_BuildValue("");
+}
+
+static PyObject* console(PyObject* self, PyObject* args)
+{
+    (void) self;
+
+    PyObject* dict = NULL;
+
+    PROTECT_PARSE(PyArg_ParseTuple(args, "O", &dict))
+
+    Variables* input = convertPyDictToVariables(dict);
+    if (input == NULL)
+        return Py_BuildValue("");
+    Variables* output = new Variables();
+
+    API::console(*input, *output);
+
+    PyObject* pyOutput = convertVariablesToPyDict(output);
+
+    delete input;
+    delete output;
+
+    return pyOutput;
 }
 
 // ----- Entities -----
@@ -689,6 +712,7 @@ static PyMethodDef g_Module[] =
 	{"create_window",         API::Python::createWindow,        METH_VARARGS, "Create window"},
 	{"create_visualizer",     API::Python::createVisualizer,    METH_VARARGS, "Create visualizer"},
 	{"screenshot",            API::Python::screenshot,          METH_VARARGS, "Take a screenshot"},
+	{"console",               API::Python::console,             METH_VARARGS, "Send data to console"},
     // ----- Entities -----
     {"create_entity",         API::Python::createEntity,        METH_VARARGS, "Create an entity"},
     {"bind_entity",           API::Python::bindEntity,          METH_VARARGS, "Create an entity"},

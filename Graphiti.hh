@@ -74,8 +74,6 @@ public:
             auto t2 = new Track("animation");
             t2->setSynchronization(Track::INTERNAL);
             entity->context()->sequencer().add(t2);
-
-            entity->context()->messages().addListener(m_Console);
         }
 
         m_EntityManager.bind(id);
@@ -125,8 +123,6 @@ public:
 
     virtual void start()
     {
-        context()->messages().addListener(m_Console);
-
         for (auto it : m_EntityManager.elements())
         {
             // Initialize clocks & process messages
@@ -142,8 +138,6 @@ public:
         IScript* script = m_Console->getScript("#started");
         if (script)
             m_Console->execute(script->source());
-
-        refreshHUD();
 
         run();
 
@@ -178,7 +172,6 @@ public:
     {
         auto script = new StaticScript(std::string(name), std::string(source));
         m_Console->registerScript(script);
-        refreshHUD();
     }
 
     void unregisterScript(const char* name)
@@ -188,17 +181,6 @@ public:
             return;
 
         m_Console->unregisterScript(script);
-        refreshHUD();
-    }
-
-    void refreshHUD()
-    {
-        if (windows().active() != NULL)
-        {
-            auto window = static_cast<GLWindow*>(windows().active());
-            window->hud()->buildScriptWidgets(console());
-            window->hud()->reshape(window->getViewport());
-        }    
     }
 
     // ----- Properties -----
