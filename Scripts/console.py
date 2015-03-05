@@ -7,6 +7,7 @@ import os.path
 import glob
 import itertools
 import argparse
+import fnmatch
 
 import random
 import math
@@ -26,7 +27,6 @@ class Info(Script):
 class Load(Script):
 	def run(self, args):
 		if len(args) < 2:
-			# TODO: og.console("Usage: {0} <filename>".format(args[0]))
 			self.console.log("Usage: {0} <filename>".format(args[0]))
 			return
 
@@ -35,7 +35,6 @@ class Load(Script):
 class Save(Script):
 	def run(self, args):
 		if len(args) != 2:
-			# TODO: og.console("Usage: {0} <filename>".format(args[0]))
 			self.console.log("Usage: {0} <filename>".format(args[0]))
 			return
 		if os.path.isfile(args[1]):
@@ -73,7 +72,7 @@ class Clear(Script):
 			og.set_edge_attribute(e, "og:space:lod", "float", "1.0")
 
 	def run(self, args):
-		if len(args) == 1:
+		if len(args) == 2 and args[1] == "graph":
 			self.clear_graph()
 		elif len(args) == 2 and args[1] == "colors":
 			self.clear_colors()
@@ -84,8 +83,7 @@ class Clear(Script):
 		elif len(args) == 2 and args[1] == "lod":
 			self.clear_lod()
 		else:
-			self.console.log("Usage: {0} [colors|icons]".format(args[0]))
-			# TODO : og.console()
+			self.console.log("Usage: {0} [graph|colors|icons|activity|lod]".format(args[0]))
 
 class Color(Script):
 	
@@ -389,19 +387,15 @@ class Camera(Script):
 class Topology(Script):
 
 	def neighbors(self, args):
-	    og.set_attribute("graphiti:space:edgemode", "string", "node_color")
+		neighbors = list()
+		if 'nodes' in self.console.query:
+			graph = std.load_nx_graph()
+			for nid in self.console.query['nodes']:
+				for neighbor in graph.neighbors(nid):
+					neighbors.append(neighbor)
 
-	    if og.count_selected_nodes() == 0:
-	        self.console.log("Please select a node !")
-	        return
-	    
-	    selected = og.get_selected_node(0)
-	    graph = std.load_nx_graph()
-	    neighbors = graph.neighbors(selected)
-	    og.set_node_attribute(selected, "graphiti:space:color", "vec3", "0.0 1.0 1.0")
-	    for node in neighbors:
-	        og.set_node_attribute(node, "graphiti:space:lod", "float", "1.0")
-	        og.set_node_attribute(node, "graphiti:space:color", "vec3", "0.0 1.0 1.0")
+		self.console.query = { 'nodes' : neighbors }
+		self.console.print_query()
 
 	def connected_components(self, args):
 	    og.set_attribute("graphiti:space:edgemode", "string", "node_color")
@@ -763,35 +757,66 @@ class OpenDNS(Script):
 		elif len(args) == 2 and args[1] == "dga":
 			self.dga()
 
-
-
 class Query(Script):
 	def __init__(self, console):
 		super(Query, self).__init__(console)
 
+
+	def flip(self, entity_type):
+		list1 = list()
+		list2 = list()
+
+		if entity_type in self.console.query:
+			list1 = self.console.query[entity_type]
+		
+		if entity_type == "nodes":
+			list2 = og.get_node_ids()
+		elif entity_type == "edges":
+			list2 = og.get_edge_ids()
+
+		flipped = list()
+		for oid in list2:
+			if oid not in list1:
+				flipped.append(oid)
+		return flipped
+
 	def run(self, args):
-		s = " ".join(args[1:]).strip()
-		if s == "nodes":
-			self.console.query = { "nodes" : og.get_node_ids() }
-		elif s == "edges":
-			self.console.query = { "edges" : og.get_edge_ids() }
-		elif s == "all":
-			self.console.query = {
-				"nodes" : og.get_node_ids(),
-				"edges" : og.get_edge_ids()
-			}	
+
+		if len(args) >= 2 and args[1] == "clear":
+			self.console.query = dict()
+
+		elif len(args) >= 2 and args[1] == "flip":
+
+			if len(args) == 2 or (len(args) == 3 and args[2] == "all"):
+				self.console.query = {
+					'nodes' : self.flip("nodes"),
+					'edges' : self.flip("edges")
+				}
+			elif len(args) == 3 and args[2] in ["nodes", "edges"]:
+				flipped = self.flip(args[2])
+				self.console.query = dict()
+				self.console.query[args[2]] = flipped
+
+		elif len(args) > 2 and args[1] == "run":
+
+			s = " ".join(args[2:]).strip()
+			if s == "nodes":
+				self.console.query = { "nodes" : og.get_node_ids() }
+			elif s == "edges":
+				self.console.query = { "edges" : og.get_edge_ids() }
+			elif s == "all":
+				self.console.query = {
+					"nodes" : og.get_node_ids(),
+					"edges" : og.get_edge_ids()
+				}	
+			else:
+				self.console.log("Error: Invalid query!")
+				return
 		else:
-			self.console.log("Error: Invalid query!")
+			self.console.log("Usage: {0} [clear|flip|run]".format(args[0]))
 			return
 
-		s = "Entities: "
-		key_count = 0
-		for key in self.console.query.keys():
-			if key_count > 0:
-				s += ", "
-			s += "#{0}={1}".format(key, len(self.console.query[key]))
-			key_count += 1
-		self.console.log(s)
+		self.console.print_query()
 
 class Set(Script):
 	def __init__(self, console):
@@ -812,10 +837,10 @@ class Remove(Script):
 		super(Remove, self).__init__(console)
 
 	def run(self, args):
-		if 'nodes' in self.console.query:
-			[ og.remove_node(nid) for nid in self.console.query['nodes'] ]
 		if 'edges' in self.console.query:
 			[ og.remove_edge(eid) for eid in self.console.query['edges'] ]
+		if 'nodes' in self.console.query:
+			[ og.remove_node(nid) for nid in self.console.query['nodes'] ]
 
 class Map(Script):
 	def __init__(self, console):
@@ -859,7 +884,28 @@ class Map(Script):
 		if 'edges' in self.console.query:
 			for eid in self.console.query['edges']:
 				self.lambda_map("edge", eid, args[1], args[2], args[4], args[5], args[6:])			
-		
+
+class Find(Script):
+	def __init__(self, console):
+		super(Find, self).__init__(console)
+
+	def run(self, args):
+		if len(args) != 2:
+			self.console.log("Usage: {0} <type> <pattern>".format(args[0]))
+			return
+
+		found = list()
+
+		for nid in og.get_node_ids():
+			label = og.get_node_label(nid)
+			if label is None:
+				continue
+			if fnmatch.fnmatch(label, args[1]):
+				found.append(nid)
+
+		self.console.query = { 'nodes' : found }
+		self.console.print_query()
+	
 class Help(Script):
 	def __init__(self, console):
 		super(Help, self).__init__(console)
@@ -881,6 +927,7 @@ class Console(object):
 				"set" : Set(self),
 				"remove" : Remove(self),
 				"map" : Map(self),
+				"find" : Find(self),
 				"clear" : Clear(self),
 				"color" : Color(self),
 				"layout" : Layout(self),
@@ -896,6 +943,16 @@ class Console(object):
 
 	def log(self, text):
 		og.console({ 'log' : text })
+
+	def print_query(self):
+		s = "Entities: "
+		key_count = 0
+		for key in self.query.keys():
+			if key_count > 0:
+				s += ", "
+			s += "#{0}={1}".format(key, len(self.query[key]))
+			key_count += 1
+		self.log(s)
 
 	def execute(self, command):
 		args = command.split()
