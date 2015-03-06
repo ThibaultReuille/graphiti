@@ -43,12 +43,6 @@ private:
 class Node
 {
 public:
-	typedef enum Type
-	{
-		DISK,
-		SQUARE,
-		STAR,
-	} Type;
 
 	typedef unsigned long ID;
 
@@ -61,32 +55,28 @@ public:
 	{
 	}
 
-	Node(Type type, ID id, Data data)
+	Node(ID id, Data data)
 	{
-		set(type, id, data);
+		set(id, data);
 	}
 
-	void set(Type type, ID id, Data data)
+	void set(ID id, Data data)
 	{
-		m_Type = type;
 		m_ID = id;
 		m_Data = data;
 	}
 
 	// Property getters
 	inline ID id() const { return m_ID; }
-	inline Type type() const { return m_Type; }
 	inline const Data& data() const { return m_Data; }
 
 	// Property setters
 	inline void data(Data& d) { m_Data = d; }
-	inline void type(Type t)  { m_Type = t; }
 
 	// Accessors
 	inline Variables& attributes() { return m_Attributes; }
 
 private:
-	Type m_Type;
 	ID m_ID;
 	Data m_Data;
 	Variables m_Attributes;
@@ -95,10 +85,6 @@ private:
 class Edge
 {
 public:
-	typedef enum Type
-	{
-		DEFAULT
-	} Type;
 
 	typedef unsigned long ID;
 
@@ -112,32 +98,28 @@ public:
 	{
 	}
 
-	Edge(Type type, ID id, Data data)
+	Edge(ID id, Data data)
 	{
-		set(type, id, data);
+		set(id, data);
 	}
 
-	void set(Type type, ID id, Data data)
+	void set(ID id, Data data)
 	{
-		m_Type = type;
 		m_ID = id;
 		m_Data = data;
 	}
 
 	// Property getters
 	inline ID id() const { return m_ID; }
-	inline Type type() const { return m_Type; }
 	inline const Data& data() const { return m_Data; }
 
 	// Property setters
 	inline void data(Data& d) { m_Data = d; }
-	inline void type(Type t)  { m_Type = t; }
 
 	// Accessors
 	inline Variables& attributes() { return m_Attributes; }
 
 private:
-	Type m_Type;
 	ID m_ID;
 	Data m_Data;
 	Variables m_Attributes;
@@ -146,11 +128,6 @@ private:
 class Sphere
 {
 public:
-	typedef enum Type
-	{
-		DEFAULT
-	} Type;
-
 	typedef unsigned long ID;
 
 	struct Data
@@ -164,32 +141,28 @@ public:
 	{
 	}
 
-	Sphere(Type type, ID id, Data data)
+	Sphere(ID id, Data data)
 	{
-		set(type, id, data);
+		set(id, data);
 	}
 
-	void set(Type type, ID id, Data data)
+	void set(ID id, Data data)
 	{
-		m_Type = type;
 		m_ID = id;
 		m_Data = data;
 	}
 
 	// Property getters
 	inline ID id()   const { return m_ID; }
-	inline Type type() const { return m_Type; }
 	inline Data& data() { return m_Data; }
 
 	// Property setters
 	inline void data(Data& d) { m_Data = d; }
-	inline void type(Type t)  { m_Type = t; }
 
 	// Accessors
 	inline Variables& attributes() { return m_Attributes; }
 
 private:
-	Type m_Type;
 	ID m_ID;
 	Data m_Data;
 	Variables m_Attributes;
@@ -211,14 +184,15 @@ public:
 
 	// ----- Nodes -----
 
-	Node::ID addNode(Node::Type type, Node::Data data)
+	Node::ID addNode(Node::Data data)
 	{
-		Node n(type, m_NodeCounter, data);
+		Node n(m_NodeCounter, data);
 		m_Nodes.push_back(n);
 		m_NodeCounter++;
 
 		return n.id();
 	}
+
 	void removeNode(Node::ID id)
 	{
 		if (m_SelectedNodes.find(id) != m_SelectedNodes.end())
@@ -285,9 +259,9 @@ public:
 
 	// ----- Edges -----
 
-	Edge::ID addEdge(Edge::Type type, Edge::Data data)
+	Edge::ID addEdge(Edge::Data data)
 	{
-		Edge l(type, m_EdgeCounter, data);
+		Edge l(m_EdgeCounter, data);
 		m_Edges.push_back(l);
 		m_EdgeCounter++;
 
@@ -309,10 +283,10 @@ public:
 
 	Edge* edge(Edge::ID id)
 	{
-		std::vector<Edge>::iterator itl;
-		for (itl = m_Edges.begin(); itl != m_Edges.end(); ++itl)
-			if (itl->id() == id)
-				return &(*itl);
+		std::vector<Edge>::iterator ite;
+		for (ite = m_Edges.begin(); ite != m_Edges.end(); ++ite)
+			if (ite->id() == id)
+				return &(*ite);
 		return NULL;
 	}
 
@@ -322,9 +296,9 @@ public:
 
 	// ----- Spheres -----
 
-	Sphere::ID addSphere(Sphere::Type type, Sphere::Data data)
+	Sphere::ID addSphere(Sphere::Data data)
 	{
-		Sphere s(type, m_Spheres.size(), data);
+		Sphere s(m_Spheres.size(), data);
 		m_Spheres.push_back(s);
 		return s.id();
 	}
@@ -346,21 +320,21 @@ public:
 
 	// ----- Helpers -----
 
-	std::pair<Node::ID, Edge::ID> addNeighbor(Node::Type ntype, Node::Data ndata, Edge::Type ltype, Edge::Data ldata, Node::ID neighbor)
+	std::pair<Node::ID, Edge::ID> addNeighbor(Node::Data ndata, Edge::Data edata, Node::ID neighbor)
 	{
-		Node n(ntype, m_NodeCounter, ndata);
-		m_Nodes.push_back(n);
+		Node node(m_NodeCounter, ndata);
+		m_Nodes.push_back(node);
 
-		ldata.Node1 = neighbor;
-		ldata.Node2 = n.id();
+		edata.Node1 = neighbor;
+		edata.Node2 = node.id();
 
-		Edge l(ltype, m_EdgeCounter, ldata);
-		m_Edges.push_back(l);
+		Edge edge(m_EdgeCounter, edata);
+		m_Edges.push_back(edge);
 
 		m_NodeCounter++;
 		m_EdgeCounter++;
 
-		return std::pair<Node::ID, Edge::ID>(n.id(), l.id());
+		return std::pair<Node::ID, Edge::ID>(node.id(), edge.id());
 	}
 
 private:

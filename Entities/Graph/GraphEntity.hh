@@ -83,7 +83,7 @@ public:
 
         data.Label = std::string(label);
 
-        id = m_GraphModel->addNode(Node::DISK, data);
+        id = m_GraphModel->addNode(data);
 
         for (auto l : listeners())
             static_cast<GraphListener*>(l)->onAddNode(id, label);
@@ -219,7 +219,7 @@ public:
         data.Node1 = uid1;
         data.Node2 = uid2;
 
-        uid = m_GraphModel->addEdge(Edge::DEFAULT, data);
+        uid = m_GraphModel->addEdge(data);
 
         for (auto l : listeners())
             static_cast<GraphListener*>(l)->onAddEdge(uid, uid1, uid2);
@@ -339,7 +339,7 @@ public:
         data.Label = std::string(label);
         data.Mark = 0;
 
-        id = m_GraphModel->addSphere(Sphere::DEFAULT, data);
+        id = m_GraphModel->addSphere(data);
 
         for (auto l : listeners())
             static_cast<GraphListener*>(l)->onAddSphere(id, label);
@@ -352,14 +352,13 @@ public:
     std::pair<Node::ID, Edge::ID> addNeighbor(const char* label, Node::ID neighbor)
     {
         std::pair<Node::ID, Edge::ID> element;
-        Node::Type ntype = Node::DISK;
         Node::Data ndata;
 
         ndata.Label = std::string(label);
 
         Edge::Data ldata = Edge::Data();
 
-        element = m_GraphModel->addNeighbor(ntype, ndata, Edge::DEFAULT, ldata, neighbor);
+        element = m_GraphModel->addNeighbor(ndata, ldata, neighbor);
 
         for (auto l : listeners())
             static_cast<GraphListener*>(l)->onAddNeighbor(element, label, neighbor);
