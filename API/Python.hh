@@ -90,10 +90,10 @@ static PyObject* convertVariablesToPyDict(Variables* variables)
 {
     PyObject* result = PyDict_New();
 
-    for (auto vit = variables->begin(); vit != variables->end(); ++vit)
+    for (auto vit : variables->symbols())
     {
-        PyObject* key = PyString_FromString((*vit)->name().c_str());
-        PyObject* value = convertVariableToPyObject(*vit);
+        PyObject* key = PyString_FromString(vit.first.c_str());
+        PyObject* value = convertVariableToPyObject(vit.second);
         PyDict_SetItem(result, key, value);
     }
 
@@ -105,54 +105,52 @@ static Variables* convertPyDictToVariables(PyObject* dict)
     if (!PyDict_Check(dict))
         return NULL;
 
-    Variables* vars = new Variables();
+    Variables* variables = new Variables();
 
     PyObject *key, *value;
     Py_ssize_t pos = 0;
 
     while (PyDict_Next(dict, &pos, &key, &value))
     {
-        // NOTE : Variables->add duplicates the variable
+		auto name = std::string(PyString_AsString(key));
+        
+		IVariable* variable = NULL;
+
         if (PyString_Check(value) || PyUnicode_Check(value))
         {
-            auto* var = new StringVariable();
-            var->name(PyString_AsString(key));
-            var->set(PyString_AsString(value));
-            vars->add(var);
-            delete var;
+            auto var = new StringVariable();
+    		var->set(PyString_AsString(value));
+    		variable = var;
         }
         else if (PyInt_Check(value) || PyLong_Check(value))
         {
-            auto* var = new IntVariable();
-            var->name(PyString_AsString(key));
+            auto var = new IntVariable();
             var->set(PyLong_AsLong(value));
-            vars->add(var);
-            delete var;
+            variable = var;
         }
         else if (PyBool_Check(value))
         {
-            auto* var = new BooleanVariable();
-            var->name(PyString_AsString(key));
+            auto var = new BooleanVariable();
             var->set(value == Py_True);
-            vars->add(var);
-            delete var;
+            variable = var;
         }
         else if (PyFloat_Check(value))
         {
-            auto* var = new FloatVariable();
-            var->name(PyString_AsString(key));
+            auto var = new FloatVariable();
             var->set(PyFloat_AsDouble(value));
-            vars->add(var);
-            delete var;
+            variable = var;
         }
         // TODO : Implement the other types here
         else
         {
-            LOG("Item { %s : %s } ignored!\n", PyString_AsString(key), PyString_AsString(value));
+            LOG("[PYTHON] Item '%s' ignored!\n", name.c_str());
+            continue;
         }
+
+        variables->set(name, variable);
     }
 
-    return vars;
+    return variables;
 }
 
 namespace API {

@@ -387,14 +387,16 @@ class Camera(Script):
 class Topology(Script):
 
 	def neighbors(self, args):
-		neighbors = list()
+		new_neighbors = list()
 		if 'nodes' in self.console.query:
 			graph = std.load_nx_graph()
 			for nid in self.console.query['nodes']:
 				for neighbor in graph.neighbors(nid):
-					neighbors.append(neighbor)
+					if neighbor not in self.console.query['nodes']:
+						new_neighbors.append(neighbor)
 
-		self.console.query = { 'nodes' : neighbors }
+			for nn in new_neighbors:
+				self.console.query['nodes'].append(nn)
 		self.console.print_query()
 
 	def connected_components(self, args):
@@ -890,20 +892,39 @@ class Find(Script):
 		super(Find, self).__init__(console)
 
 	def run(self, args):
-		if len(args) != 2:
-			self.console.log("Usage: {0} <type> <pattern>".format(args[0]))
+		if len(args) <= 1 or len(args) > 3:
+			self.console.log("Usage: {0} <type> <pattern1> [pattern2]".format(args[0]))
 			return
 
 		found = list()
 
-		for nid in og.get_node_ids():
-			label = og.get_node_label(nid)
-			if label is None:
-				continue
-			if fnmatch.fnmatch(label, args[1]):
-				found.append(nid)
+		if len(args) == 2:
 
-		self.console.query = { 'nodes' : found }
+			for nid in og.get_node_ids():
+				label = og.get_node_label(nid)
+				if label is None:
+					continue
+				if fnmatch.fnmatch(label, args[1]):
+					found.append(nid)
+			self.console.query = { 'nodes' : found }
+
+		elif len(args) == 3:
+
+			for eid in og.get_edge_ids():
+				label1 = og.get_node_label(og.get_edge_node1(eid))
+				label2 = og.get_node_label(og.get_edge_node2(eid))
+
+				if label1 is None or label2 is None:
+					continue
+
+				if (
+					fnmatch.fnmatch(label1, args[1]) and fnmatch.fnmatch(label2, args[2])
+				) or (
+					fnmatch.fnmatch(label2, args[1]) and fnmatch.fnmatch(label1, args[2])
+				):
+					found.append(eid)
+			self.console.query = { 'edges' : found }
+
 		self.console.print_query()
 	
 class Help(Script):
