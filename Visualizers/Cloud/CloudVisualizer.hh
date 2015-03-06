@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Entities/MVC.hh"
-#include "Visualizers/Cloud/CloudView.hh"
-#include "Visualizers/Cloud/CloudController.hh"
+#include <graphiti/Entities/MVC.hh>
+#include <graphiti/Visualizers/Cloud/CloudView.hh>
+#include <graphiti/Visualizers/Cloud/CloudController.hh>
 
 class CloudVisualizer : public EntityVisualizer
 {

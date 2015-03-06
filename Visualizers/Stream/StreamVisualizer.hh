@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Entities/MVC.hh"
-#include "Visualizers/Stream/StreamView.hh"
-#include "Visualizers/Stream/StreamController.hh"
+#include <graphiti/Entities/MVC.hh>
+#include <graphiti/Visualizers/Stream/StreamView.hh>
+#include <graphiti/Visualizers/Stream/StreamController.hh>
 
 class StreamVisualizer : public EntityVisualizer
 {

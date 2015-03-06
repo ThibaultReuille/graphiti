@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Entities/MVC.hh"
-#include "Visualizers/Network/NetworkView.hh"
-#include "Visualizers/Network/NetworkController.hh"
+#include <graphiti/Entities/MVC.hh>
+#include <graphiti/Visualizers/Network/NetworkView.hh>
+#include <graphiti/Visualizers/Network/NetworkController.hh>
 
 class NetworkVisualizer : public EntityVisualizer
 {

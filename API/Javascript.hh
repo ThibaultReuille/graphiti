@@ -2,8 +2,8 @@
 
 #include <emscripten/bind.h>
 
-#include "API/C.hh"
-#include "API/Graph.hh"
+#include <graphiti/API/C.hh>
+#include <graphiti/API/Graph.hh>
 
 using namespace emscripten;
 

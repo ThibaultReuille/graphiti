@@ -4,9 +4,9 @@
 #include <raindance/Core/Controller.hh>
 #include <raindance/Core/Context.hh>
 
-#include "Entities/MVC.hh"
+#include <graphiti/Entities/MVC.hh>
 
-#include "Visualizers/World/WorldWidgets.hh"
+#include <graphiti/Visualizers/World/WorldWidgets.hh>
 
 class WorldController : public GraphController
 {

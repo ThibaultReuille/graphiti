@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Entities/Graph/GraphCommands.hh"
+#include <graphiti/Entities/Graph/GraphCommands.hh>
 
 namespace API {
 namespace Graph {

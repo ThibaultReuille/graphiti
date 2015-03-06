@@ -6,7 +6,7 @@
 #include <raindance/Core/Primitives/Sphere.hh>
 #include <raindance/Core/GUI/View.hh>
 
-#include "Entities/Graph/GraphModel.hh"
+#include <graphiti/Entities/Graph/GraphModel.hh>
 
 class ParticleView : public GraphView
 {

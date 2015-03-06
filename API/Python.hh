@@ -2,8 +2,8 @@
 
 #include <Python.h>
 
-#include "API/C.hh"
-#include "API/Graph.hh"
+#include <graphiti/API/C.hh>
+#include <graphiti/API/Graph.hh>
 
 #define PROTECT_PARSE(code)                      \
     if (!(code))                                 \

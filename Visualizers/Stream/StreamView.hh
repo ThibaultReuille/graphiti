@@ -7,7 +7,7 @@
 #include <raindance/Core/Primitives/Quad.hh>
 #include <raindance/Core/Resources/Texture.hh>
 
-#include "Entities/TimeSeries/TimeSeriesEntity.hh"
+#include <graphiti/Entities/TimeSeries/TimeSeriesEntity.hh>
 
 class StreamView : public TimeSeriesView
 {

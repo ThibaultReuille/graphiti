@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Entities/Graph/GraphModel.hh"
+#include <graphiti/Entities/Graph/GraphModel.hh>
 
 class GraphContext : public EntityContext
 {

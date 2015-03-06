@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Entities/MVC.hh"
-#include "Visualizers/Particles/ParticleView.hh"
-#include "Visualizers/Particles/ParticleController.hh"
+#include <graphiti/Entities/MVC.hh>
+#include <graphiti/Visualizers/Particles/ParticleView.hh>
+#include <graphiti/Visualizers/Particles/ParticleController.hh>
 
 class ParticleVisualizer : public EntityVisualizer
 {

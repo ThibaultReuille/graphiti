@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Graphiti.hh"
-#include "Entities/MVC.hh"
+#include <graphiti/Graphiti.hh>
+#include <graphiti/Entities/MVC.hh>
 
 Graphiti* g_Graphiti = NULL;
 

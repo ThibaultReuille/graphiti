@@ -4,7 +4,7 @@
 #include <raindance/Core/Controller.hh>
 #include <raindance/Core/Context.hh>
 
-#include "Entities/MVC.hh"
+#include <graphiti/Entities/MVC.hh>
 
 class NetworkController : public GraphController
 {

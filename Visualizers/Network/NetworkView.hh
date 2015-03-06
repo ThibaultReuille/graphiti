@@ -6,7 +6,7 @@
 #include <raindance/Core/Primitives/Quad.hh>
 #include <raindance/Core/Resources/Texture.hh>
 
-#include "Entities/MVC.hh"
+#include <graphiti/Entities/MVC.hh>
 
 class GPUGraph 
 {

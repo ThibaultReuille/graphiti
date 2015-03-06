@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Entities/MVC.hh"
-#include "Visualizers/Space/SpaceView.hh"
-#include "Visualizers/Space/SpaceController.hh"
-#include "Visualizers/Space/SpaceResources.hh"
+#include <graphiti/Entities/MVC.hh>
+#include <graphiti/Visualizers/Space/SpaceView.hh>
+#include <graphiti/Visualizers/Space/SpaceController.hh>
+#include <graphiti/Visualizers/Space/SpaceResources.hh>
 
 class SpaceVisualizer : public EntityVisualizer
 {

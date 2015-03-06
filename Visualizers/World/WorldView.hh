@@ -11,11 +11,11 @@
 #include <raindance/Core/Light.hh>
 #include <raindance/Core/Resources/Texture.hh>
 
-#include "Entities/MVC.hh"
+#include <graphiti/Entities/MVC.hh>
 
-#include "Visualizers/World/WorldResources.hh"
-#include "Visualizers/World/Earth.hh"
-#include "Visualizers/World/WorldMap.hh"
+#include <graphiti/Visualizers/World/WorldResources.hh>
+#include <graphiti/Visualizers/World/Earth.hh>
+#include <graphiti/Visualizers/World/WorldMap.hh>
 
 typedef TranslationMap<SpaceNode::ID, Node::ID> NodeTranslationMap;
 typedef TranslationMap<SpaceEdge::ID, Edge::ID> EdgeTranslationMap;

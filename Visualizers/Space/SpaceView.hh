@@ -17,22 +17,22 @@
 #include <raindance/Core/Octree.hh>
 #include <raindance/Core/GUI/Wallpaper.hh>
 
-#include "Entities/MVC.hh"
+#include <graphiti/Entities/MVC.hh>
 
-#include "Entities/Graph/GraphModel.hh"
-#include "Entities/Graph/GraphMessages.hh"
+#include <graphiti/Entities/Graph/GraphModel.hh>
+#include <graphiti/Entities/Graph/GraphMessages.hh>
 
-#include "Visualizers/Space/SpaceNode.hh"
-#include "Visualizers/Space/SpaceEdge.hh"
-#include "Visualizers/Space/SpaceSphere.hh"
+#include <graphiti/Visualizers/Space/SpaceNode.hh>
+#include <graphiti/Visualizers/Space/SpaceEdge.hh>
+#include <graphiti/Visualizers/Space/SpaceSphere.hh>
 
-#include "Visualizers/Space/SpaceResources.hh"
+#include <graphiti/Visualizers/Space/SpaceResources.hh>
 
 typedef TranslationMap<SpaceNode::ID, Node::ID> NodeTranslationMap;
 typedef TranslationMap<SpaceEdge::ID, Edge::ID> EdgeTranslationMap;
-#include "Visualizers/Space/SpaceForces.hh"
+#include <graphiti/Visualizers/Space/SpaceForces.hh>
 
-#include "Pack.hh"
+#include <graphiti/Pack.hh>
  
 class SpaceRenderer : public OctreeFunctor
 {

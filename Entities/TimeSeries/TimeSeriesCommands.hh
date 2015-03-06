@@ -2,7 +2,7 @@
 
 #include <raindance/Core/Sequencer/Sequencer.hh>
 
-#include "Entities/MVC.hh"
+#include <graphiti/Entities/MVC.hh>
 
 class TimeSeriesCommand : public Sequence
 {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Visualizers/Space/SpaceResources.hh"
-#include "Visualizers/Space/SpaceWidgets.hh"
+#include <graphiti/Visualizers/Space/SpaceResources.hh>
+#include <graphiti/Visualizers/Space/SpaceWidgets.hh>
 
 class SpaceEdge : public Scene::Node
 {

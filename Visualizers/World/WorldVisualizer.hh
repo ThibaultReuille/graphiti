@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Entities/MVC.hh"
-#include "Visualizers/World/WorldView.hh"
-#include "Visualizers/World/WorldController.hh"
-#include "Visualizers/World/WorldResources.hh"
+#include <graphiti/Entities/MVC.hh>
+#include <graphiti/Visualizers/World/WorldView.hh>
+#include <graphiti/Visualizers/World/WorldController.hh>
+#include <graphiti/Visualizers/World/WorldResources.hh>
 
 class WorldVisualizer : public EntityVisualizer
 {

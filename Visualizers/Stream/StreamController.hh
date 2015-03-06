@@ -4,7 +4,7 @@
 #include <raindance/Core/Controller.hh>
 #include <raindance/Core/Context.hh>
 
-#include "Entities/TimeSeries/TimeSeriesEntity.hh"
+#include <graphiti/Entities/TimeSeries/TimeSeriesEntity.hh>
 
 class StreamController : public TimeSeriesController
 {

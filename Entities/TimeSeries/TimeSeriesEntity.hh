@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Entities/TimeSeries/TimeSeriesModel.hh"
+#include <graphiti/Entities/TimeSeries/TimeSeriesModel.hh>
 
 class TimeSeriesContext : public EntityContext
 {

@@ -7,11 +7,9 @@
 #include <raindance/Core/Controller.hh>
 #include <raindance/Core/Variables.hh>
 
-#include "Entities/MVC.hh"
-
-#include "Entities/Graph/GraphModel.hh"
-
-#include "Visualizers/Space/SpaceWidgets.hh"
+#include <graphiti/Entities/MVC.hh>
+#include <graphiti/Entities/Graph/GraphModel.hh>
+#include <graphiti/Visualizers/Space/SpaceWidgets.hh>
 
 class SpaceController : public GraphController
 {

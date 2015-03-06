@@ -4,9 +4,9 @@
 #include <raindance/Core/Controller.hh>
 #include <raindance/Core/Context.hh>
 
-#include "Entities/MVC.hh"
+#include <graphiti/Entities/MVC.hh>
 
-#include "Visualizers/Cloud/CloudWidgets.hh"
+#include <graphiti/Visualizers/Cloud/CloudWidgets.hh>
 
 class CloudController : public GraphController
 {
