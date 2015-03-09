@@ -3,22 +3,21 @@
 #include <raindance/Raindance.hh>
 #include <raindance/Core/Debug.hh>
 
-#include "Pack.hh"
+#include <graphiti/Pack.hh>
 
-#include "Entities/MVC.hh"
+#include <graphiti/Entities/MVC.hh>
 
-#include "Core/Console.hh"
-#include "Core/Window.hh"
+#include <graphiti/Core/Console.hh>
+#include <graphiti/Core/Window.hh>
 
-#include "Visualizers/Space/SpaceVisualizer.hh"
-#include "Visualizers/Network/NetworkVisualizer.hh"
-#include "Visualizers/World/WorldVisualizer.hh"
+#include <graphiti/Visualizers/Space/SpaceVisualizer.hh>
+#include <graphiti/Visualizers/Network/NetworkVisualizer.hh>
+#include <graphiti/Visualizers/World/WorldVisualizer.hh>
 
 #ifndef EMSCRIPTEN
-# include "Visualizers/Particles/ParticleVisualizer.hh"
-# include "Visualizers/Stream/StreamVisualizer.hh"
-# include "Visualizers/Cloud/CloudVisualizer.hh"
-
+# include <graphiti/Visualizers/Particles/ParticleVisualizer.hh>
+# include <graphiti/Visualizers/Stream/StreamVisualizer.hh>
+# include <graphiti/Visualizers/Cloud/CloudVisualizer.hh>
 #endif
 
 class Graphiti : public Raindance, public Root
