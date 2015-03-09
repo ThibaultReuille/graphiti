@@ -6,7 +6,14 @@ project(OpenGraphiti)
 set (OpenGraphiti_VERSION_MAJOR 1)
 set (OpenGraphiti_VERSION_MINOR 0)
 
-add_executable(graphiti Main.cc)
+### ----- Packing Resources
+
+set_source_files_properties(Pack.hh PROPERTIES GENERATED true)
+add_custom_command(OUTPUT Pack.hh
+    COMMAND . pack.sh 
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
+
+add_executable(graphiti Main.cc Pack.hh)
 
 ### ----- Compiler Configuration -----
 
