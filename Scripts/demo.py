@@ -3,7 +3,7 @@ import sys
 from Scripts import graphiti as og
 from Scripts import console
         
-console = console.Console()
+shell = console.console.Console()
 
 def start():
 
@@ -15,7 +15,7 @@ def start():
 
     # ----- Console Callback ------
 
-    og.register_script("#console", 'demo.console.execute')
+    og.register_script("#console", 'demo.shell.execute')
 
     # ----- Start -----
 

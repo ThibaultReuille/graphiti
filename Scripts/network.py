@@ -5,7 +5,7 @@ from Scripts import console
 import sys
 import os.path
 
-console = console.Console()
+shell = console.console.Console()
 
 def start():
 	
@@ -17,7 +17,7 @@ def start():
 
 	# ----- Console Callback ------
 
-	og.register_script("#console", 'network.console.execute')
+	og.register_script("#console", 'network.shell.execute')
 
 	# ----- Load JSON dataset if defined -----
 

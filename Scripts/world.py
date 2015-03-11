@@ -46,28 +46,6 @@ def on_started():
 
 def start():
 
-    Scripts = [
-        ["Edition", [
-            ["Info", "std.info()"],
-            ["Save", "std.save_json(raw_input('Output filename : '))"],
-            ["-", "pass"],
-        ]],
-    ]
-
-    unreg_command = ""
-    for script in Scripts:
-        for s in script[1]:
-            unreg_command += 'graphiti.unregister_script("' + s[0] + '")\n'
-
-    for script in Scripts:
-        reg_command = ""
-        for s in script[1]:
-            reg_command += 'graphiti.register_script("' + s[0] + '", "' + s[1] + '")\n'
-
-        graphiti.register_script(script[0], unreg_command + "\n" + reg_command) 
-
-    graphiti.register_script("==========", "pass")
-
     if len(sys.argv) == 3:
         if sys.argv[2].endswith(".json"):
             graphiti.register_script('#started', 'std.load_json("' + sys.argv[2] + '")') 
