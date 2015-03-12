@@ -155,6 +155,42 @@ class Help(script.Script):
 
 # ----- Callbacks -----
 
+class OpenGraphiti(object):
+
+	def __init__(self):
+
+		self.ids = {
+			"node" : og.get_node_ids,
+			"edge" : og.get_edge_ids
+		}
+
+		self.setters = {
+			"graph" : og.set_attribute,
+			"node" : og.set_node_attribute,
+			"edge" : og.set_edge_attribute,
+		}
+
+		self.getters = {
+			"graph" : og.get_attribute,
+			"node" : og.get_node_attribute,
+			"edge" : og.get_edge_attribute,
+		}
+
+	def get_ids(self, entity_type):
+		if entity_type in self.ids:
+			return self.ids[entity_type]()
+		raise Exception("{0}: Unknown entity type!".format(entity_type))
+
+	def set_attribute(self, entity_type, entity_id, attr_name, attr_type, attr_value):
+		if entity_type in self.setters:
+			return self.setters[entity_type](entity_id, attr_name, attr_type, attr_value)
+		raise Exception("{0}: Unknown entity type!".format(entity_type))
+
+	def get_attribute(self, entity_type, entity_id, attr_name):
+		if entity_type in self.getters:
+			return self.getters[entity_type](entity_id, attr_name)
+		raise Exception("{0}: Unknown entity type!".format(entity_type))
+
 class Console(object):
 	def __init__(self):
 		self.context = {
@@ -163,6 +199,7 @@ class Console(object):
 				"load" : edition.Load(self),
 				"save" : edition.Save(self),
 				"set" : edition.Set(self),
+				"get" : edition.Get(self),
 				"remove" : edition.Remove(self),
 				"map" : edition.Map(self),
 				"clear" : edition.Clear(self),
@@ -182,6 +219,7 @@ class Console(object):
 			}
 		}
 		self.query = dict()
+		self.api = OpenGraphiti()
 
 	def log(self, text):
 		og.console({ 'log' : text })

@@ -76,11 +76,27 @@ class Set(script.Script):
 			self.console.log("Usage: {0} <type> <name> <value>".format(args[0]))
 			return
 
-		if 'nodes' in self.console.query:
-			[ og.set_node_attribute(nid, args[2], args[1], " ".join(args[3:])) for nid in self.console.query['nodes'] ]
-		if 'edges' in self.console.query:
-			[ og.set_edge_attribute(eid, args[2], args[1], " ".join(args[3:])) for eid in self.console.query['edges'] ]
+		for key in self.console.query.keys():
+			entity_type = key[:-1] # TODO : Hack!! find a better way to do this. This removes the ending 's'
+			for entity_id in self.console.query[key]:
+				self.console.api.set_attribute(entity_type, entity_id, args[2], args[1], " ".join(args[3:]))
 
+class Get(script.Script):
+	def __init__(self, console):
+		super(Get, self).__init__(console)
+
+	def run(self, args):
+		if len(args) < 2:
+			self.console.log("Usage: {0} <name>".format(args[0]))
+			return
+
+		for key in self.console.query.keys():
+			entity_type = key[:-1] # TODO : Hack!! find a better way to do this. This removes the ending 's'
+			
+			result = dict()
+			for entity_id in self.console.query[key]:
+				result[entity_id] = self.console.api.get_attribute(entity_type, entity_id, args[1])
+			self.console.log("{0}: {1}".format(key, json.dumps(result)))
 
 class Remove(script.Script):
 	def __init__(self, console):

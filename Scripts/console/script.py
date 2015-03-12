@@ -15,6 +15,7 @@ import itertools
 import random
 import math
 
+import json
 
 class Script(object):
 	def __init__(self, console):
