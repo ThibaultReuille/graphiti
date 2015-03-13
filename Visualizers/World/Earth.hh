@@ -44,9 +44,9 @@ public:
 		g_WorldResources->EarthGeoPointShader->uniform("u_Material.Specular").set(g_WorldResources->EarthGeoPointMaterial.getSpecular());
 		g_WorldResources->EarthGeoPointShader->uniform("u_Material.Shininess").set(g_WorldResources->EarthGeoPointMaterial.getShininess());
 
-		context->geometry().bind(g_WorldResources->EarthGeoCube->getVertexBuffer(), *g_WorldResources->EarthGeoPointShader);
-		context->geometry().drawElements(GL_TRIANGLES, g_WorldResources->EarthGeoCube->getTriangleBuffer().size() / sizeof(short int), GL_UNSIGNED_SHORT, g_WorldResources->EarthGeoCube->getTriangleBuffer().ptr());
-		context->geometry().unbind(g_WorldResources->EarthGeoCube->getVertexBuffer());
+        context->geometry().bind(g_WorldResources->EarthGeoCube->getTriangleVertexBuffer(), *g_WorldResources->EarthGeoPointShader);        
+        context->geometry().drawArrays(GL_TRIANGLES, 0, g_WorldResources->EarthGeoCube->getTriangleVertexBuffer().size() / sizeof(Cube::Vertex));
+        context->geometry().unbind(g_WorldResources->EarthGeoCube->getTriangleVertexBuffer());
 	}
 
 	bool isOverlap (const glm::vec3& min, const glm::vec3& max) const

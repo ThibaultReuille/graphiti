@@ -1,3 +1,5 @@
+#version 330
+
 struct Light
 {
 	int Type;
@@ -14,8 +16,8 @@ struct Material
 	float Shininess;
 };
 
-attribute vec3 a_Position;
-attribute vec3 a_Normal;
+layout(location = 0) in vec3 a_Position;
+layout(location = 1) in vec3 a_Normal;
 
 uniform mat4 u_ModelMatrix;
 uniform mat4 u_ViewMatrix;
@@ -25,35 +27,35 @@ uniform mat3 u_NormalMatrix;
 uniform Light u_Light;
 uniform Material u_Material;
 
-varying vec3 v_Position;
-varying vec3 v_Normal;
-varying vec4 v_Color;
+out vec3 vs_Position;
+out vec3 vs_Normal;
+out vec4 vs_Color;
 
 void main(void)
 {
-	v_Position = vec3(u_ViewMatrix * u_ModelMatrix * vec4(a_Position, 1.0));
-	v_Normal = normalize(u_NormalMatrix * a_Normal);
+	vs_Position = vec3(u_ViewMatrix * u_ModelMatrix * vec4(a_Position, 1.0));
+	vs_Normal = normalize(u_NormalMatrix * a_Normal);
 
-	v_Color = vec4(u_Material.Ambient, 0.0);
+	vs_Color = vec4(u_Material.Ambient, 0.0);
 
 	vec3 lightPositionViewSpace = vec3(u_ViewMatrix * vec4(u_Light.Position, 0.0));
-	vec3 lightDirection = normalize(lightPositionViewSpace - v_Position);
-	float lambert = dot(v_Normal, lightDirection);
+	vec3 lightDirection = normalize(lightPositionViewSpace - vs_Position);
+	float lambert = dot(vs_Normal, lightDirection);
 
 	if (lambert > 0.0)
 	{
-		v_Color += vec4(u_Light.Color, 1.0) * u_Material.Diffuse * lambert;
+		vs_Color += vec4(u_Light.Color, 1.0) * u_Material.Diffuse * lambert;
 
-		vec3 eyeDirection = normalize(-v_Position);
-		vec3 r = reflect(-lightDirection, v_Normal);
+		vec3 eyeDirection = normalize(-vs_Position);
+		vec3 r = reflect(-lightDirection, vs_Normal);
 
 		float specular = pow(max(dot(r, eyeDirection), 0.0), u_Material.Shininess);
 
-		v_Color += vec4(u_Material.Specular * specular, 0.0);
+		vs_Color += vec4(u_Material.Specular * specular, 0.0);
 	}
 
-        v_Color.a = u_Material.Diffuse.a;
+        vs_Color.a = u_Material.Diffuse.a;
 
-        gl_Position = u_ProjectionMatrix * vec4(v_Position, 1.0);
+        gl_Position = u_ProjectionMatrix * vec4(vs_Position, 1.0);
 }
 

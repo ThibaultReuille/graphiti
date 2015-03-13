@@ -1,3 +1,4 @@
+#version 330
 
 #ifdef GL_ES
 precision mediump float;
@@ -5,13 +6,15 @@ precision mediump float;
 
 uniform sampler2D u_Texture;
 
-varying vec2 v_Texcoord;
-varying vec3 v_Normal;
-varying vec4 v_Color;
+in vec2 vs_Texcoord;
+in vec3 vs_Normal;
+in vec4 vs_Color;
+
+out vec4 FragColor;
 
 void main(void)
 {
-    vec4 texcolor = texture2D(u_Texture, v_Texcoord);
+    vec4 texcolor = texture(u_Texture, vs_Texcoord).rgba;
 
 	float gray = (texcolor.r + texcolor.g + texcolor.b) / 2.5;
 	float c = sin(pow(gray, 4.0));
@@ -20,5 +23,5 @@ void main(void)
 	texcolor.g = c;
 	texcolor.b = c;
 
-    gl_FragColor = texcolor + v_Color;
+    FragColor = texcolor + vs_Color;
 }
