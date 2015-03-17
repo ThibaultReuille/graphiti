@@ -6,20 +6,27 @@ class GPUGraph
 {
 public:
 
+    struct ParticleForce 
+    {
+        glm::vec4 Direction;
+    };
+
 	struct NodeParticle
 	{
 		glm::vec4 Origin;
 	};
 
-	struct Node
+	struct NodeInstance
 	{
 		typedef unsigned int ID;
 
         glm::vec4 Position;
         glm::vec4 Color;
-        GLfloat Size;
+        cl_float Size;
 
-        glm::vec3 __Unused; // NOTE: Alignment with OpenCL, reserved for later.
+        ParticleForce Force;
+
+        glm::vec3 __Unused; // NOTE: Memory alignment with OpenCL, reserved for later.
 	};
 
     struct EdgeParticle
@@ -27,7 +34,7 @@ public:
         glm::vec4 Origin;
     };
 
-	struct Edge
+	struct EdgeInstance
 	{
 		typedef unsigned int ID;
 
@@ -37,9 +44,12 @@ public:
         glm::vec4 TargetPosition;
         glm::vec4 TargetColor;
 
-		GLfloat Width;
+		cl_float Width;
 
-        glm::vec3 __Unused; // NOTE : Alignment with OpenCL, reserved for later.
+        cl_uint SourceID;
+        cl_uint TargetID;
+
+        cl_float __Unused; // NOTE : Memory alignment with OpenCL, reserved for later.
 	};
 
 	GPUGraph()
@@ -105,9 +115,12 @@ public:
             auto source = FS::TextFile("./Assets/NetworkView/physics.cl");
          
             m_CL.Program = m_OpenCL.loadProgram(*m_CL.Context, "physics", source.content());
-            m_CL.Test1K = m_OpenCL.createKernel(*m_CL.Program, "node_animation");
-            m_CL.Test2K = m_OpenCL.createKernel(*m_CL.Program, "edge_animation");
-        
+
+            m_CL.RepulsionK = m_OpenCL.createKernel(*m_CL.Program, "repulsion");
+            m_CL.AttractionK = m_OpenCL.createKernel(*m_CL.Program, "attraction");
+            m_CL.NodeAnimationK = m_OpenCL.createKernel(*m_CL.Program, "node_animation");
+            m_CL.EdgeAnimationK = m_OpenCL.createKernel(*m_CL.Program, "edge_animation");
+
             clFinish(m_CL.Queue->Object);
         }
     }
@@ -116,48 +129,48 @@ public:
     {
         // LOG("updateOpenGL: %u nodes, %u edges.\n", m_NodeBuffer.size() / sizeof(Node), m_EdgeBuffer.size() / sizeof(Edge));
 
-        if (m_NodeBuffer.size() == 0) // TODO: HACK: OpenGL doesn't like VBO resizing, Find a way to handle it properly.
+        if (m_NodeInstanceBuffer.size() == 0) // TODO: HACK: OpenGL doesn't like VBO resizing, Find a way to handle it properly.
             return;
 
         // --- Define Node Instances
 
-        static bool m_NodeBufferFirstUpdate = true;
+        static bool m_NodeInstanceBufferFirstUpdate = true;
 
-        if (!m_NodeBufferFirstUpdate)
-            m_NodeBuffer.update();
+        if (!m_NodeInstanceBufferFirstUpdate)
+            m_NodeInstanceBuffer.update();
 
-        m_NodeBuffer.describe("a_Position", 4, GL_FLOAT, sizeof(Node), 0);
-        m_NodeBuffer.describe("a_Color",    4, GL_FLOAT, sizeof(Node), 1 * sizeof(glm::vec4));
-        m_NodeBuffer.describe("a_Size",     1, GL_FLOAT, sizeof(Node), 2 * sizeof(glm::vec4));
+        m_NodeInstanceBuffer.describe("a_Position", 4, GL_FLOAT, sizeof(NodeInstance), 0);
+        m_NodeInstanceBuffer.describe("a_Color",    4, GL_FLOAT, sizeof(NodeInstance), 1 * sizeof(glm::vec4));
+        m_NodeInstanceBuffer.describe("a_Size",     1, GL_FLOAT, sizeof(NodeInstance), 2 * sizeof(glm::vec4));
  
-        if (m_NodeBufferFirstUpdate)
-            m_NodeBuffer.generate(Buffer::DYNAMIC);
+        if (m_NodeInstanceBufferFirstUpdate)
+            m_NodeInstanceBuffer.generate(Buffer::DYNAMIC);
 
-        m_NodeBufferFirstUpdate = false;
+        m_NodeInstanceBufferFirstUpdate = false;
 
         // --- Define Edge Instances
 
-        static bool m_EdgeBufferFirstUpdate = true;
+        static bool m_EdgeInstanceBufferFirstUpdate = true;
        
-        if (!m_EdgeBufferFirstUpdate)
-            m_EdgeBuffer.update();
+        if (!m_EdgeInstanceBufferFirstUpdate)
+            m_EdgeInstanceBuffer.update();
 
-        m_EdgeBuffer.describe("a_SourcePosition", 4, GL_FLOAT, sizeof(Edge), 0);
-        m_EdgeBuffer.describe("a_SourceColor",    4, GL_FLOAT, sizeof(Edge), 1 * sizeof(glm::vec4));
-        m_EdgeBuffer.describe("a_TargetPosition", 4, GL_FLOAT, sizeof(Edge), 2 * sizeof(glm::vec4));
-        m_EdgeBuffer.describe("a_TargetColor",    4, GL_FLOAT, sizeof(Edge), 3 * sizeof(glm::vec4));
-        m_EdgeBuffer.describe("a_Width",          1, GL_FLOAT, sizeof(Edge), 4 * sizeof(glm::vec4));
+        m_EdgeInstanceBuffer.describe("a_SourcePosition", 4, GL_FLOAT, sizeof(EdgeInstance), 0);
+        m_EdgeInstanceBuffer.describe("a_SourceColor",    4, GL_FLOAT, sizeof(EdgeInstance), 1 * sizeof(glm::vec4));
+        m_EdgeInstanceBuffer.describe("a_TargetPosition", 4, GL_FLOAT, sizeof(EdgeInstance), 2 * sizeof(glm::vec4));
+        m_EdgeInstanceBuffer.describe("a_TargetColor",    4, GL_FLOAT, sizeof(EdgeInstance), 3 * sizeof(glm::vec4));
+        m_EdgeInstanceBuffer.describe("a_Width",          1, GL_FLOAT, sizeof(EdgeInstance), 4 * sizeof(glm::vec4));
         
-        if (m_EdgeBufferFirstUpdate)
-            m_EdgeBuffer.generate(Buffer::DYNAMIC);
+        if (m_EdgeInstanceBufferFirstUpdate)
+            m_EdgeInstanceBuffer.generate(Buffer::DYNAMIC);
         
-        m_EdgeBufferFirstUpdate = false;   
+        m_EdgeInstanceBufferFirstUpdate = false;   
     }
 
     void updateOpenCL(Context* context)
     {
-        size_t node_count = m_NodeBuffer.size() / sizeof(Node);
-        size_t edge_count = m_EdgeBuffer.size() / sizeof(Edge);
+        size_t node_count = m_NodeInstanceBuffer.size() / sizeof(NodeInstance);
+        size_t edge_count = m_EdgeInstanceBuffer.size() / sizeof(EdgeInstance);
 
         if (node_count == 0) // TODO: HACK: OpenGL doesn't like VBO resizing, Find a way to handle it properly.
             return;
@@ -165,42 +178,81 @@ public:
         static bool m_OCLNeedsUpdate = true;
         if (m_OCLNeedsUpdate)
         {
-            m_CL.NodeInstanceBuffer = m_OpenCL.createFromGLBuffer(*m_CL.Context, CL_MEM_READ_WRITE, m_NodeBuffer.vbo());
-            m_CL.EdgeInstanceBuffer = m_OpenCL.createFromGLBuffer(*m_CL.Context, CL_MEM_READ_WRITE, m_EdgeBuffer.vbo());
+            m_CL.NodeInstanceBuffer = m_OpenCL.createFromGLBuffer(*m_CL.Context, CL_MEM_READ_WRITE, m_NodeInstanceBuffer.vbo());
+            m_CL.EdgeInstanceBuffer = m_OpenCL.createFromGLBuffer(*m_CL.Context, CL_MEM_READ_WRITE, m_EdgeInstanceBuffer.vbo());
             clFinish(m_CL.Queue->Object);
             m_OCLNeedsUpdate = false;
         }
 
+        // ----- Parameters -----
+
+        static int Iterations = 0;
+        if (Iterations >= 100)
+            return;
+
+        const float cube_side = 100; // NOTE : Graph should fit in this cube
+        const float volume = cube_side * cube_side * cube_side; 
+
+        m_CL.K = pow(volume / node_count, 1.0 / 3.0);
+
         m_CL.Time = context->clock().seconds();
+
+        m_CL.Temperature = cube_side / (Iterations + 1);
+
+        LOG("Iteration: %i, K: %f, Time: %f, Temperature: %f\n", Iterations, m_CL.K, m_CL.Time, m_CL.Temperature);
+
+        // ----- Node Repulsion -----
+
+        m_OpenCL.enqueueAcquireGLObjects(*m_CL.Queue, 1, &m_CL.NodeInstanceBuffer->Object, 0, 0, NULL);
+        {
+            m_CL.RepulsionK->setArgument(0, *m_CL.NodeInstanceBuffer);
+            m_CL.RepulsionK->setArgument(1, &m_CL.K, sizeof(float));
+
+            m_OpenCL.enqueueNDRangeKernel(*m_CL.Queue, *m_CL.RepulsionK, 1, NULL, &node_count, NULL, 0, NULL, NULL);
+        }
+        m_OpenCL.enqueueReleaseGLObjects(*m_CL.Queue, 1, &m_CL.NodeInstanceBuffer->Object, 0, 0, NULL);
+
+        // ----- Edge Attraction -----
+
+        m_OpenCL.enqueueAcquireGLObjects(*m_CL.Queue, 1, &m_CL.NodeInstanceBuffer->Object, 0, 0, NULL);
+        m_OpenCL.enqueueAcquireGLObjects(*m_CL.Queue, 1, &m_CL.EdgeInstanceBuffer->Object, 0, 0, NULL);
+        {
+            m_CL.AttractionK->setArgument(0, *m_CL.NodeInstanceBuffer);
+            m_CL.AttractionK->setArgument(1, *m_CL.EdgeInstanceBuffer);
+            m_CL.AttractionK->setArgument(2, &m_CL.K, sizeof(float));
+
+            m_OpenCL.enqueueNDRangeKernel(*m_CL.Queue, *m_CL.AttractionK, 1, NULL, &edge_count, NULL, 0, NULL, NULL);
+        }
+        m_OpenCL.enqueueReleaseGLObjects(*m_CL.Queue, 1, &m_CL.EdgeInstanceBuffer->Object, 0, 0, NULL);
+        m_OpenCL.enqueueReleaseGLObjects(*m_CL.Queue, 1, &m_CL.NodeInstanceBuffer->Object, 0, 0, NULL);
 
         // ----- Node Animation -----
 
         m_OpenCL.enqueueAcquireGLObjects(*m_CL.Queue, 1, &m_CL.NodeInstanceBuffer->Object, 0, 0, NULL);
         {
-            m_CL.Time = context->clock().seconds();
+            m_CL.NodeAnimationK->setArgument(0, *m_CL.NodeInstanceBuffer);
+            m_CL.NodeAnimationK->setArgument(1, &m_CL.Temperature, sizeof(float));
 
-            m_CL.Test1K->setArgument(0, *m_CL.NodeInstanceBuffer);
-            m_CL.Test1K->setArgument(1, &m_CL.Time, sizeof(float));
-
-            m_OpenCL.enqueueNDRangeKernel(*m_CL.Queue, *m_CL.Test1K, 1, NULL, &node_count, NULL, 0, NULL, NULL);
+            m_OpenCL.enqueueNDRangeKernel(*m_CL.Queue, *m_CL.NodeAnimationK, 1, NULL, &node_count, NULL, 0, NULL, NULL);
         }
         m_OpenCL.enqueueReleaseGLObjects(*m_CL.Queue, 1, &m_CL.NodeInstanceBuffer->Object, 0, 0, NULL);
 
         // ----- Edge Animation -----
-        
+
+        m_OpenCL.enqueueAcquireGLObjects(*m_CL.Queue, 1, &m_CL.NodeInstanceBuffer->Object, 0, 0, NULL);
         m_OpenCL.enqueueAcquireGLObjects(*m_CL.Queue, 1, &m_CL.EdgeInstanceBuffer->Object, 0, 0, NULL);
         {
-            m_CL.Time = context->clock().seconds();
-
-            m_CL.Test2K->setArgument(0, *m_CL.EdgeInstanceBuffer);
-            m_CL.Test2K->setArgument(1, &m_CL.Time, sizeof(float));
-
-            m_OpenCL.enqueueNDRangeKernel(*m_CL.Queue, *m_CL.Test2K, 1, NULL, &edge_count, NULL, 0, NULL, NULL);
+            m_CL.EdgeAnimationK->setArgument(0, *m_CL.NodeInstanceBuffer);
+            m_CL.EdgeAnimationK->setArgument(1, *m_CL.EdgeInstanceBuffer);
+  
+            m_OpenCL.enqueueNDRangeKernel(*m_CL.Queue, *m_CL.EdgeAnimationK, 1, NULL, &edge_count, NULL, 0, NULL, NULL);
         }
         m_OpenCL.enqueueReleaseGLObjects(*m_CL.Queue, 1, &m_CL.EdgeInstanceBuffer->Object, 0, 0, NULL);
-        
+        m_OpenCL.enqueueReleaseGLObjects(*m_CL.Queue, 1, &m_CL.NodeInstanceBuffer->Object, 0, 0, NULL);
 
         clFinish(m_CL.Queue->Object);
+
+        Iterations++;
     }
 
 	void idle(Context* context)
@@ -216,7 +268,7 @@ public:
 
 	virtual void drawEdges(Context* context, Camera& camera, Transformation& transformation)
 	{
-        if (!m_EdgeBuffer.isGenerated() || m_EdgeBuffer.size() == 0)
+        if (!m_EdgeInstanceBuffer.isGenerated() || m_EdgeInstanceBuffer.size() == 0)
             return;
 
         m_EdgeShader->use();
@@ -226,7 +278,7 @@ public:
         m_EdgeShader->uniform("u_ProjectionMatrix").set(camera.getProjectionMatrix());
 
         context->geometry().bind(m_EdgeParticleBuffer, *m_EdgeShader);        
-        context->geometry().bind(m_EdgeBuffer, *m_EdgeShader);
+        context->geometry().bind(m_EdgeInstanceBuffer, *m_EdgeShader);
         
         glVertexAttribDivisorARB(m_EdgeShader->attribute("a_Origin").location(), 0); // Same vertices per instance
 
@@ -238,15 +290,15 @@ public:
         
         glVertexAttribDivisorARB(m_EdgeShader->attribute("a_Width").location(), 1);
 
-        context->geometry().drawArraysInstanced(GL_POINTS, 0, m_EdgeParticleBuffer.size() / sizeof(EdgeParticle), m_EdgeBuffer.size() / sizeof(Edge));
+        context->geometry().drawArraysInstanced(GL_POINTS, 0, m_EdgeParticleBuffer.size() / sizeof(EdgeParticle), m_EdgeInstanceBuffer.size() / sizeof(EdgeInstance));
         
         context->geometry().unbind(m_EdgeParticleBuffer);
-        context->geometry().unbind(m_EdgeBuffer);
+        context->geometry().unbind(m_EdgeInstanceBuffer);
 	}
 
     virtual void drawNodes(Context* context, Camera& camera, Transformation& transformation)
     {       
-        if (!m_NodeBuffer.isGenerated() || m_NodeBuffer.size() == 0)
+        if (!m_NodeInstanceBuffer.isGenerated() || m_NodeInstanceBuffer.size() == 0)
             return;
 
         m_NodeShader->use();
@@ -256,7 +308,7 @@ public:
         m_NodeShader->uniform("u_ProjectionMatrix").set(camera.getProjectionMatrix());
 
         context->geometry().bind(m_NodeParticleBuffer, *m_NodeShader);        
-        context->geometry().bind(m_NodeBuffer, *m_NodeShader);
+        context->geometry().bind(m_NodeInstanceBuffer, *m_NodeShader);
         
         glVertexAttribDivisorARB(m_NodeShader->attribute("a_Origin").location(), 0); // Same vertices per instance
 
@@ -264,10 +316,10 @@ public:
         glVertexAttribDivisorARB(m_NodeShader->attribute("a_Color").location(), 1);
         glVertexAttribDivisorARB(m_NodeShader->attribute("a_Size").location(), 1);
         
-        context->geometry().drawArraysInstanced(GL_POINTS, 0, m_NodeParticleBuffer.size() / sizeof(NodeParticle), m_NodeBuffer.size() / sizeof(Node));
+        context->geometry().drawArraysInstanced(GL_POINTS, 0, m_NodeParticleBuffer.size() / sizeof(NodeParticle), m_NodeInstanceBuffer.size() / sizeof(NodeInstance));
         
         context->geometry().unbind(m_NodeParticleBuffer);
-        context->geometry().unbind(m_NodeBuffer);
+        context->geometry().unbind(m_NodeInstanceBuffer);
     }
 
     virtual void draw(Context* context, Camera& camera, Transformation& transformation)
@@ -282,47 +334,47 @@ public:
 
     // ----- Nodes Accessors -----
 
-    inline Buffer& getNodes() { return m_NodeBuffer; }
+    inline Buffer& getNodes() { return m_NodeInstanceBuffer; }
     
-    void addNode(const Node& node)
+    void addNode(const NodeInstance& node)
     {
-        m_NodeBuffer.push(&node, sizeof(Node));
+        m_NodeInstanceBuffer.push(&node, sizeof(NodeInstance));
         m_NeedsUpdate = true;
     }
 
-    inline Node getNode(Node::ID id)
+    inline NodeInstance getNode(NodeInstance::ID id)
     {
-        Node node;
-        m_NodeBuffer.get(id, &node, sizeof(Node));
+        NodeInstance node;
+        m_NodeInstanceBuffer.get(id, &node, sizeof(NodeInstance));
         return node;
     }
 
-    inline void setNode(Node::ID id, const Node& node)
+    inline void setNode(NodeInstance::ID id, const NodeInstance& node)
     {
-        m_NodeBuffer.set(id, &node, sizeof(Node));
+        m_NodeInstanceBuffer.set(id, &node, sizeof(NodeInstance));
         m_NeedsUpdate = true;
     }
 
     // ----- Edges Accessors -----
 
-    inline Buffer& getEdges() { return m_EdgeBuffer; }
+    inline Buffer& getEdges() { return m_EdgeInstanceBuffer; }
 
-    void addEdge(const Edge& edge)
+    void addEdge(const EdgeInstance& edge)
     {
-        m_EdgeBuffer.push(&edge, sizeof(Edge));
+        m_EdgeInstanceBuffer.push(&edge, sizeof(EdgeInstance));
         m_NeedsUpdate = true;
     }
 
-    inline Edge getEdge(Edge::ID id)
+    inline EdgeInstance getEdge(EdgeInstance::ID id)
     {
-        Edge edge;
-        m_EdgeBuffer.get(id, &edge, sizeof(Edge));
+        EdgeInstance edge;
+        m_EdgeInstanceBuffer.get(id, &edge, sizeof(EdgeInstance));
         return edge;
     }
 
-    inline void setEdge(Edge::ID id, const Edge& edge)
+    inline void setEdge(EdgeInstance::ID id, const EdgeInstance& edge)
     {
-        m_EdgeBuffer.set(id, &edge, sizeof(Edge));
+        m_EdgeInstanceBuffer.set(id, &edge, sizeof(EdgeInstance));
         m_NeedsUpdate = true;
     }
 
@@ -332,11 +384,11 @@ private:
 
 	Shader::Program* m_NodeShader;
     Buffer m_NodeParticleBuffer;
-	Buffer m_NodeBuffer;
+	Buffer m_NodeInstanceBuffer;
 
 	Shader::Program* m_EdgeShader;
     Buffer m_EdgeParticleBuffer;
-    Buffer m_EdgeBuffer;
+    Buffer m_EdgeInstanceBuffer;
 
     struct OCLData
     {
@@ -346,12 +398,18 @@ private:
         OpenCL::Context* Context;
         OpenCL::CommandQueue* Queue;
         OpenCL::Program* Program;
-        OpenCL::Kernel* Test1K;
-        OpenCL::Kernel* Test2K;
+
+        OpenCL::Kernel* RepulsionK;
+        OpenCL::Kernel* AttractionK;
+        OpenCL::Kernel* NodeAnimationK;
+        OpenCL::Kernel* EdgeAnimationK;
 
         OpenCL::Memory* NodeInstanceBuffer;
         OpenCL::Memory* EdgeInstanceBuffer;
+
         float Time;
+        float K;
+        float Temperature;
     };
 
     OpenCL m_OpenCL;

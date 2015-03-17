@@ -91,7 +91,7 @@ public:
 
     // ----- Helpers -----
 
-    void checkNodeUID(GPUGraph::Node::ID uid)
+    void checkNodeUID(GPUGraph::NodeInstance::ID uid)
     {
         if (!m_NodeMap.containsRemoteID(uid))
         {
@@ -100,7 +100,7 @@ public:
         }
     }
 
-    void checkEdgeUID(GPUGraph::Edge::ID uid)
+    void checkEdgeUID(GPUGraph::EdgeInstance::ID uid)
     {
         if (!m_EdgeMap.containsRemoteID(uid))
         {
@@ -119,9 +119,9 @@ public:
 
     void onAddNode(Node::ID uid, const char* label) override // TODO : Attributes in Variables object
     {
-        LOG("onAddNode(%lu, %s)\n", uid, label);
+        // LOG("onAddNode(%lu, %s)\n", uid, label);
 
-        GPUGraph::Node node;
+        GPUGraph::NodeInstance node;
             
         // TODO : Emitter system? (Define where particles appear)
 
@@ -141,7 +141,7 @@ public:
 
         static unsigned int node_count = 0;
 
-        GPUGraph::Node::ID nid = node_count;
+        GPUGraph::NodeInstance::ID nid = node_count;
         m_NodeMap.addRemoteID(uid, nid);
 
         node_count++;
@@ -163,13 +163,13 @@ public:
 
         checkNodeUID(uid);
 
-        GPUGraph::Node::ID id = m_NodeMap.getLocalID(uid);
+        GPUGraph::NodeInstance::ID id = m_NodeMap.getLocalID(uid);
 
         if ((name == "space:position" || name == "particles:position") && type == RD_VEC3)
         {
             vvec3.set(value);
 
-            GPUGraph::Node node = m_Graph->getNode(id);
+            GPUGraph::NodeInstance node = m_Graph->getNode(id);
             node.Position = glm::vec4(vvec3.value(), 0.0);
             m_Graph->setNode(id, node);
 
@@ -189,7 +189,7 @@ public:
                 c = vvec4.value();
             }
 
-            GPUGraph::Node node = m_Graph->getNode(id);
+            GPUGraph::NodeInstance node = m_Graph->getNode(id);
             node.Color = vvec4.value();
             m_Graph->setNode(id, node);
         }
@@ -197,7 +197,7 @@ public:
         {
             vfloat.set(value);
 
-            GPUGraph::Node node = m_Graph->getNode(id);
+            GPUGraph::NodeInstance node = m_Graph->getNode(id);
             node.Size = vfloat.value();
             m_Graph->setNode(id, node);        
         }
@@ -207,17 +207,19 @@ public:
     {
         // LOG("onAddEdge(%lu, %lu, %lu)\n", uid, uid1, uid2);
 
-        GPUGraph::Node::ID nid1 = m_NodeMap.getLocalID(uid1);
-        GPUGraph::Node::ID nid2 = m_NodeMap.getLocalID(uid2);
+        GPUGraph::NodeInstance::ID nid1 = m_NodeMap.getLocalID(uid1);
+        GPUGraph::NodeInstance::ID nid2 = m_NodeMap.getLocalID(uid2);
 
-        GPUGraph::Edge edge;
+        GPUGraph::NodeInstance n1 = m_Graph->getNode(nid1);
+        GPUGraph::NodeInstance n2 = m_Graph->getNode(nid2);
 
-        GPUGraph::Node n1 = m_Graph->getNode(nid1);
-        GPUGraph::Node n2 = m_Graph->getNode(nid2);
+        GPUGraph::EdgeInstance edge;
 
+        edge.SourceID = nid1;
         edge.SourcePosition = n1.Position;
         edge.SourceColor = n1.Color;
 
+        edge.TargetID = nid2;
         edge.TargetPosition = n2.Position;
         edge.TargetColor =  n2.Color;
 
@@ -227,7 +229,7 @@ public:
 
         static unsigned int edge_count = 0;
 
-        GPUGraph::Edge::ID eid = edge_count;
+        GPUGraph::EdgeInstance::ID eid = edge_count;
         m_EdgeMap.addRemoteID(uid, eid);
 
         edge_count++;
@@ -248,13 +250,13 @@ public:
         StringVariable vstring;
 
         checkEdgeUID(uid);
-        GPUGraph::Edge::ID id = m_EdgeMap.getLocalID(uid);
+        GPUGraph::EdgeInstance::ID id = m_EdgeMap.getLocalID(uid);
 
         if (name == "space:color" && type == RD_VEC4)
         {
             vvec4.set(value);
             
-            GPUGraph::Edge edge = m_Graph->getEdge(id);
+            GPUGraph::EdgeInstance edge = m_Graph->getEdge(id);
             edge.SourceColor = vvec4.value();
             edge.TargetColor = vvec4.value();
             m_Graph->setEdge(id, edge);
@@ -263,7 +265,7 @@ public:
         {
             vvec4.set(value);
             
-            GPUGraph::Edge edge = m_Graph->getEdge(id);
+            GPUGraph::EdgeInstance edge = m_Graph->getEdge(id);
             edge.SourceColor = vvec4.value();
             m_Graph->setEdge(id, edge);
         }
@@ -271,7 +273,7 @@ public:
         {
             vvec4.set(value);
             
-            GPUGraph::Edge edge = m_Graph->getEdge(id);
+            GPUGraph::EdgeInstance edge = m_Graph->getEdge(id);
             edge.TargetColor = vvec4.value();
             m_Graph->setEdge(id, edge);
         }
@@ -279,7 +281,7 @@ public:
         {
             vfloat.set(value);
             
-            GPUGraph::Edge edge = m_Graph->getEdge(id);
+            GPUGraph::EdgeInstance edge = m_Graph->getEdge(id);
             edge.Width = vfloat.value();
             m_Graph->setEdge(id, edge);
         }
@@ -318,7 +320,7 @@ private:
 	Font* m_Font;
 
 	GPUGraph* m_Graph;
-    TranslationMap<GPUGraph::Node::ID, unsigned int> m_NodeMap;
-    TranslationMap<GPUGraph::Edge::ID, unsigned int> m_EdgeMap;
+    TranslationMap<GPUGraph::NodeInstance::ID, unsigned int> m_NodeMap;
+    TranslationMap<GPUGraph::EdgeInstance::ID, unsigned int> m_EdgeMap;
 };
 
