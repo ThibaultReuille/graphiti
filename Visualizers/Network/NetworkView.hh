@@ -154,7 +154,7 @@ public:
 
     void onSetNodeAttribute(Node::ID uid, const std::string& name, VariableType type, const std::string& value) override
     {
-        LOG("onSetNodeAttribute(%lu, %s, %i, %s)\n", uid, name.c_str(), (int)type, value.c_str());
+        // LOG("onSetNodeAttribute(%lu, %s, %i, %s)\n", uid, name.c_str(), (int)type, value.c_str());
 
         BooleanVariable vbool;
         Vec3Variable vvec3;
@@ -205,7 +205,7 @@ public:
 
     void onAddEdge(Edge::ID uid, Node::ID uid1, Node::ID uid2) override
     {
-        LOG("onAddEdge(%lu, %lu, %lu)\n", uid, uid1, uid2);
+        // LOG("onAddEdge(%lu, %lu, %lu)\n", uid, uid1, uid2);
 
         GPUGraph::Node::ID nid1 = m_NodeMap.getLocalID(uid1);
         GPUGraph::Node::ID nid2 = m_NodeMap.getLocalID(uid2);
@@ -235,12 +235,12 @@ public:
 
     void onRemoveEdge(Edge::ID uid) override
     {
-        LOG("onRemoveEdge(%lu)\n", uid);
+        // LOG("onRemoveEdge(%lu)\n", uid);
     }
 
     void onSetEdgeAttribute(Edge::ID uid, const std::string& name, VariableType type, const std::string& value) override
     {
-        LOG("onSetEdgeAttribute(%lu %s, %i, %s)\n", uid, name.c_str(), (int)type, value.c_str());
+        // LOG("onSetEdgeAttribute(%lu %s, %i, %s)\n", uid, name.c_str(), (int)type, value.c_str());
 
         FloatVariable vfloat;
         Vec3Variable vvec3;
