@@ -201,50 +201,31 @@ public:
 
         LOG("Iteration: %i, K: %f, Time: %f, Temperature: %f\n", Iterations, m_CL.K, m_CL.Time, m_CL.Temperature);
 
-        // ----- Node Repulsion -----
-
-        m_OpenCL.enqueueAcquireGLObjects(*m_CL.Queue, 1, &m_CL.NodeInstanceBuffer->Object, 0, 0, NULL);
-        {
-            m_CL.RepulsionK->setArgument(0, *m_CL.NodeInstanceBuffer);
-            m_CL.RepulsionK->setArgument(1, &m_CL.K, sizeof(float));
-
-            m_OpenCL.enqueueNDRangeKernel(*m_CL.Queue, *m_CL.RepulsionK, 1, NULL, &node_count, NULL, 0, NULL, NULL);
-        }
-        m_OpenCL.enqueueReleaseGLObjects(*m_CL.Queue, 1, &m_CL.NodeInstanceBuffer->Object, 0, 0, NULL);
-
-        // ----- Edge Attraction -----
-
         m_OpenCL.enqueueAcquireGLObjects(*m_CL.Queue, 1, &m_CL.NodeInstanceBuffer->Object, 0, 0, NULL);
         m_OpenCL.enqueueAcquireGLObjects(*m_CL.Queue, 1, &m_CL.EdgeInstanceBuffer->Object, 0, 0, NULL);
         {
+            // ----- Node Repulsion -----
+            m_CL.RepulsionK->setArgument(0, *m_CL.NodeInstanceBuffer);
+            m_CL.RepulsionK->setArgument(1, &m_CL.K, sizeof(float));
+            m_OpenCL.enqueueNDRangeKernel(*m_CL.Queue, *m_CL.RepulsionK, 1, NULL, &node_count, NULL, 0, NULL, NULL);
+
+            // ----- Edge Attraction -----
+
             m_CL.AttractionK->setArgument(0, *m_CL.NodeInstanceBuffer);
             m_CL.AttractionK->setArgument(1, *m_CL.EdgeInstanceBuffer);
             m_CL.AttractionK->setArgument(2, &m_CL.K, sizeof(float));
-
             m_OpenCL.enqueueNDRangeKernel(*m_CL.Queue, *m_CL.AttractionK, 1, NULL, &edge_count, NULL, 0, NULL, NULL);
-        }
-        m_OpenCL.enqueueReleaseGLObjects(*m_CL.Queue, 1, &m_CL.EdgeInstanceBuffer->Object, 0, 0, NULL);
-        m_OpenCL.enqueueReleaseGLObjects(*m_CL.Queue, 1, &m_CL.NodeInstanceBuffer->Object, 0, 0, NULL);
 
-        // ----- Node Animation -----
+            // ----- Node Animation -----
 
-        m_OpenCL.enqueueAcquireGLObjects(*m_CL.Queue, 1, &m_CL.NodeInstanceBuffer->Object, 0, 0, NULL);
-        {
             m_CL.NodeAnimationK->setArgument(0, *m_CL.NodeInstanceBuffer);
             m_CL.NodeAnimationK->setArgument(1, &m_CL.Temperature, sizeof(float));
-
             m_OpenCL.enqueueNDRangeKernel(*m_CL.Queue, *m_CL.NodeAnimationK, 1, NULL, &node_count, NULL, 0, NULL, NULL);
-        }
-        m_OpenCL.enqueueReleaseGLObjects(*m_CL.Queue, 1, &m_CL.NodeInstanceBuffer->Object, 0, 0, NULL);
 
-        // ----- Edge Animation -----
+            // ----- Edge Animation -----
 
-        m_OpenCL.enqueueAcquireGLObjects(*m_CL.Queue, 1, &m_CL.NodeInstanceBuffer->Object, 0, 0, NULL);
-        m_OpenCL.enqueueAcquireGLObjects(*m_CL.Queue, 1, &m_CL.EdgeInstanceBuffer->Object, 0, 0, NULL);
-        {
             m_CL.EdgeAnimationK->setArgument(0, *m_CL.NodeInstanceBuffer);
-            m_CL.EdgeAnimationK->setArgument(1, *m_CL.EdgeInstanceBuffer);
-  
+            m_CL.EdgeAnimationK->setArgument(1, *m_CL.EdgeInstanceBuffer);  
             m_OpenCL.enqueueNDRangeKernel(*m_CL.Queue, *m_CL.EdgeAnimationK, 1, NULL, &edge_count, NULL, 0, NULL, NULL);
         }
         m_OpenCL.enqueueReleaseGLObjects(*m_CL.Queue, 1, &m_CL.EdgeInstanceBuffer->Object, 0, 0, NULL);
