@@ -20,6 +20,8 @@ public:
 
 	virtual void send(const Variables& input, Variables& output)
 	{
+		(void) output;
+
 		std::string logtext;
 		if (input.get("log", logtext))
 			notifyListeners(new ConsoleMessage(logtext));

@@ -8,268 +8,7 @@
 
 #include <graphiti/Entities/MVC.hh>
 
-class GPUGraph 
-{
-public:
-
-	struct NodeParticle
-	{
-		glm::vec3 Origin;
-	};
-
-	struct Node
-	{
-		typedef unsigned int ID;
-
-        glm::vec3 Position;
-        float Size;
-        glm::vec4 Color;
-	};
-
-    struct EdgeParticle
-    {
-        glm::vec3 Origin;
-    };
-
-	struct Edge
-	{
-		typedef unsigned int ID;
-
-		glm::vec3 SourcePosition;
-        glm::vec4 SourceColor;
-
-        glm::vec3 TargetPosition;
-        glm::vec4 TargetColor;
-
-		float Width;
-	};
-
-	GPUGraph()
-	{
-		m_Icon = new Icon();
-        m_Icon->load("network/shapes/disk", FS::BinaryFile("Assets/NetworkView/shape_disk.png"));
-
-		FS::TextFile nodes_vert("Assets/NetworkView/nodes.vert");
-		FS::TextFile nodes_geom("Assets/NetworkView/nodes.geom");
-		FS::TextFile nodes_frag("Assets/NetworkView/nodes.frag");
-        m_NodeShader = ResourceManager::getInstance().loadShader("NetworkView/nodes",
-        	nodes_vert.content(),
-        	nodes_frag.content(),
-        	nodes_geom.content());
-        // m_NodeShader->dump();
-
-        FS::TextFile edges_vert("Assets/NetworkView/edges.vert");
-		FS::TextFile edges_geom("Assets/NetworkView/edges.geom");
-		FS::TextFile edges_frag("Assets/NetworkView/edges.frag");
-        m_EdgeShader = ResourceManager::getInstance().loadShader("NetworkView/edges",
-        	edges_vert.content(),
-        	edges_frag.content(),
-        	edges_geom.content());
-        m_EdgeShader->dump();
-
-        m_NeedsUpdate = true;
-	}
-
-	virtual ~GPUGraph()
-	{
-		SAFE_DELETE(m_Icon);
-		ResourceManager::getInstance().unload(m_NodeShader);
-	}
-
-    void createParticles()
-    {
-        static bool m_FirstUpdate = true;
-        if (!m_FirstUpdate)
-            return;
-
-        // ----- Node Particle Geometry -----
-        m_NodeParticleBuffer << glm::vec3(0, 0, 0);
-        m_NodeParticleBuffer.describe("a_Origin", 3, GL_FLOAT, sizeof(NodeParticle), 0);
-        m_NodeParticleBuffer.generate(Buffer::STATIC);
-
-        // ----- Edge Particle Geometry -----
-        m_EdgeParticleBuffer << glm::vec3(0, 0, 0);
-        m_EdgeParticleBuffer.describe("a_Origin", 3, GL_FLOAT, sizeof(EdgeParticle), 0);
-        m_EdgeParticleBuffer.generate(Buffer::STATIC);
-
-        m_FirstUpdate = false;
-    }
-
-	void update()
-	{
-        // ----- Create Particles
-
-        createParticles();
-    
-        // -----
-
-        if (!m_NeedsUpdate)
-            return;
-
-		// --- Define Node Instances
-
-        static bool m_NodeBufferFirstUpdate = true;
-
-        if (!m_NodeBufferFirstUpdate)
-            m_NodeBuffer.update();
-
-        m_NodeBuffer.describe("a_Position", 3, GL_FLOAT, sizeof(Node), 0);
-        m_NodeBuffer.describe("a_Size", 1, GL_FLOAT, sizeof(Node), sizeof(glm::vec3));
-        m_NodeBuffer.describe("a_Color", 4, GL_FLOAT, sizeof(Node), sizeof(glm::vec3) + sizeof(GL_FLOAT));
-
-        if (m_NodeBufferFirstUpdate)
-            m_NodeBuffer.generate(Buffer::DYNAMIC);
-
-        m_NodeBufferFirstUpdate = false;
-
-        // --- Define Edge Instances
-
-        static bool m_EdgeBufferFirstUpdate = true;
-       
-        if (!m_EdgeBufferFirstUpdate)
-            m_EdgeBuffer.update();
-
-        m_EdgeBuffer.describe("a_SourcePosition", 3, GL_FLOAT, sizeof(Edge), 0);
-        m_EdgeBuffer.describe("a_SourceColor",    4, GL_FLOAT, sizeof(Edge), sizeof(glm::vec3));
-        m_EdgeBuffer.describe("a_TargetPosition", 3, GL_FLOAT, sizeof(Edge), sizeof(glm::vec3) + sizeof(glm::vec4));
-        m_EdgeBuffer.describe("a_TargetColor",    4, GL_FLOAT, sizeof(Edge), 2 * sizeof(glm::vec3) + sizeof(glm::vec4));
-        m_EdgeBuffer.describe("a_Width",          1, GL_FLOAT, sizeof(Edge), 2 * sizeof(glm::vec3) + 2 * sizeof(glm::vec4));
-        
-        if (m_EdgeBufferFirstUpdate)
-            m_EdgeBuffer.generate(Buffer::DYNAMIC);
-        
-        m_EdgeBufferFirstUpdate = false;
-
-        // -----
-
-        m_NeedsUpdate = false;     
-	}
-
-	virtual void drawEdges(Context* context, Camera& camera, Transformation& transformation)
-	{
-        if (!m_EdgeBuffer.isGenerated() || m_EdgeBuffer.size() == 0)
-            return;
-
-        m_EdgeShader->use();
-        //m_EdgeShader->uniform("u_Texture").set(m_Icon->getTexture(0));
-
-        m_EdgeShader->uniform("u_ModelViewMatrix").set(camera.getViewMatrix() * transformation.state());
-        m_EdgeShader->uniform("u_ProjectionMatrix").set(camera.getProjectionMatrix());
-
-        context->geometry().bind(m_EdgeParticleBuffer, *m_EdgeShader);        
-        context->geometry().bind(m_EdgeBuffer, *m_EdgeShader);
-        
-        glVertexAttribDivisorARB(m_EdgeShader->attribute("a_Origin").location(), 0); // Same vertices per instance
-
-        glVertexAttribDivisorARB(m_EdgeShader->attribute("a_SourcePosition").location(), 1);
-        glVertexAttribDivisorARB(m_EdgeShader->attribute("a_SourceColor").location(), 1);
-
-        glVertexAttribDivisorARB(m_EdgeShader->attribute("a_TargetPosition").location(), 1);
-        glVertexAttribDivisorARB(m_EdgeShader->attribute("a_TargetColor").location(), 1);
-        
-        glVertexAttribDivisorARB(m_EdgeShader->attribute("a_Width").location(), 1);
-
-        context->geometry().drawArraysInstanced(GL_POINTS, 0, m_EdgeParticleBuffer.size() / sizeof(EdgeParticle), m_EdgeBuffer.size() / sizeof(Edge));
-        
-        context->geometry().unbind(m_EdgeParticleBuffer);
-        context->geometry().unbind(m_EdgeBuffer);
-	}
-
-    virtual void drawNodes(Context* context, Camera& camera, Transformation& transformation)
-    {       
-        if (!m_NodeBuffer.isGenerated() || m_NodeBuffer.size() == 0)
-            return;
-
-        m_NodeShader->use();
-        m_NodeShader->uniform("u_Texture").set(m_Icon->getTexture(0));
-
-        m_NodeShader->uniform("u_ModelViewMatrix").set(camera.getViewMatrix() * transformation.state());
-        m_NodeShader->uniform("u_ProjectionMatrix").set(camera.getProjectionMatrix());
-
-        context->geometry().bind(m_NodeParticleBuffer, *m_NodeShader);        
-        context->geometry().bind(m_NodeBuffer, *m_NodeShader);
-        
-        glVertexAttribDivisorARB(m_NodeShader->attribute("a_Origin").location(), 0); // Same vertices per instance
-
-        glVertexAttribDivisorARB(m_NodeShader->attribute("a_Position").location(), 1);
-        glVertexAttribDivisorARB(m_NodeShader->attribute("a_Size").location(), 1);
-        glVertexAttribDivisorARB(m_NodeShader->attribute("a_Color").location(), 1);
-
-        context->geometry().drawArraysInstanced(GL_POINTS, 0, m_NodeParticleBuffer.size() / sizeof(NodeParticle), m_NodeBuffer.size() / sizeof(Node));
-        
-        context->geometry().unbind(m_NodeParticleBuffer);
-        context->geometry().unbind(m_NodeBuffer);
-    }
-
-    virtual void draw(Context* context, Camera& camera, Transformation& transformation)
-    {
-        glDisable(GL_DEPTH_TEST);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
-
-        drawEdges(context, camera, transformation);
-        drawNodes(context, camera, transformation);
-    }
-
-    // ----- Nodes Accessors -----
-
-    inline Buffer& getNodes() { return m_NodeBuffer; }
-    
-    void addNode(const Node& node)
-    {
-        m_NodeBuffer.push(&node, sizeof(Node));
-        m_NeedsUpdate = true;
-    }
-
-    inline Node getNode(Node::ID id)
-    {
-        Node node;
-        m_NodeBuffer.get(id, &node, sizeof(Node));
-        return node;
-    }
-
-    inline void setNode(Node::ID id, const Node& node)
-    {
-        m_NodeBuffer.set(id, &node, sizeof(Node));
-        m_NeedsUpdate = true;
-    }
-
-    // ----- Edges Accessors -----
-
-    inline Buffer& getEdges() { return m_EdgeBuffer; }
-
-    void addEdge(const Edge& edge)
-    {
-        m_EdgeBuffer.push(&edge, sizeof(Edge));
-        m_NeedsUpdate = true;
-    }
-
-    inline Edge getEdge(Edge::ID id)
-    {
-        Edge edge;
-        m_EdgeBuffer.get(id, &edge, sizeof(Edge));
-        return edge;
-    }
-
-    inline void setEdge(Edge::ID id, const Edge& edge)
-    {
-        m_EdgeBuffer.set(id, &edge, sizeof(Edge));
-        m_NeedsUpdate = true;
-    }
-
-private:
-	Icon* m_Icon;
-    bool m_NeedsUpdate;
-
-	Shader::Program* m_NodeShader;
-    Buffer m_NodeParticleBuffer;
-	Buffer m_NodeBuffer;
-
-	Shader::Program* m_EdgeShader;
-    Buffer m_EdgeParticleBuffer;
-    Buffer m_EdgeBuffer;
-};
-
+#include <graphiti/Visualizers/Network/GPUGraph.hh>
 
 class NetworkView : public GraphView
 {
@@ -319,7 +58,7 @@ public:
 		return &m_Camera3D;
 	}
 
-	virtual void draw()
+	void draw() override
 	{
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -333,9 +72,16 @@ public:
 		m_Graph->draw(context(), m_Camera3D, transformation);
 	}
 
-	virtual void idle()
+	void idle() override
 	{
-        m_Graph->update();
+        static bool m_Initialized = false;
+        if (!m_Initialized)
+        {
+            m_Graph->initialize(context());
+            m_Initialized = true;
+        }
+
+        m_Graph->idle(context());
 	}
 
 	void notify(IMessage* message)
@@ -379,15 +125,18 @@ public:
             
         // TODO : Emitter system? (Define where particles appear)
 
-        node.Position = 10.0f * glm::vec3(
+        node.Position = 10.0f * glm::vec4
+        (
             RANDOM_FLOAT(-1.0, 1.0),
             RANDOM_FLOAT(-1.0, 1.0),
-            RANDOM_FLOAT(-1.0, 1.0));
-        
-        node.Size = 1.0;
+            RANDOM_FLOAT(-1.0, 1.0),
+            0.0
+        );
 
         node.Color = glm::vec4(1.0, 1.0, 1.0, 1.0);
 
+        node.Size = 1.0;
+        
         m_Graph->addNode(node);
 
         static unsigned int node_count = 0;
@@ -421,7 +170,7 @@ public:
             vvec3.set(value);
 
             GPUGraph::Node node = m_Graph->getNode(id);
-            node.Position = vvec3.value();
+            node.Position = glm::vec4(vvec3.value(), 0.0);
             m_Graph->setNode(id, node);
 
         }
@@ -432,7 +181,7 @@ public:
             if (type == RD_VEC3)
             {
                 vvec3.set(value);
-                c = glm::vec4(vvec3.value(), 1.0);
+                c = glm::vec4(vvec3.value(), 0.0);
             }
             else
             {

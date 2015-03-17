@@ -79,6 +79,7 @@ class Test(script.Script):
 
 		if len(args) >= 3:
 			node_count = int(args[2])
+			edge_count = node_count
 		if len(args) >= 4:
 			edge_count = int(args[3])
 
