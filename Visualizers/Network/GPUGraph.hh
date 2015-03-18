@@ -236,11 +236,18 @@ public:
         Iterations++;
 
         // ----- Copy back to CPU Data -----
-        
+
         if (Iterations == 100)
         {
-            m_OpenCL.enqueueReadBuffer(*m_CL.Queue, *m_CL.NodeInstanceBuffer, CL_TRUE, 0, m_NodeInstanceBuffer.size(), m_NodeInstanceBuffer.ptr(), 0, NULL, NULL);
-            m_OpenCL.enqueueReadBuffer(*m_CL.Queue, *m_CL.EdgeInstanceBuffer, CL_TRUE, 0, m_EdgeInstanceBuffer.size(), m_EdgeInstanceBuffer.ptr(), 0, NULL, NULL);
+            m_OpenCL.enqueueAcquireGLObjects(*m_CL.Queue, 1, &m_CL.NodeInstanceBuffer->Object, 0, 0, NULL);
+            m_OpenCL.enqueueAcquireGLObjects(*m_CL.Queue, 1, &m_CL.EdgeInstanceBuffer->Object, 0, 0, NULL);
+            {
+                m_OpenCL.enqueueReadBuffer(*m_CL.Queue, *m_CL.NodeInstanceBuffer, CL_TRUE, 0, m_NodeInstanceBuffer.size(), m_NodeInstanceBuffer.ptr(), 0, NULL, NULL);
+                m_OpenCL.enqueueReadBuffer(*m_CL.Queue, *m_CL.EdgeInstanceBuffer, CL_TRUE, 0, m_EdgeInstanceBuffer.size(), m_EdgeInstanceBuffer.ptr(), 0, NULL, NULL);
+            }
+            m_OpenCL.enqueueReleaseGLObjects(*m_CL.Queue, 1, &m_CL.EdgeInstanceBuffer->Object, 0, 0, NULL);
+            m_OpenCL.enqueueReleaseGLObjects(*m_CL.Queue, 1, &m_CL.NodeInstanceBuffer->Object, 0, 0, NULL);
+            
             clFinish(m_CL.Queue->Object);
         }
     }
