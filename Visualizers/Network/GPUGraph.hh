@@ -234,6 +234,15 @@ public:
         clFinish(m_CL.Queue->Object);
 
         Iterations++;
+
+        // ----- Copy back to CPU Data -----
+        
+        if (Iterations == 100)
+        {
+            m_OpenCL.enqueueReadBuffer(*m_CL.Queue, *m_CL.NodeInstanceBuffer, CL_TRUE, 0, m_NodeInstanceBuffer.size(), m_NodeInstanceBuffer.ptr(), 0, NULL, NULL);
+            m_OpenCL.enqueueReadBuffer(*m_CL.Queue, *m_CL.EdgeInstanceBuffer, CL_TRUE, 0, m_EdgeInstanceBuffer.size(), m_EdgeInstanceBuffer.ptr(), 0, NULL, NULL);
+            clFinish(m_CL.Queue->Object);
+        }
     }
 
 	void idle(Context* context)
