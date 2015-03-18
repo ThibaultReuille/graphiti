@@ -11,7 +11,7 @@ class NetworkController : public GraphController
 public:
 	NetworkController()
 	{
-		m_Font = new Font();
+		m_Font = new rd::Font();
 
         m_WidgetGroup = new WidgetGroup("mesh controller group");
         m_WidgetSpacing = 10;
@@ -184,7 +184,7 @@ private:
 
 	Camera m_Camera;
 
-	Font* m_Font;
+	rd::Font* m_Font;
 
 	glm::vec2 m_WidgetDimension;
 	float m_WidgetSpacing;

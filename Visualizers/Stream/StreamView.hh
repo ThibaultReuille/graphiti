@@ -17,7 +17,7 @@ public:
 		LOG("[TIMESERIES] Creating view ...\n");
 
 		m_TimeSeriesEntity = NULL;
-		m_Font = new Font();
+		m_Font = new rd::Font();
 	}
 
 	virtual ~StreamView()
@@ -76,6 +76,6 @@ private:
 
 	Camera m_Camera2D;
 
-	Font* m_Font;
+	rd::Font* m_Font;
 };
 

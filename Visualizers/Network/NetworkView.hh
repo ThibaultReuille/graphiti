@@ -19,7 +19,7 @@ public:
 		LOG("[NETWORK] Creating network view ...\n");
 
 		m_GraphEntity = NULL;
-		m_Font = new Font();
+		m_Font = new rd::Font();
 		m_Graph = new GPUGraph();
 	}
 
@@ -317,7 +317,7 @@ private:
 	Camera m_Camera2D;
 	Camera m_Camera3D;
 
-	Font* m_Font;
+	rd::Font* m_Font;
 
 	GPUGraph* m_Graph;
     TranslationMap<GPUGraph::NodeInstance::ID, unsigned int> m_NodeMap;

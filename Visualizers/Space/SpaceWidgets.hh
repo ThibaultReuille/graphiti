@@ -403,7 +403,7 @@ class SpaceMenu //  : public WidgetGroup
 public:
     SpaceMenu()
     {
-        m_Font = new Font();
+        m_Font = new rd::Font();
         m_WidgetDimension = glm::vec2(20, 20);
         m_WidgetSpacing = 10;
 
@@ -623,7 +623,7 @@ public:
         m_TopRightWidgetGroup->draw(context, glm::mat4(), m_Camera.getViewMatrix(), m_Camera.getProjectionMatrix());
     }
 
-    inline Font* getFont() { return m_Font; }
+    inline rd::Font* getFont() { return m_Font; }
     inline MarkerWidget* getMarkerWidget() { return m_MarkerWidget; }
     inline TextWidget* getNodeTextWidget() { return m_NodeTextWidget; }
     inline TextWidget* getEdgeTextWidget() { return m_EdgeTextWidget; }
@@ -644,7 +644,7 @@ public:
 
 private:
     Camera m_Camera;
-    Font* m_Font;
+    rd::Font* m_Font;
     glm::vec2 m_WidgetDimension;
     float m_WidgetSpacing;
     WidgetGroup* m_TopLeftWidgetGroup;

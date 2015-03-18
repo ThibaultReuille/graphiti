@@ -31,7 +31,7 @@ public:
 
 		m_PointCloud = new PointCloud();
 
-		m_Font = new Font();
+		m_Font = new rd::Font();
 		m_AxisLabels[0].set("x", m_Font);
 		m_AxisLabels[0].setColor(glm::vec4(1.0, 0.0, 0.0, 1.0));
 		m_AxisLabels[1].set("y", m_Font);
@@ -429,7 +429,7 @@ private:
 
 	MarchingCubes m_MarchingCubes;
 
-	Font* m_Font;
+	rd::Font* m_Font;
 	Text m_AxisLabels[3];
 };
 

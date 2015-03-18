@@ -294,7 +294,7 @@ public:
 			NodeTargetIcon->load("target", Assets_target_png, sizeof(Assets_target_png));
 			//m_NodeSphereTexture = ResourceManager::getInstance().loadTexture("perlin", Assets_Spheres_perlin_jpg, sizeof(Assets_Spheres_perlin_jpg));
 
-			NodeFont = new Font();
+			NodeFont = new rd::Font();
 			NodeActivityIcon = new Icon();
 			NodeActivityIcon->load("node_activity", Assets_SpaceView_node_activity_png, sizeof(Assets_SpaceView_node_activity_png));
 		}
@@ -391,7 +391,7 @@ public:
 	Icon* NodeIcon;
 	Icon* NodeMarkIcon;
 	Icon* NodeTargetIcon;
-	Font* NodeFont;
+	rd::Font* NodeFont;
 	Icon* NodeActivityIcon;
 
 	// Edges

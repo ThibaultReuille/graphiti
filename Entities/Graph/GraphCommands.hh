@@ -40,7 +40,7 @@ public:
         m_Input.Value = std::string(value);
     }
 
-    virtual Sequence::Status play(Timecode timecode)
+    virtual Sequence::SequenceStatus play(Timecode timecode)
     {
         (void) timecode;
         m_Graph->setAttribute(m_Input.Name.c_str(), m_Input.Type.c_str(), m_Input.Value.c_str());
@@ -65,7 +65,7 @@ public:
         m_Input.Label = std::string(label);
     }
 
-    virtual Sequence::Status play(Timecode timecode)
+    virtual Sequence::SequenceStatus play(Timecode timecode)
     {
         (void) timecode;
         m_Output.ID = m_Graph->addNode(m_Input.Label.c_str());
@@ -86,7 +86,7 @@ public:
         m_Input.ID = id;
     }
 
-    virtual Sequence::Status play(Timecode timecode)
+    virtual Sequence::SequenceStatus play(Timecode timecode)
     {
         (void) timecode;
         m_Graph->removeNode(m_Input.ID);
@@ -109,7 +109,7 @@ public:
         m_Input.Value = std::string(value);
     }
 
-    virtual Sequence::Status play(Timecode timecode)
+    virtual Sequence::SequenceStatus play(Timecode timecode)
     {
         (void) timecode;
         m_Graph->setNodeAttribute(m_Input.UID, m_Input.Name.c_str(), m_Input.Type.c_str(), m_Input.Value.c_str());
@@ -136,7 +136,7 @@ public:
         m_Input.UID2 = uid2;
     }
 
-    virtual Sequence::Status play(Timecode timecode)
+    virtual Sequence::SequenceStatus play(Timecode timecode)
     {
         (void) timecode;
         m_Output.UID = m_Graph->addEdge(m_Input.UID1, m_Input.UID2);
@@ -162,7 +162,7 @@ public:
         m_Input.UID = id;
     }
 
-    virtual Sequence::Status play(Timecode timecode)
+    virtual Sequence::SequenceStatus play(Timecode timecode)
     {
         (void) timecode;
         m_Graph->removeEdge(m_Input.UID);
@@ -185,7 +185,7 @@ public:
         m_Input.Value = std::string(value);
     }
 
-    virtual Sequence::Status play(Timecode timecode)
+    virtual Sequence::SequenceStatus play(Timecode timecode)
     {
         (void) timecode;
         m_Graph->setEdgeAttribute(m_Input.UID, m_Input.Name.c_str(), m_Input.Type.c_str(), m_Input.Value.c_str());

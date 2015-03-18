@@ -13,7 +13,7 @@ class CloudController : public GraphController
 public:
 	CloudController()
 	{
-		m_Font = new Font();
+		m_Font = new rd::Font();
 
 		m_WidgetSpacing = 10;
 		m_WidgetDimension = glm::vec2(24, 24);
@@ -254,7 +254,7 @@ private:
 
 	Camera m_Camera;
 
-	Font* m_Font;
+	rd::Font* m_Font;
 
 	glm::vec2 m_WidgetDimension;
 	float m_WidgetSpacing;

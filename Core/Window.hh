@@ -6,7 +6,7 @@
 #include <graphiti/Entities/MVC.hh>
 #include <graphiti/Entities/Root.hh>
 
-class GLWindow : public Window
+class GLWindow : public rd::Window
 {
 public:
     GLWindow(const char* title, const int width, const int height, Root* parent = NULL)
