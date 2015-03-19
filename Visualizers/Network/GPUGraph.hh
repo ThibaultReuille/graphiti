@@ -76,6 +76,7 @@ public:
         // m_EdgeShader->dump();
 
         m_NeedsUpdate = true;
+        m_CL.RunPhysics = false;
 	}
 
 	virtual ~GPUGraph()
@@ -172,7 +173,7 @@ public:
         size_t node_count = m_NodeInstanceBuffer.size() / sizeof(NodeInstance);
         size_t edge_count = m_EdgeInstanceBuffer.size() / sizeof(EdgeInstance);
 
-        if (node_count == 0) // TODO: HACK: OpenGL doesn't like VBO resizing, Find a way to handle it properly.
+        if (node_count == 0 || !m_CL.RunPhysics) // TODO: HACK: OpenGL doesn't like VBO resizing, Find a way to handle it properly.
             return;
 
         static bool m_OCLNeedsUpdate = true;
@@ -375,6 +376,11 @@ public:
         m_NeedsUpdate = true;
     }
 
+    // ----- Parameters ------
+
+    inline void setPhysics(bool flag) { m_CL.RunPhysics = flag; }
+    inline bool getPhysics() { return m_CL.RunPhysics; }
+
 private:
 	Icon* m_Icon;
     bool m_NeedsUpdate;
@@ -390,6 +396,8 @@ private:
     struct OCLData
     {
         OCLData() {}
+
+        bool RunPhysics;
 
         OpenCL::Device* Device;
         OpenCL::Context* Context;

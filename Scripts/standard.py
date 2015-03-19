@@ -52,11 +52,18 @@ node_attributes = [
     { 'name' : "og:space:size",         'type' : "float" },
     # TODO : { 'name' : "og:space:icon",         'type' : "string" },
 
+    { 'name' : "og:network:position",     'type' : "vec3" },
+    { 'name' : "og:network:color",        'type' : "vec4" },
+    { 'name' : "og:network:locked",       'type' : "bool" },
+    { 'name' : "og:network:lod",          'type' : "float" },
+    { 'name' : "og:network:activity",     'type' : "float" },
+    { 'name' : "og:network:mark",         'type' : "int" },
+    { 'name' : "og:network:size",         'type' : "float" },
+    # TODO : { 'name' : "og:network:icon",         'type' : "string" },
+
     { 'name' : "og:world:geolocation",  'type' : "vec2" },
     { 'name' : "og:world:color",        'type' : "vec4" },
-    { 'name' : "og:world:size",         'type' : "float" },
-
-    { 'name' : "og:particles:position", 'type' : "vec3" }
+    { 'name' : "og:world:size",         'type' : "float" }
 ]
 
 edge_attributes = [
@@ -71,6 +78,13 @@ edge_attributes = [
     { 'name' : "og:space:color2",   'type' : "vec4" },
     { 'name' : "og:space:width",    'type' : "float" },
     { 'name' : "og:space:lod",      'type' : "float" },
+    # TODO : { 'name' : "og:space:icon", 'type' : "string" }
+
+    { 'name' : "og:network:color1",   'type' : "vec4" },
+    { 'name' : "og:network:color2",   'type' : "vec4" },
+    { 'name' : "og:network:width",    'type' : "float" },
+    # TODO { 'name' : "og:network:activity", 'type' : 'float' },
+    # TODO { 'name' : "og:network:lod",      'type' : "float" },
     # TODO : { 'name' : "og:space:icon", 'type' : "string" }
 
     { 'name' : "og:world:color",    'type' : "vec4" }

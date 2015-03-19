@@ -111,16 +111,26 @@ public:
 
 	// ----- Graph Events -----
 
-
     void onSetAttribute(const std::string& name, VariableType type, const std::string& value) override
     {
-        LOG("onSetAttribute(%s, %i, %s)\n", name.c_str(), (int)type, value.c_str());
+        BooleanVariable vbool;
+
+        if ((name == "space:physics" || name == "network:physics") && type == RD_BOOLEAN)
+        {
+            vbool.set(value);
+            m_Graph->setPhysics(vbool.value());
+        }
+    }
+
+    virtual IVariable* getAttribute(const std::string& name)
+    {
+        LOG("[NETWORK] getAttribute(%s)\n", name.c_str());
+
+        return NULL;
     }
 
     void onAddNode(Node::ID uid, const char* label) override // TODO : Attributes in Variables object
     {
-        // LOG("onAddNode(%lu, %s)\n", uid, label);
-
         GPUGraph::NodeInstance node;
             
         // TODO : Emitter system? (Define where particles appear)
@@ -154,8 +164,6 @@ public:
 
     void onSetNodeAttribute(Node::ID uid, const std::string& name, VariableType type, const std::string& value) override
     {
-        // LOG("onSetNodeAttribute(%lu, %s, %i, %s)\n", uid, name.c_str(), (int)type, value.c_str());
-
         BooleanVariable vbool;
         Vec3Variable vvec3;
         Vec4Variable vvec4;
@@ -165,7 +173,7 @@ public:
 
         GPUGraph::NodeInstance::ID id = m_NodeMap.getLocalID(uid);
 
-        if ((name == "space:position" || name == "particles:position") && type == RD_VEC3)
+        if ((name == "space:position" || name == "network:position") && type == RD_VEC3)
         {
             vvec3.set(value);
 
@@ -174,7 +182,7 @@ public:
             m_Graph->setNode(id, node);
 
         }
-        else if (name == "space:color" && (type == RD_VEC3 || type == RD_VEC4))
+        else if ((name == "space:color" || name == "network:color") && (type == RD_VEC3 || type == RD_VEC4))
         {
             glm::vec4 c;
 
@@ -193,7 +201,7 @@ public:
             node.Color = vvec4.value();
             m_Graph->setNode(id, node);
         }
-        else if (name == "space:size" && type == RD_FLOAT)
+        else if ((name == "space:size" || name == "network:size") && type == RD_FLOAT)
         {
             vfloat.set(value);
 
@@ -201,6 +209,52 @@ public:
             node.Size = vfloat.value();
             m_Graph->setNode(id, node);        
         }
+    }
+
+    virtual IVariable* getNodeAttribute(Node::ID uid, std::string& name)
+    {
+        GPUGraph::NodeInstance::ID id = m_NodeMap.getLocalID(uid);
+ 
+        if (name == "position")
+        {
+            Vec3Variable* variable = new Vec3Variable();
+            variable->set(m_Graph->getNode(id).Position.xyz());
+            return variable;
+        }
+        else if (name == "color")
+        {
+            Vec4Variable* variable = new Vec4Variable();
+            variable->set(m_Graph->getNode(id).Color);
+            return variable;
+        }
+        else if (name == "size")
+        {
+            FloatVariable* variable = new FloatVariable();
+            variable->set(m_Graph->getNode(id).Size);
+            return variable;
+        }
+        /* TODO
+        else if (name == "locked")
+        {
+            BooleanVariable* variable = new BooleanVariable();
+            variable->set(m_SpaceNodes[id]->isPositionLocked());
+            return variable;
+        }
+        else if (name == "activity")
+        {
+            FloatVariable* variable = new FloatVariable();
+            variable->set(static_cast<SpaceNode*>(m_SpaceNodes[id])->getActivity());
+            return variable;
+        }
+        else if (name == "mark")
+        {
+            IntVariable* variable = new IntVariable();
+            variable->set(static_cast<SpaceNode*>(m_SpaceNodes[id])->getMark());
+            return variable;
+        }
+        */
+
+        return NULL;
     }
 
     void onAddEdge(Edge::ID uid, Node::ID uid1, Node::ID uid2) override
@@ -237,13 +291,11 @@ public:
 
     void onRemoveEdge(Edge::ID uid) override
     {
-        // LOG("onRemoveEdge(%lu)\n", uid);
+        LOG("onRemoveEdge(%lu)\n", uid);
     }
 
     void onSetEdgeAttribute(Edge::ID uid, const std::string& name, VariableType type, const std::string& value) override
     {
-        // LOG("onSetEdgeAttribute(%lu %s, %i, %s)\n", uid, name.c_str(), (int)type, value.c_str());
-
         FloatVariable vfloat;
         Vec3Variable vvec3;
         Vec4Variable vvec4;
@@ -252,7 +304,7 @@ public:
         checkEdgeUID(uid);
         GPUGraph::EdgeInstance::ID id = m_EdgeMap.getLocalID(uid);
 
-        if (name == "space:color" && type == RD_VEC4)
+        if ((name == "space:color" || name == "network:color") && type == RD_VEC4)
         {
             vvec4.set(value);
             
@@ -261,7 +313,7 @@ public:
             edge.TargetColor = vvec4.value();
             m_Graph->setEdge(id, edge);
         }
-        else if (name == "space:color1" && type == RD_VEC4)
+        else if ((name == "space:color1" || name == "network:color1") && type == RD_VEC4)
         {
             vvec4.set(value);
             
@@ -269,7 +321,7 @@ public:
             edge.SourceColor = vvec4.value();
             m_Graph->setEdge(id, edge);
         }
-        else if (name == "space:color2" && type == RD_VEC4)
+        else if ((name == "space:color2" || name == "network:color2") && type == RD_VEC4)
         {
             vvec4.set(value);
             
@@ -277,7 +329,7 @@ public:
             edge.TargetColor = vvec4.value();
             m_Graph->setEdge(id, edge);
         }
-        else if (name == "space:width" && type == RD_FLOAT)
+        else if ((name == "space:width" || name == "network:color") && type == RD_FLOAT)
         {
             vfloat.set(value);
             
@@ -287,23 +339,38 @@ public:
         }
     }
 
-	virtual IVariable* getAttribute(const std::string& name)
-	{
-		LOG("[NETWORK] getAttribute(%s)\n", name.c_str());
-
-		return NULL;
-	}
-
-    virtual IVariable* getNodeAttribute(Node::ID id, std::string& name)
+    virtual IVariable* getEdgeAttribute(Edge::ID uid, std::string& name)
     {
-    	LOG("[NETWORK] getNodeAttribute(%i, %s)\n", id, name.c_str());
-    	return NULL;
-    }
+        GPUGraph::EdgeInstance::ID id = m_EdgeMap.getLocalID(uid);
+ 
+        if (name == "color1")
+        {
+            Vec4Variable* variable = new Vec4Variable();
+            variable->set(m_Graph->getEdge(id).SourceColor);
+            return variable;
+        }
+        else if (name == "color2")
+        {
+            Vec4Variable* variable = new Vec4Variable();
+            variable->set(m_Graph->getEdge(id).TargetColor);
+            return variable;
+        }
+        else if (name == "width")
+        {
+            FloatVariable* variable = new FloatVariable();
+            variable->set(m_Graph->getEdge(id).Width);
+            return variable;
+        }
+        /*
+        else if (name == "activity")
+        {
+            FloatVariable* variable = new FloatVariable();
+            variable->set();
+            return variable;
+        }
+        */
 
-    virtual IVariable* getEdgeAttribute(Edge::ID id, std::string& name)
-    {
-    	LOG("[NETWORK] getEdgeAttribute(%i, %s)\n", id, name.c_str());
-    	return NULL;
+        return NULL;
     }
 
     inline GraphContext* context() { return static_cast<GraphContext*>(m_GraphEntity->context()); }

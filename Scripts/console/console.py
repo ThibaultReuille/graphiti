@@ -4,7 +4,7 @@ from script import *
 import edition
 import layout
 import query
-import camera
+import player
 import test
 import graph
 import opendns
@@ -209,8 +209,11 @@ class Console(object):
 				"query" : query.Query(self),
 
 				"layout" : layout.Layout(self),
-				"camera" : camera.Camera(self),
+				"play" : player.Play(self),
+				"stop" : player.Stop(self),
+
 				"topo" : graph.Topology(self),
+
 				"test" : test.Test(self),
 
 				"help" : Help(self),
