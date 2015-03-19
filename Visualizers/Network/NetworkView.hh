@@ -289,21 +289,20 @@ public:
 
 	virtual IVariable* getAttribute(const std::string& name)
 	{
-		(void) name;
+		LOG("[NETWORK] getAttribute(%s)\n", name.c_str());
+
 		return NULL;
 	}
 
     virtual IVariable* getNodeAttribute(Node::ID id, std::string& name)
     {
-    	(void) id;
-    	(void) name;
+    	LOG("[NETWORK] getNodeAttribute(%i, %s)\n", id, name.c_str());
     	return NULL;
     }
 
     virtual IVariable* getEdgeAttribute(Edge::ID id, std::string& name)
     {
-    	(void) id;
-    	(void) name;
+    	LOG("[NETWORK] getEdgeAttribute(%i, %s)\n", id, name.c_str());
     	return NULL;
     }
 

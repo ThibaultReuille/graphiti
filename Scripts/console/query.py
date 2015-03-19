@@ -101,3 +101,63 @@ class Find(script.Script):
 			self.console.query = { 'edges' : found }
 
 		self.console.print_query()
+
+class Filter(script.Script):
+	def __init__(self, console):
+		super(Filter, self).__init__(console)
+		self.attribute_cache = dict()
+
+	def get_node_attribute(self, nid, attribute):
+		if nid in self.attribute_cache:
+			return self.attribute_cache[nid]
+
+		if attribute == "label":
+			return og.get_node_label(nid)
+		else:
+			return og.get_node_attribute(nid, attribute)
+
+	def run(self, args):
+		if len(args) <= 1 or len(args) > 4:
+			self.console.log("Usage: {0} <attribute> <pattern1> [pattern2]".format(args[0]))
+			return
+
+		found = list()
+
+		attribute = args[1]
+		pattern1 = args[2]
+
+		if len(args) == 3:
+
+			self.attribute_cache = dict() # Clearing cache
+
+			for nid in og.get_node_ids():
+				value = self.get_node_attribute(nid, attribute)
+				if value is None:
+					continue
+				if fnmatch.fnmatch(value, pattern1):
+					found.append(nid)
+			self.console.query = { 'nodes' : found }
+
+		elif len(args) == 4:
+
+			pattern2 = args[3]
+			self.attribute_cache = dict() # Clearing cache
+
+			for eid in og.get_edge_ids():
+				value1 = self.get_node_attribute(og.get_edge_node1(eid), attribute)
+				value2 = self.get_node_attribute(og.get_edge_node2(eid), attribute)
+
+				if value1 is None or value2 is None:
+					continue
+
+				if (
+					fnmatch.fnmatch(value1, pattern1) and fnmatch.fnmatch(value2, pattern2)
+				) or (
+					fnmatch.fnmatch(value2, pattern1) and fnmatch.fnmatch(value1, pattern2)
+				):
+					found.append(eid)
+			self.console.query = { 'edges' : found }
+
+		self.console.print_query()
+
+

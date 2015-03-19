@@ -205,6 +205,7 @@ class Console(object):
 				"clear" : edition.Clear(self),
 
 				"find" : query.Find(self),
+				"filter" : query.Filter(self),
 				"query" : query.Query(self),
 
 				"layout" : layout.Layout(self),
