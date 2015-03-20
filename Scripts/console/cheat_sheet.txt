@@ -1,0 +1,118 @@
+Shell Cheat Sheet:
+==================
+
+# Basic Commands
+
+help
+	$ help
+
+info
+	$ info
+
+load
+	$ load my_dataset.json
+save
+	$ save my_graph.json
+
+set
+	$ set my_attribute my_value
+	$ set float og:space:size 2.0
+	$ set vec4 og:space:color 1.0 0.0 0.0 0.5     <--- RGBA components
+
+get
+	$ get my_attribute
+	$ get og:space:size
+
+remove
+	$ remove
+
+map
+	$ map float og:space:size to float og:space:activity
+
+clear
+	$ clear graph
+	$ clear colors
+	$ clear icons
+	$ clear activity
+	$ clear lod
+
+color
+	$ color orange
+	$ color by type
+	$ color by my_attribute
+	$ color set rgb 0.7
+	$ color set rgb 1 .46 0 1
+	$ color mul alpha 0.8
+	$ color add rgba .2
+
+
+# Queries
+
+find
+	$ find blah        	<--- Find Node named blah
+	$ find *blah*      	<--- Find nodes matching "*blah*"
+	$ find blah plop	<--- Find edge between blah and plop
+	$ find blah *       <--- Find all edges connected to node named blah
+
+filter
+	$ filter type 2     <--- Select all nodes with type "2"
+	$ filter my_attribute value_pattern   <--- Select all nodes with my_attribute matches value_pattern
+	$ filter cc US      <--- Select all nodes where "cc" attribute (Country code) is US
+
+	$ filter type 2 3   <--- Select all edges connecting a node with type 2 and a node with type 3
+
+query
+	- Undocumented for now, working on real query language.
+
+# Layout / Animation
+
+layout
+	$ layout point
+	$ layout sphere
+	$ layout sphere 50
+	$ layout cube
+	$ layout cone
+	# layout seeds   <--- Place nodes with depth 0 on a circle
+	# layout globe   <--- If nodes have geocoordinates, place them on a globe sphere.
+
+play
+	$ play camera
+	$ play physics
+
+stop
+	$ stop camera
+	$ stop physics
+
+# Graph Commands
+
+topo
+	$ topo neighbors
+	$ topo cc 			<-- Connected Components
+	$ topo directions
+	$ topo connections  <-- Color nodes depending on their in/out degree (Internal, Sink, Source, Leaf)
+	$ topo degrees      <-- Highlight nodes with high degrees
+	$ topo degrees high
+	$ topo degrees low  <-- Highlight nodes with low degrees
+	$ topo spn          <-- Apply SPN model (See research presentations)
+
+# Test
+
+test
+	$ test debug				<--- Activate debug mode
+	$ test graph        		<--- Generate a random graph with 1k nodes, 1k edges.
+	$ test graph 500    		<--- Generate a random graph with 500 nodes, 500 edges.
+	$ test graph 100 200 		<--- Generate a random graph with 100 nodes, 200 edges.
+	$ test randomize activity  	<--- Randomize the graph activity attribute
+	$ test randomize icons
+	$ test randomize lod
+	$ test randomize node size
+	$ test randomize edge width
+	$ test randomize timeline
+	$ test neighbor plop        <--- Add a neighbor "plop" to selected node.
+
+# Custom Commands
+
+opendns
+	$ opendns infected         	<--- Show infected score (Whitelisted/Blocked)
+	$ opendns dga				<--- Show DGA score on red gradient (Red: DGA, White: Benign)
+
