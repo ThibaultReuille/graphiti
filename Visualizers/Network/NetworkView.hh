@@ -3,6 +3,7 @@
 #include <raindance/Core/Headers.hh>
 #include <raindance/Core/Clock.hh>
 #include <raindance/Core/Camera/Camera.hh>
+#include <raindance/Core/Primitives/Axis.hh>
 #include <raindance/Core/Primitives/Quad.hh>
 #include <raindance/Core/Resources/Texture.hh>
 
@@ -18,6 +19,8 @@ public:
 	{
 		LOG("[NETWORK] Creating network view ...\n");
 
+        m_Axis = new Axis();
+
 		m_GraphEntity = NULL;
 		m_Font = new rd::Font();
 		m_Graph = new GPUGraph();
@@ -26,7 +29,7 @@ public:
 	virtual ~NetworkView()
 	{
 		SAFE_DELETE(m_Font);
-
+        SAFE_DELETE(m_Axis);
 		SAFE_DELETE(m_Graph);
 	}
 
@@ -60,16 +63,21 @@ public:
 
 	void draw() override
 	{
-		glClearColor(0.0, 0.0, 0.0, 1.0);
+		glClearColor(0.2, 0.2, 0.2, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
+		Transformation transformation;
+
         glDisable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
 
-		Transformation transformation;
+        transformation.push();
+        transformation.scale(glm::vec3(10, 10, 10));
+        m_Axis->draw(context(), m_Camera3D, transformation);
+        transformation.pop();
 
-		m_Graph->draw(context(), m_Camera3D, transformation);
+    	m_Graph->draw(context(), m_Camera3D, transformation);
 	}
 
 	void idle() override
@@ -384,6 +392,8 @@ private:
 	Camera m_Camera3D;
 
 	rd::Font* m_Font;
+
+    Axis* m_Axis;
 
 	GPUGraph* m_Graph;
     TranslationMap<GPUGraph::NodeInstance::ID, unsigned int> m_NodeMap;

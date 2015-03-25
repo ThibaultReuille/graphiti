@@ -279,17 +279,21 @@ public:
         context->geometry().bind(m_EdgeInstanceBuffer, *m_EdgeShader);
         
         glVertexAttribDivisorARB(m_EdgeShader->attribute("a_Origin").location(), 0); // Same vertices per instance
-
         glVertexAttribDivisorARB(m_EdgeShader->attribute("a_SourcePosition").location(), 1);
         glVertexAttribDivisorARB(m_EdgeShader->attribute("a_SourceColor").location(), 1);
-
         glVertexAttribDivisorARB(m_EdgeShader->attribute("a_TargetPosition").location(), 1);
         glVertexAttribDivisorARB(m_EdgeShader->attribute("a_TargetColor").location(), 1);
-        
         glVertexAttribDivisorARB(m_EdgeShader->attribute("a_Width").location(), 1);
 
         context->geometry().drawArraysInstanced(GL_POINTS, 0, m_EdgeParticleBuffer.size() / sizeof(EdgeParticle), m_EdgeInstanceBuffer.size() / sizeof(EdgeInstance));
         
+        glVertexAttribDivisorARB(m_EdgeShader->attribute("a_Origin").location(), 0);
+        glVertexAttribDivisorARB(m_EdgeShader->attribute("a_SourcePosition").location(), 0);
+        glVertexAttribDivisorARB(m_EdgeShader->attribute("a_SourceColor").location(), 0);
+        glVertexAttribDivisorARB(m_EdgeShader->attribute("a_TargetPosition").location(), 0);
+        glVertexAttribDivisorARB(m_EdgeShader->attribute("a_TargetColor").location(), 0);
+        glVertexAttribDivisorARB(m_EdgeShader->attribute("a_Width").location(), 0);
+
         context->geometry().unbind(m_EdgeParticleBuffer);
         context->geometry().unbind(m_EdgeInstanceBuffer);
 	}
@@ -309,23 +313,23 @@ public:
         context->geometry().bind(m_NodeInstanceBuffer, *m_NodeShader);
         
         glVertexAttribDivisorARB(m_NodeShader->attribute("a_Origin").location(), 0); // Same vertices per instance
-
         glVertexAttribDivisorARB(m_NodeShader->attribute("a_Position").location(), 1);
         glVertexAttribDivisorARB(m_NodeShader->attribute("a_Color").location(), 1);
         glVertexAttribDivisorARB(m_NodeShader->attribute("a_Size").location(), 1);
-        
+
         context->geometry().drawArraysInstanced(GL_POINTS, 0, m_NodeParticleBuffer.size() / sizeof(NodeParticle), m_NodeInstanceBuffer.size() / sizeof(NodeInstance));
         
+        glVertexAttribDivisorARB(m_NodeShader->attribute("a_Origin").location(), 0);
+        glVertexAttribDivisorARB(m_NodeShader->attribute("a_Position").location(), 0);
+        glVertexAttribDivisorARB(m_NodeShader->attribute("a_Color").location(), 0);
+        glVertexAttribDivisorARB(m_NodeShader->attribute("a_Size").location(), 0);
+
         context->geometry().unbind(m_NodeParticleBuffer);
         context->geometry().unbind(m_NodeInstanceBuffer);
     }
 
     virtual void draw(Context* context, Camera& camera, Transformation& transformation)
     {
-        glDisable(GL_DEPTH_TEST);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
-
         drawEdges(context, camera, transformation);
         drawNodes(context, camera, transformation);
     }
