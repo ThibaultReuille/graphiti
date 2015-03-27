@@ -6,6 +6,7 @@ Pack
 # Build files
 CMakeFiles/
 *.cmake
+CMakeCache.txt
 Makefile
 graphiti
 Pack.hh
