@@ -13,6 +13,8 @@ add_custom_command(OUTPUT Pack.hh
     COMMAND . pack.sh 
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
 
+SET( CMAKE_EXE_LINKER_FLAGS   "-L/usr/local/Cellar/glfw3/3.1/lib -lglfw3")
+
 add_executable(graphiti Main.cc Pack.hh)
 
 ### ----- Compiler Configuration -----
