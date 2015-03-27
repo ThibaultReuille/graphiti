@@ -3,3 +3,9 @@ graphiti
 *.pyc
 Pack
 
+# Build files
+CMakeFiles/
+*.cmake
+Makefile
+graphiti
+Pack.hh
