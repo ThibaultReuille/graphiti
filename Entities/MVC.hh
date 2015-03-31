@@ -5,6 +5,7 @@
 #include <raindance/Core/Variables.hh>
 #include <raindance/Core/GUI/View.hh>
 #include <raindance/Core/Manager.hh>
+#include <raindance/Core/Interface/Document.hh>
 
 // TODO : This should probably all be moved into the Raindance engine
 
@@ -41,7 +42,6 @@ public:
 
 EntityModel::~EntityModel() {}
 
-
 // ------------------------
 
 class EntityView : public View, public EntityBase
@@ -62,19 +62,102 @@ public:
     virtual ~EntityController() = 0;
     virtual void draw() {}
     virtual void idle() {}
+
+    virtual void onResize(const Viewport& viewport) 
+    {
+        LOG("EntityController::onResize()\n");
+    } 
 };
 
 EntityController::~EntityController() {}
 
 // ------------------------
 
-class EntityVisualizer : public EntityBase
+class EntityVisualizer : public EntityBase, public Document
 {
 public:
     virtual ~EntityVisualizer() {}
     virtual bool bind(const Viewport& viewport, Entity* entity) = 0;
     virtual EntityView* view() { return m_EntityView; }
     virtual EntityController* controller() { return m_EntityController; }
+
+    void draw() override
+    {
+        auto position = this->position() + glm::vec3(
+            this->margin().left() + this->border().left() + this->padding().left(),
+            this->margin().bottom() + this->border().bottom() + this->padding().bottom(),
+            0);
+   
+        glEnable(GL_SCISSOR_TEST);
+        glViewport(position.x, position.y, this->content().getWidth(), this->content().getHeight());
+        glScissor(position.x, position.y, this->content().getWidth(), this->content().getHeight());
+
+        if (view() != NULL)
+            view()->draw();
+        if (controller() != NULL)
+            controller()->draw();   
+
+        glDisable(GL_SCISSOR_TEST);
+    }
+
+    void idle() override
+    {
+        if (view() != NULL)
+            view()->idle();
+        if (controller() != NULL)
+            controller()->idle();  
+    }
+
+    void onResize(const Viewport& viewport) override
+    {
+        if (controller())
+           controller()->onResize(viewport);
+    } 
+
+    void onKey(int key, int scancode, int action, int mods) override
+    {
+        if (controller() != NULL)
+            controller()->onKey(key, scancode, action, mods);
+    }
+
+    void onMouseDown(const glm::vec2& pos) override
+    {
+        if (controller() != NULL)
+            controller()->onMouseDown(pos);
+    }
+
+    void onMouseClick(const glm::vec2& pos) override
+    { 
+        if (controller() != NULL)
+            controller()->onMouseClick(pos);
+    }
+
+    void onMouseDoubleClick(const glm::vec2& pos) override
+    {
+        if (controller() != NULL)
+            controller()->onMouseDoubleClick(pos);
+    }
+
+    void onMouseTripleClick(const glm::vec2& pos) override
+    { 
+        if (controller() != NULL)
+            controller()->onMouseTripleClick(pos);
+    }
+
+    void onMouseMove(const glm::vec2& pos, const glm::vec2& dpos) override
+    {
+        if (controller() != NULL)
+            controller()->onMouseMove(pos, dpos);
+    }
+
+    void onScroll(double xoffset, double yoffset) override
+    {
+        // TODO: Route scroll to the active element
+        if (controller() != NULL)
+            controller()->onScroll(xoffset, yoffset);
+    }
+
+
 
 protected:
     void set(EntityView* view) { m_EntityView = view; }

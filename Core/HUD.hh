@@ -14,9 +14,7 @@ class GraphitiHUD : public Controller
 public:
 	GraphitiHUD(const Viewport& viewport)
 	{
-		m_WindowWidth = (int) viewport.getDimension()[0];
-		m_WindowHeight = (int) viewport.getDimension()[1];
-		LOG("[HUD] Creating HUD with %ix%i viewport\n", m_WindowWidth, m_WindowHeight);
+		onResize(viewport);
 
 		m_Camera.setOrthographicProjection(0.0f, (float)m_WindowWidth, 0.0f, (float)m_WindowHeight, 0.001f, 100.f);
 		m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
@@ -70,13 +68,15 @@ public:
 		glEnable(GL_DEPTH_TEST);
 	}
 
-	void reshape(const Viewport& viewport)
+	void onResize(const Viewport& viewport)
 	{
-		m_WindowWidth = viewport.getDimension()[0];
-		m_WindowHeight = viewport.getDimension()[1];
+		auto framebuffer = viewport.getFramebuffer();
 
-		m_Camera.reshape(viewport);
-		m_Camera.setOrthographicProjection(0.0f, viewport.getDimension()[0], 0.0f,  viewport.getDimension()[1], 0.001f, 100.f);
+		m_WindowWidth = framebuffer.Width;
+		m_WindowHeight = framebuffer.Height;
+
+		m_Camera.resize(framebuffer.Width, framebuffer.Height);
+		m_Camera.setOrthographicProjection(0.0f, (float) framebuffer.Width, 0.0f, (float) framebuffer.Height, 0.001f, 100.f);
         m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	}
 

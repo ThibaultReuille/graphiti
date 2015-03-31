@@ -51,7 +51,7 @@ public:
 
 	void onWindowSize(int width, int height) override
 	{
-		m_Camera.reshape(width, height);
+		m_Camera.resize(width, height);
 		m_Camera.setOrthographicProjection(0.0f, (float)width, 0.0f, (float)height, 0.001f, 100.f);
 		m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 

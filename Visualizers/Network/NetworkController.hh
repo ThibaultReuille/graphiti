@@ -53,20 +53,22 @@ public:
 		m_FirstPersonCameraController.bind(context, view->getCamera3D());
 	}
 
-	void onWindowSize(int width, int height) override
+	void onResize(const Viewport& viewport) override
 	{
-		m_Camera.reshape(width, height);
+		auto framebuffer = viewport.getFramebuffer();
+
+		m_Camera.resize(framebuffer.Width, framebuffer.Height);
 		m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
-		m_WidgetGroup->reshape(width, height);
+		m_WidgetGroup->reshape(framebuffer.Width, framebuffer.Height);
 
 		switch(m_NetworkView->getCamera3D()->mode())
 		{
 		case Camera::PERSPECTIVE:
-			m_SphericalCameraController.onWindowSize(width, height);
+			m_SphericalCameraController.onResize(viewport);
 			break;
 		case Camera::ORTHOGRAPHIC:
-			m_FirstPersonCameraController.onWindowSize(width, height);
+			m_FirstPersonCameraController.onResize(viewport);
 			break;
 		}
 	}

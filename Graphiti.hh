@@ -15,7 +15,6 @@
 #include <graphiti/Visualizers/World/WorldVisualizer.hh>
 
 #ifndef EMSCRIPTEN
-# include <graphiti/Visualizers/Particles/ParticleVisualizer.hh>
 # include <graphiti/Visualizers/Stream/StreamVisualizer.hh>
 # include <graphiti/Visualizers/Cloud/CloudVisualizer.hh>
 #endif
@@ -98,18 +97,27 @@ public:
         else if (sname == "world")
             visualizer = new WorldVisualizer();
 #ifndef EMSCRIPTEN
-        else if (sname == "particles")
-            visualizer = new ParticleVisualizer();
         else if (sname == "cloud")
             visualizer = new CloudVisualizer();
         else if (sname == "stream")
             visualizer = new StreamVisualizer();
 #endif
 
-        if (visualizer != NULL && visualizer->bind(window->getViewport(), entity))
+        auto viewport = window->getViewport();
+        auto framebuffer = viewport.getFramebuffer();
+
+        // TODO: Rename "bind" to "attach"
+        if (visualizer != NULL && visualizer->bind(viewport, entity))
         {
-            m_VisualizerManager.add(visualizer);
-            window->addVisualizer(visualizer);
+            //visualizer->border().top(10);
+            //visualizer->border().color(glm::vec4(PINK, 1.0));
+
+            visualizer->content().X = glm::vec2(0, (float) framebuffer.Width);
+            visualizer->content().Y = glm::vec2(0, (float) framebuffer.Height);
+            visualizer->content().Z = glm::vec2(0, 0);
+
+            window->body().elements().push_back(visualizer);
+            
             return true;
         }
         else

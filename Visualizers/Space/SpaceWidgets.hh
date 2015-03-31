@@ -582,8 +582,8 @@ public:
 
     void bind(View* view)
     {
-        m_Camera.setOrthographicProjection(0.0f, view->getViewport().getDimension()[0], 0.0f, view->getViewport().getDimension()[1], 0.001f, 100.f);
-        m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+    	auto viewport = view->getViewport();
+    	onResize(viewport);
     }
 
     IWidget* pickWidget(const glm::vec2& pos)
@@ -606,14 +606,16 @@ public:
         delete m_Font;
     }
 
-    virtual void resize(int width, int height)
+    virtual void onResize(const Viewport& viewport)
     {
-        m_Camera.reshape(width, height);
-        m_Camera.setOrthographicProjection(0.0f, (float)width, 0.0f, (float)height, 0.001f, 100.f);
+    	auto framebuffer = viewport.getFramebuffer();
+
+        m_Camera.resize(framebuffer.Width, framebuffer.Height);
+        m_Camera.setOrthographicProjection(0.0f, (float)framebuffer.Width, 0.0f, (float)framebuffer.Height, 0.001f, 100.f);
         m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
-        m_TopLeftWidgetGroup->reshape(width, height);
-        m_TopRightWidgetGroup->reshape(width, height);
+        m_TopLeftWidgetGroup->reshape(framebuffer.Width, framebuffer.Height);
+        m_TopRightWidgetGroup->reshape(framebuffer.Width, framebuffer.Height);
     }
 
 	virtual void draw(Context* context)

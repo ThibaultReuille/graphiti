@@ -102,7 +102,11 @@ class SpaceView : public GraphView
     {
         m_GraphEntity = entity;
 
-        m_Camera.setPerspectiveProjection(60.0f, getViewport().getDimension()[0] / getViewport().getDimension()[1], 0.1f, 1024.0f);
+        auto viewport = getViewport();
+        auto framebuffer = viewport.getFramebuffer();
+
+        m_Camera.resize(framebuffer.Width, framebuffer.Height);
+        m_Camera.setPerspectiveProjection(60.0f, (float) framebuffer.Width / (float) framebuffer.Height, 0.1f, 1024.0f);
         m_Camera.lookAt(glm::vec3(0, 0, -5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
         m_CameraAnimation = false;
 
@@ -406,10 +410,10 @@ class SpaceView : public GraphView
 
             SpaceNode* spaceNode = static_cast<SpaceNode*>(m_SpaceNodes[i]);
 
-             if (!g_SpaceResources->isNodeVisible(spaceNode->getLOD()))
-                 continue;
+            if (!g_SpaceResources->isNodeVisible(spaceNode->getLOD()))
+                continue;
 
-             position = m_SpaceNodes[i]->getPosition();
+            position = m_SpaceNodes[i]->getPosition();
 
             float pickRadius = g_SpaceResources->NodeIconSize * spaceNode->getSize() / 2.0f;
 

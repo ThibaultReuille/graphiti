@@ -83,16 +83,16 @@ public:
 		}
 	}
 
-	void onWindowSize(int width, int height) override
+	void onResize(const Viewport& viewport) override
 	{
 		if (g_SpaceResources->m_Wallpaper)
-			g_SpaceResources->m_Wallpaper->resize(width, height);
-		m_Menu->resize(width, height);
+			g_SpaceResources->m_Wallpaper->onResize(viewport);
+		m_Menu->onResize(viewport);
 
 		if (m_HasTarget)
-			m_SphericalCameraController.onWindowSize(width, height);
+			m_SphericalCameraController.onResize(viewport);
 		else
-			m_FirstPersonCameraController.onWindowSize(width, height);
+			m_FirstPersonCameraController.onResize(viewport);
 	}
 
 	void onKey(int key, int scancode, int action, int mods) override
@@ -120,7 +120,6 @@ public:
 			m_FirstPersonCameraController.onScroll(xoffset, yoffset);
 	}
 	
-
 	void onMouseMove(const glm::vec2& pos, const glm::vec2& dpos) override
 	{
 		updateSelection();
@@ -169,6 +168,7 @@ public:
 		else
 		{
 			m_HasPick = m_GraphView->pickNode((int)pos.x, (int)pos.y, &m_PickNode);
+			LOG("DEBUG: HasPick: %i\n", m_HasPick);
 			if (m_HasPick)
 			{
 				if (m_ToolMode == POINTER)

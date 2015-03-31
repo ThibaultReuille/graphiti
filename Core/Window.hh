@@ -14,10 +14,14 @@ public:
     {
         m_ActiveVisualizer = 0;
 
-        m_HUD = new GraphitiHUD(getViewport());
+        m_Viewport = getViewport();
+
+        m_HUD = new GraphitiHUD(m_Viewport);
         m_HUD->bind(parent->context());
 
         m_Parent = parent;
+    
+        this->onResize(m_Viewport);
     }
 
     virtual ~GLWindow()
@@ -27,14 +31,11 @@ public:
 
     virtual void draw(Context* context)
     {
-        auto visualizer = getActiveVisualizer();
-        if (visualizer)
-        {
-            if (visualizer->view() != NULL)
-                visualizer->view()->draw();
-            if (visualizer->controller() != NULL)
-                visualizer->controller()->draw();
-        }
+        auto framebuffer = m_Viewport.getFramebuffer();
+
+        glViewport(0, framebuffer.Width, 0, framebuffer.Height);
+
+        body().draw();
 
         m_HUD->draw(context);
     }
@@ -43,85 +44,61 @@ public:
     {
         (void) context;
         
+        body().idle();
         m_HUD->idle();
-
-        for (auto visualizer : m_Visualizers)
-        {
-            if (visualizer->view() != NULL)
-                visualizer->view()->idle();
-            if (visualizer->controller() != NULL)
-                visualizer->controller()->idle();
-        }
-    }
-
-     // ----- TODO : VisualizerManager -----
-
-    inline void addVisualizer(EntityVisualizer* visualizer)
-    {
-        m_Visualizers.push_back(visualizer);
-    }
-
-    inline EntityVisualizer* getActiveVisualizer()
-    {
-        if (m_Visualizers.empty())
-            return NULL;
-        return m_Visualizers[m_ActiveVisualizer];
-    }
-
-    inline void selectNextVisualizer()
-    {
-        if (!m_Visualizers.empty())
-            m_ActiveVisualizer = (m_ActiveVisualizer + 1) % m_Visualizers.size();
     }
 
     // ----- Window Events -----
 
     void onWindowSize(int width, int height) override
     {
-        m_HUD->reshape(getViewport());
-
-        for (auto visualizer : m_Visualizers)
-            if (visualizer->controller())
-                visualizer->controller()->onWindowSize(width, height);
+        m_Viewport.setDimension(glm::vec2((float) width, (float) height));
+        onResize(m_Viewport);
     }
 
     void onSetFramebufferSize(int width, int height) override
     {
-        glViewport(0, 0, width, height);
+        m_Viewport.setFramebuffer(width, height);
+        onResize(m_Viewport);
+    }
 
-        m_HUD->reshape(getViewport());
+    virtual void onResize(const Viewport& viewport)
+    {
+        auto framebuffer = viewport.getFramebuffer();
 
-        for (auto visualizer : m_Visualizers)
-            if (visualizer->controller())
-                visualizer->controller()->onSetFramebufferSize(width, height);
+        for(auto element : body().elements())
+        {
+            element->setVirtualDimension(viewport, element->content(), glm::vec2(1.0, 1.0));
+        }
+
+        body().arrange(glm::vec3(0.0, 0.0, 0.0), glm::vec3(framebuffer.Width, framebuffer.Height, 0));
+        body().onResize(viewport);
+
+        m_HUD->onResize(viewport);
     }
 
     void onCursorPos(double xpos, double ypos) override
     {
-        m_HUD->onCursorPos(xpos, ypos);
+        auto ratio = m_Viewport.getFramebuffer().getDimension() / m_Viewport.getDimension();
 
-        auto visualizer = getActiveVisualizer();
-        if (visualizer)
-            visualizer->controller()->onCursorPos(xpos, ypos);
+        auto xpos_fb = xpos * ratio.x;
+        auto ypos_fb = ypos * ratio.y;
+
+        m_HUD->onCursorPos(xpos_fb, ypos_fb);
+
+        body().onCursorPos(xpos_fb, ypos_fb);
     }
 
     void onMouseButton(int button, int action, int mods) override
     {
         m_HUD->onMouseButton(button, action, mods);
 
-        if (m_HUD->getWidgetPick() == NULL)
-        {
-            auto visualizer = getActiveVisualizer();
-            if (visualizer)
-                visualizer->controller()->onMouseButton(button, action, mods);   
-        }
+        body().onMouseButton(button, action, mods);
     }
 
     void onKey(int key, int scancode, int action, int mods) override
     {     
-        if (key == GLFW_KEY_N && action == GLFW_PRESS && mods == GLFW_MOD_ALT)
-            selectNextVisualizer();
-        else if (key == GLFW_KEY_M && action == GLFW_PRESS && mods == GLFW_MOD_ALT)
+        if (key == GLFW_KEY_M && action == GLFW_PRESS && mods == GLFW_MOD_ALT)
         {
             Geometry::getMetrics().dump();
             Geometry::getMetrics().reset();
@@ -131,9 +108,7 @@ public:
         { 
             m_HUD->onKey(key, scancode, action, mods);
 
-            auto visualizer = getActiveVisualizer();
-            if (visualizer)
-                visualizer->controller()->onKey(key, scancode, action, mods);
+            body().onKey(key, scancode, action, mods);
         }
     }
 
@@ -144,9 +119,7 @@ public:
 
     void onScroll(double xoffset, double yoffset) override
     {
-        auto visualizer = getActiveVisualizer();
-        if (visualizer)
-            visualizer->controller()->onScroll(xoffset, yoffset);
+        body().onScroll(xoffset, yoffset);
     }
 
     inline GraphitiHUD* hud() { return m_HUD; }
@@ -157,6 +130,8 @@ private:
     Root* m_Parent;
     std::vector<EntityVisualizer*> m_Visualizers;
     int m_ActiveVisualizer;
+
+    Viewport m_Viewport;
 
     GraphitiHUD* m_HUD;
 };

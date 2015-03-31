@@ -334,6 +334,30 @@ public:
         drawNodes(context, camera, transformation);
     }
 
+    void computeBoundingBox(glm::vec3& min, glm::vec3& max)
+    {
+        NodeInstance node;
+        for (unsigned int i = 0; i < m_NodeInstanceBuffer.size() / sizeof(NodeInstance); i++)
+        {
+            m_NodeInstanceBuffer.get(i, &node, sizeof(NodeInstance));
+            if (i == 0)
+            {
+                min = node.Position.xyz();
+                max = node.Position.xyz();
+            }
+            else
+            {
+                if (node.Position.x < min.x) min.x = node.Position.x;
+                if (node.Position.y < min.y) min.y = node.Position.y;
+                if (node.Position.z < min.z) min.z = node.Position.z;
+
+                if (node.Position.x > max.x) max.x = node.Position.x;
+                if (node.Position.y > max.y) max.y = node.Position.y;
+                if (node.Position.z > max.z) max.z = node.Position.z;
+            }
+        }
+    }
+
     // ----- Nodes Accessors -----
 
     inline Buffer& getNodes() { return m_NodeInstanceBuffer; }

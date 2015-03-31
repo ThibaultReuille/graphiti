@@ -20,7 +20,7 @@ public:
             LOG("[SPACE] Couldn't bind entity to visualizer : Wrong entity type!\n");
             return false;
         }
-
+        
         auto graph = static_cast<GraphEntity*>(entity);
 
         auto view = new SpaceView();
