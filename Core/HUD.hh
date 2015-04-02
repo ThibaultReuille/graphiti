@@ -70,13 +70,13 @@ public:
 
 	void onResize(const Viewport& viewport)
 	{
-		auto framebuffer = viewport.getFramebuffer();
+		auto dimension = viewport.getDimension();
 
-		m_WindowWidth = framebuffer.Width;
-		m_WindowHeight = framebuffer.Height;
+		m_WindowWidth = dimension.x;
+		m_WindowHeight = dimension.y;
 
-		m_Camera.resize(framebuffer.Width, framebuffer.Height);
-		m_Camera.setOrthographicProjection(0.0f, (float) framebuffer.Width, 0.0f, (float) framebuffer.Height, 0.001f, 100.f);
+		m_Camera.resize(dimension.x,  dimension.y);
+		m_Camera.setOrthographicProjection(0.0f, dimension.x, 0.0f, dimension.y, 0.001f, 100.f);
         m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	}
 

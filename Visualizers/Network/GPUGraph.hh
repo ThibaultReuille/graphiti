@@ -54,8 +54,8 @@ public:
 
 	GPUGraph()
 	{
-		m_Icon = new Icon();
-        m_Icon->load("network/shapes/disk", FS::BinaryFile("Assets/NetworkView/shape_disk.png"));
+		m_NodeIcon = new Icon();
+        m_NodeIcon->load("network/node/disk", FS::BinaryFile("Assets/NetworkView/node_disk.png"));
 
 		FS::TextFile nodes_vert("Assets/NetworkView/nodes.vert");
 		FS::TextFile nodes_geom("Assets/NetworkView/nodes.geom");
@@ -65,6 +65,10 @@ public:
         	nodes_frag.content(),
         	nodes_geom.content());
         // m_NodeShader->dump();
+
+
+        m_EdgeIcon = new Icon();
+        m_EdgeIcon->load("network/edge/solid", FS::BinaryFile("Assets/NetworkView/edge_solid.png"));
 
         FS::TextFile edges_vert("Assets/NetworkView/edges.vert");
 		FS::TextFile edges_geom("Assets/NetworkView/edges.geom");
@@ -81,8 +85,11 @@ public:
 
 	virtual ~GPUGraph()
 	{
-		SAFE_DELETE(m_Icon);
+		SAFE_DELETE(m_NodeIcon);
 		ResourceManager::getInstance().unload(m_NodeShader);
+
+        SAFE_DELETE(m_EdgeIcon);
+        ResourceManager::getInstance().unload(m_EdgeShader);
 	}
 
     void initialize(Context* context)
@@ -270,7 +277,7 @@ public:
             return;
 
         m_EdgeShader->use();
-        //m_EdgeShader->uniform("u_Texture").set(m_Icon->getTexture(0));
+        //m_EdgeShader->uniform("u_Texture").set(m_NodeIcon->getTexture(0));
 
         m_EdgeShader->uniform("u_ModelViewMatrix").set(camera.getViewMatrix() * transformation.state());
         m_EdgeShader->uniform("u_ProjectionMatrix").set(camera.getProjectionMatrix());
@@ -304,7 +311,7 @@ public:
             return;
 
         m_NodeShader->use();
-        m_NodeShader->uniform("u_Texture").set(m_Icon->getTexture(0));
+        m_NodeShader->uniform("u_Texture").set(m_NodeIcon->getTexture(0));
 
         m_NodeShader->uniform("u_ModelViewMatrix").set(camera.getViewMatrix() * transformation.state());
         m_NodeShader->uniform("u_ProjectionMatrix").set(camera.getProjectionMatrix());
@@ -410,7 +417,8 @@ public:
     inline bool getPhysics() { return m_CL.RunPhysics; }
 
 private:
-	Icon* m_Icon;
+	Icon* m_NodeIcon;
+    Icon* m_EdgeIcon;
     bool m_NeedsUpdate;
 
 	Shader::Program* m_NodeShader;
