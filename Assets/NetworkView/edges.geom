@@ -16,7 +16,7 @@ in vec4 vs_TargetColor[];
 in float vs_Width[];
 
 out vec4 gs_Color;
-//out vec2 gs_UV;
+out vec2 gs_UV;
 
 /* Simple Lines
 void main()
@@ -53,20 +53,26 @@ void main()
 
 	//vec3 extrusion = 0.5 * vs_Width[0] * vec3(-direction.y, direction.x, 0);
 
+	float uv_x = length(target.xyz - source.xyz) / (2.0 * length(extrusion));
+
 	gl_Position = u_ProjectionMatrix * vec4(p0 + extrusion, 1.0);
 	gs_Color = vs_SourceColor[0];
+	gs_UV = vec2(0, 0);
 	EmitVertex();
 	
 	gl_Position = u_ProjectionMatrix * vec4(p1 + extrusion, 1.0);
 	gs_Color = vs_TargetColor[0];
+	gs_UV = vec2(uv_x, 0);
 	EmitVertex();
 
 	gl_Position = u_ProjectionMatrix * vec4(p0 - extrusion, 1.0);
 	gs_Color = vs_SourceColor[0];
+	gs_UV = vec2(0, 1);
 	EmitVertex();
 
 	gl_Position = u_ProjectionMatrix * vec4(p1 - extrusion, 1.0);
 	gs_Color = vs_TargetColor[0];
+	gs_UV = vec2(uv_x, 1);
 	EmitVertex();
 	
   	EndPrimitive();

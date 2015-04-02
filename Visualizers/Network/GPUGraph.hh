@@ -277,7 +277,7 @@ public:
             return;
 
         m_EdgeShader->use();
-        //m_EdgeShader->uniform("u_Texture").set(m_NodeIcon->getTexture(0));
+        m_EdgeShader->uniform("u_Texture").set(m_EdgeIcon->getTexture(0));
 
         m_EdgeShader->uniform("u_ModelViewMatrix").set(camera.getViewMatrix() * transformation.state());
         m_EdgeShader->uniform("u_ProjectionMatrix").set(camera.getProjectionMatrix());
