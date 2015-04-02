@@ -541,11 +541,13 @@ public:
             m_TopLeftWidgetGroup->add(lodtextWidget);
             tl -= glm::vec3(0, m_WidgetDimension.y, 0);
             lodtextWidget->text().set("LOD Min/Max", m_Font);
-            m_TopLeftWidgetGroup->add(m_Slider4 = new SliderWidget("slider4", NULL, tl, glm::vec2(m_WidgetDimension.x * 5, m_WidgetDimension.y / 4)));
+            m_TopLeftWidgetGroup->add(m_Slider4 = new SliderWidget("slider4", NULL, tl, glm::vec2(m_WidgetDimension.x * 10, m_WidgetDimension.y / 4)));
             m_Slider4->setValue(0.0);
+            m_Slider4->setPrecision(0.005);
             tl.y -= m_WidgetSpacing + m_WidgetDimension.y / 4;
-            m_TopLeftWidgetGroup->add(m_Slider5 = new SliderWidget("slider5", NULL, tl, glm::vec2(m_WidgetDimension.x * 5, m_WidgetDimension.y / 4)));
+            m_TopLeftWidgetGroup->add(m_Slider5 = new SliderWidget("slider5", NULL, tl, glm::vec2(m_WidgetDimension.x * 10, m_WidgetDimension.y / 4)));
             m_Slider5->setValue(1.0);
+            m_Slider5->setPrecision(0.005);
             tl.y -= m_WidgetSpacing + m_WidgetDimension.y / 4;
 
             m_TopLeftWidgetGroup->add(m_CheckBox1 = new CheckBoxWidget("checkbox 1", NULL, tl, checkboxDimension));
@@ -608,14 +610,14 @@ public:
 
     virtual void onResize(const Viewport& viewport)
     {
-    	auto framebuffer = viewport.getFramebuffer();
+    	auto dimension = viewport.getDimension();
 
-        m_Camera.resize(framebuffer.Width, framebuffer.Height);
-        m_Camera.setOrthographicProjection(0.0f, (float)framebuffer.Width, 0.0f, (float)framebuffer.Height, 0.001f, 100.f);
+        m_Camera.resize(dimension.x, dimension.y);
+        m_Camera.setOrthographicProjection(0.0f, dimension.x, 0.0f, dimension.y, 0.001f, 100.f);
         m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
-        m_TopLeftWidgetGroup->reshape(framebuffer.Width, framebuffer.Height);
-        m_TopRightWidgetGroup->reshape(framebuffer.Width, framebuffer.Height);
+        m_TopLeftWidgetGroup->reshape(dimension.x, dimension.y);
+        m_TopRightWidgetGroup->reshape(dimension.x, dimension.y);
     }
 
 	virtual void draw(Context* context)
