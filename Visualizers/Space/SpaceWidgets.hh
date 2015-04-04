@@ -592,10 +592,17 @@ public:
     {
         IWidget* pick = NULL;
 
-        pick = m_TopLeftWidgetGroup->pickWidget(pos);
+        glm::vec2 vpos(
+        	pos.x * m_Viewport.getDimension().x / (float) m_Viewport.getFramebuffer().Width,
+			pos.y * m_Viewport.getDimension().y / (float) m_Viewport.getFramebuffer().Height
+		);
+	
+        LOG("Menu::pickWidget(%f, %f)\n", vpos.x, vpos.y);
+
+        pick = m_TopLeftWidgetGroup->pickWidget(vpos);
         if (pick != NULL)
             return pick;
-        pick = m_TopRightWidgetGroup->pickWidget(pos);
+        pick = m_TopRightWidgetGroup->pickWidget(vpos);
         if (pick != NULL)
             return pick;
         return NULL;
@@ -610,6 +617,8 @@ public:
 
     virtual void onResize(const Viewport& viewport)
     {
+    	m_Viewport = viewport;
+
     	auto dimension = viewport.getDimension();
 
         m_Camera.resize(dimension.x, dimension.y);
@@ -647,6 +656,8 @@ public:
     inline ClockWidget* getClock() { return m_ClockWidget; }
 
 private:
+	Viewport m_Viewport;
+
     Camera m_Camera;
     rd::Font* m_Font;
     glm::vec2 m_WidgetDimension;
