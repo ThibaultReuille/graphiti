@@ -591,18 +591,13 @@ public:
     IWidget* pickWidget(const glm::vec2& pos)
     {
         IWidget* pick = NULL;
-
-        glm::vec2 vpos(
-        	pos.x * m_Viewport.getDimension().x / (float) m_Viewport.getFramebuffer().Width,
-			pos.y * m_Viewport.getDimension().y / (float) m_Viewport.getFramebuffer().Height
-		);
 	
-        LOG("Menu::pickWidget(%f, %f)\n", vpos.x, vpos.y);
+        LOG("Menu::pickWidget(%f, %f)\n", pos.x, pos.y);
 
-        pick = m_TopLeftWidgetGroup->pickWidget(vpos);
+        pick = m_TopLeftWidgetGroup->pickWidget(pos);
         if (pick != NULL)
             return pick;
-        pick = m_TopRightWidgetGroup->pickWidget(vpos);
+        pick = m_TopRightWidgetGroup->pickWidget(pos);
         if (pick != NULL)
             return pick;
         return NULL;
@@ -625,8 +620,8 @@ public:
         m_Camera.setOrthographicProjection(0.0f, dimension.x, 0.0f, dimension.y, 0.001f, 100.f);
         m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
-        m_TopLeftWidgetGroup->reshape(dimension.x, dimension.y);
-        m_TopRightWidgetGroup->reshape(dimension.x, dimension.y);
+        m_TopLeftWidgetGroup->resize(dimension.x, dimension.y);
+        m_TopRightWidgetGroup->resize(dimension.x, dimension.y);
     }
 
 	virtual void draw(Context* context)

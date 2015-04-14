@@ -37,7 +37,7 @@ public:
 		m_Camera.resize(width, height);
 		m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
-		m_WidgetGroup->reshape(width, height);
+		m_WidgetGroup->resize(width, height);
 	}
 
 	void draw() override

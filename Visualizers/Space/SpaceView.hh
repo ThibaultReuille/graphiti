@@ -102,11 +102,10 @@ class SpaceView : public GraphView
     {
         m_GraphEntity = entity;
 
-        auto viewport = getViewport();
-        auto framebuffer = viewport.getFramebuffer();
+        auto dimension = getViewport().getDimension();
 
-        m_Camera.resize(framebuffer.Width, framebuffer.Height);
-        m_Camera.setPerspectiveProjection(60.0f, (float) framebuffer.Width / (float) framebuffer.Height, 0.1f, 1024.0f);
+        m_Camera.resize(dimension.x, dimension.y);
+        m_Camera.setPerspectiveProjection(60.0f, dimension.x / dimension.y, 0.1f, 1024.0f);
         m_Camera.lookAt(glm::vec3(0, 0, -5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
         m_CameraAnimation = false;
 

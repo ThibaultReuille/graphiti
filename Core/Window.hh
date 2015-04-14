@@ -79,14 +79,9 @@ public:
 
     void onCursorPos(double xpos, double ypos) override
     {
-        auto ratio = m_Viewport.getFramebuffer().getDimension() / m_Viewport.getDimension();
+        m_HUD->onCursorPos(xpos, ypos);
 
-        auto xpos_fb = xpos * ratio.x;
-        auto ypos_fb = ypos * ratio.y;
-
-        m_HUD->onCursorPos(xpos_fb, ypos_fb);
-
-        body().onCursorPos(xpos_fb, ypos_fb);
+        body().onCursorPos(xpos, ypos);
     }
 
     void onMouseButton(int button, int action, int mods) override
