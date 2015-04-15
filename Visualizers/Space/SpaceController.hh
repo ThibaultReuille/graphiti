@@ -23,7 +23,6 @@ public:
 
 		m_ToolMode = POINTER;
 		m_HasSelection = false;
-		m_HasTarget = false;
 		m_HasPick = false;
 		m_IsDragging = false;
 
@@ -41,10 +40,7 @@ public:
 		m_GraphModel = model;
 		m_GraphView = view;
 
-		m_FirstPersonCameraController.bind(context, m_GraphView->camera());
-		m_FirstPersonCameraController.updateCamera();
-		m_SphericalCameraController.bind(context, m_GraphView->camera());
-		m_SphericalCameraController.updateCamera();
+		m_CameraController.bind(context, m_GraphView->camera());
 
 		m_Menu->bind(view);
         m_Menu->getTimeline()->bindTrack(m_GraphContext->sequencer().track("command"));
@@ -60,10 +56,7 @@ public:
 	{
 		updateSelection();
 
-		if (m_HasTarget)
-			m_SphericalCameraController.updateCamera();
-		else
-			m_FirstPersonCameraController.updateCamera();
+		m_CameraController.updateCamera();
 
         g_SpaceResources->ShowNodeLOD = m_Menu->getCheckBox1()->value();
         g_SpaceResources->ShowEdgeLOD = m_Menu->getCheckBox2()->value();
@@ -78,7 +71,6 @@ public:
 		{
 			m_HasSelection = false;
 			m_IsDragging = false;
-			m_HasTarget = false;
 			m_HasPick = false;
 		}
 	}
@@ -87,12 +79,10 @@ public:
 	{
 		if (g_SpaceResources->m_Wallpaper)
 			g_SpaceResources->m_Wallpaper->onResize(viewport);
+
 		m_Menu->onResize(viewport);
 
-		if (m_HasTarget)
-			m_SphericalCameraController.onResize(viewport);
-		else
-			m_FirstPersonCameraController.onResize(viewport);
+		m_CameraController.onResize(viewport);
 	}
 
 	void onKey(int key, int scancode, int action, int mods) override
@@ -106,18 +96,12 @@ public:
 		    return;
 		}
 		
-		if (m_HasTarget)
-			m_SphericalCameraController.onKey(key, scancode, action, mods);
-		else
-			m_FirstPersonCameraController.onKey(key, scancode, action, mods);
+		m_CameraController.onKey(key, scancode, action, mods);
 	}
 	
 	void onScroll(double xoffset, double yoffset) override
 	{
-		if (m_HasTarget)
-			m_SphericalCameraController.onScroll(xoffset, yoffset);
-		else
-			m_FirstPersonCameraController.onScroll(xoffset, yoffset);
+		m_CameraController.onScroll(xoffset, yoffset);
 	}
 	
 	void onMouseMove(const glm::vec2& pos, const glm::vec2& dpos) override
@@ -137,21 +121,17 @@ public:
 				m_IsDragging = true;
 				dragVertex(m_SelectedNode, (int)pos.x, (int)pos.y);
 			}
-			else if (m_HasTarget)
-				m_SphericalCameraController.onMouseMove(pos, dpos);
 			else
-				m_FirstPersonCameraController.onMouseMove(pos, dpos);
+			{
+				m_CameraController.onMouseMove(pos, dpos);
+			}
 		}
 	}
 
 	void onMouseDown(const glm::vec2& pos) override
 	{
 		m_IsDragging = false;
-
-		if (m_HasTarget)
-			m_SphericalCameraController.onMouseDown(pos);
-		else
-			m_FirstPersonCameraController.onMouseDown(pos);
+		m_CameraController.onMouseDown(pos);
 	}
 
 	void onMouseClick(const glm::vec2& pos) override
@@ -168,7 +148,6 @@ public:
 		else
 		{
 			m_HasPick = m_GraphView->pickNode((int)pos.x, (int)pos.y, &m_PickNode);
-			LOG("DEBUG: HasPick: %i\n", m_HasPick);
 			if (m_HasPick)
 			{
 				if (m_ToolMode == POINTER)
@@ -192,17 +171,17 @@ public:
 					smark << mark;
 					m_GraphView->onSetNodeAttribute(id, "space:mark", RD_INT, smark.str());
 				}
-
-				m_SphericalCameraController.onMouseClick(pos);
 			}
 			else
 			{
 				if (m_HasSelection)
 					m_GraphModel->unselectNode(m_GraphView->getNodeMap().getRemoteID(m_SelectedNode));
 				m_HasSelection = false;
-				m_HasTarget = false;
-				m_FirstPersonCameraController.onMouseClick(pos);
+
+				m_CameraController.select(CameraController::FIRST_PERSON);
 			}
+
+			m_CameraController.onMouseClick(pos);
 		}
 	}
 
@@ -212,23 +191,18 @@ public:
 
 		if (m_HasSelection)
 		{
-			m_HasTarget = true;
 			m_GraphContext->messages().push(new GraphTargetNodeMessage(m_SelectedNode));
-
-			m_SphericalCameraController.onMouseDoubleClick(pos);
+			m_CameraController.select(CameraController::SPHERICAL);
 		}
-		else
-			m_FirstPersonCameraController.onMouseDoubleClick(pos);
+
+		m_CameraController.onMouseDoubleClick(pos);
 	}
 
 	void onMouseTripleClick(const glm::vec2& pos) override
 	{
 		updateSelection();
 
-		if (m_HasTarget)
-			m_SphericalCameraController.onMouseTripleClick(pos);
-		else
-			m_FirstPersonCameraController.onMouseTripleClick(pos);
+		m_CameraController.onMouseTripleClick(pos);
 	}
 
 	void dragVertex(Node::ID, int screenX, int screenY)
@@ -260,10 +234,7 @@ public:
 			float zoomAngle = M_PI / 20;
 			float zoomDistance = static_cast<SpaceNode*>(node)->getScreenSize() / (2 * tan(zoomAngle / 2));
 
-			if (m_HasTarget)
-				m_SphericalCameraController.playZoomSequence(node->getPosition(), zoomDistance, 250);
-			else
-				m_FirstPersonCameraController.sequence(node->getPosition(), zoomDistance, 250);
+			m_CameraController.zoom(node->getPosition(), zoomDistance, 250);
 		}
 		else if (type == IMessage::SCRIPT)
 		{
@@ -425,8 +396,7 @@ private:
 
 	SpaceMenu* m_Menu;
 
-	SphericalCameraController m_SphericalCameraController;
-	FirstPersonCameraController m_FirstPersonCameraController;
+	CameraController m_CameraController;
 
 	ToolMode m_ToolMode;
 	bool m_HasSelection;

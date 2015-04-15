@@ -3,6 +3,10 @@
 #include <raindance/Raindance.hh>
 #include <raindance/Core/Debug.hh>
 
+#ifdef OG_OCULUS_RIFT
+# include <raindance/Core/VR/OculusRift.hh>
+#endif
+
 #include <graphiti/Pack.hh>
 
 #include <graphiti/Entities/MVC.hh>
@@ -27,6 +31,10 @@ public:
     {
         SAFE_DELETE(m_Console);
         m_Console = new GraphitiConsole(argc, argv);
+
+        #ifdef RD_OCULUS_RIFT
+            m_Rift = new OculusRift();
+        #endif
     }
 
     virtual void initialize()
@@ -201,4 +209,8 @@ private:
     GraphitiConsole* m_Console;
     EntityManager m_EntityManager;
     EntityVisualizerManager m_VisualizerManager;
+
+    #ifdef RD_OCULUS_RIFT
+        OculusRift* m_Rift;
+    #endif
 };

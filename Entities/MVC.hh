@@ -62,11 +62,6 @@ public:
     virtual ~EntityController() = 0;
     virtual void draw() {}
     virtual void idle() {}
-
-    virtual void onResize(const Viewport& viewport) 
-    {
-        LOG("EntityController::onResize()\n");
-    } 
 };
 
 EntityController::~EntityController() {}

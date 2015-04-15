@@ -578,7 +578,6 @@ public:
 
             m_ClockWidget = new ClockWidget("clock", NULL, tr, m_WidgetDimension);
             m_TopRightWidgetGroup->add(m_ClockWidget);
-
         }
     }
 
