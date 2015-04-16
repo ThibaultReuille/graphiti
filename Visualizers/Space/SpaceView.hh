@@ -256,6 +256,13 @@ class SpaceView : public GraphView
  
     void draw()
     {
+        Transformation transformation;
+
+        drawScene(context(), m_Camera, transformation);
+    }
+
+    void drawScene(GraphContext* context, Camera& camera, Transformation& transformation)
+    {
         const glm::vec4 bgcolor = glm::vec4(BLACK, 1.0);
         glClearColor(bgcolor.r, bgcolor.g, bgcolor.b, bgcolor.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -272,14 +279,12 @@ class SpaceView : public GraphView
  
          // NOTE : In the future, we want to disable the depth test, and render the image by layers.
          // However this means we need to sort the nodes by distance to the eye and use the Painter's algorithm
- 
-        Transformation transformation;
 
         // Draw Nodes
         {
              if (m_Octree == NULL || m_DirtyOctree)
              {
-                 m_SpaceNodes.draw(context(), m_Camera.getProjectionMatrix(), m_Camera.getViewMatrix(), transformation.state());
+                 m_SpaceNodes.draw(context, camera.getProjectionMatrix(), camera.getViewMatrix(), transformation.state());
  
                  // Draw Edges
                  if (g_SpaceResources->ShowEdges || g_SpaceResources->ShowEdgeActivity)
@@ -290,15 +295,15 @@ class SpaceView : public GraphView
                         glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
                     #endif
 
-                     m_SpaceEdges.draw(context(), m_Camera.getProjectionMatrix(), m_Camera.getViewMatrix(), transformation.state());
+                     m_SpaceEdges.draw(context, camera.getProjectionMatrix(), camera.getViewMatrix(), transformation.state());
                  }
              }
              else
              {
                  static int pass = 0;
                  pass = (pass + 1) % 2;
-                 SpaceRenderer renderer(context(), &m_Camera, &transformation, pass);
-                 Frustrum frustrum(m_Camera.getViewProjectionMatrix());
+                 SpaceRenderer renderer(context, &camera, &transformation, pass);
+                 Frustrum frustrum(camera.getViewProjectionMatrix());
                  m_Octree->foreachElementsInsideFrustrum(frustrum, &renderer);
  
                  static int drawCount = 0;
@@ -312,7 +317,7 @@ class SpaceView : public GraphView
                  }
  
                  if (g_SpaceResources->ShowDebug)
-                     m_Octree->draw(context(), m_Camera.getProjectionMatrix(), m_Camera.getViewMatrix(), transformation.state());
+                     m_Octree->draw(context, camera.getProjectionMatrix(), camera.getViewMatrix(), transformation.state());
              }
  
              std::set<Node::ID>::iterator iti;
@@ -322,15 +327,15 @@ class SpaceView : public GraphView
                  SpaceNode* selectedNode = static_cast<SpaceNode*>(m_SpaceNodes[selectedID]);
  
                  float iconSize = 2.0f * selectedNode->getSize() * g_SpaceResources->NodeIconSize;
-                 glm::mat4 modelView = m_Camera.getViewMatrix() * glm::translate(transformation.state(), m_SpaceNodes[selectedID]->getPosition());
+                 glm::mat4 modelView = camera.getViewMatrix() * glm::translate(transformation.state(), m_SpaceNodes[selectedID]->getPosition());
                  modelView = glm::scale(Geometry::billboard(modelView), glm::vec3(iconSize, iconSize, iconSize));
-                 g_SpaceResources->NodeTargetIcon->draw(context(), m_Camera.getProjectionMatrix() * modelView, glm::vec4(1.0, 1.0, 1.0, 1.0), 0);
+                 g_SpaceResources->NodeTargetIcon->draw(context, camera.getProjectionMatrix() * modelView, glm::vec4(1.0, 1.0, 1.0, 1.0), 0);
              }
         }
 
         // Draw spheres
         if (g_SpaceResources->ShowSpheres)
-            m_SpaceSpheres.draw(context(), m_Camera.getProjectionMatrix(), m_Camera.getViewMatrix(), transformation.state());
+            m_SpaceSpheres.draw(context, camera.getProjectionMatrix(), camera.getViewMatrix(), transformation.state());
     }
  
     void computeBoundingSphere(Sphere& sphere, glm::vec3* center, float* radius)

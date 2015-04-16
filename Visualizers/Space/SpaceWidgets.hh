@@ -541,11 +541,11 @@ public:
             m_TopLeftWidgetGroup->add(lodtextWidget);
             tl -= glm::vec3(0, m_WidgetDimension.y, 0);
             lodtextWidget->text().set("LOD Min/Max", m_Font);
-            m_TopLeftWidgetGroup->add(m_Slider4 = new SliderWidget("slider4", NULL, tl, glm::vec2(m_WidgetDimension.x * 10, m_WidgetDimension.y / 4)));
+            m_TopLeftWidgetGroup->add(m_Slider4 = new SliderWidget("slider4", NULL, tl, glm::vec2(m_WidgetDimension.x * 8, m_WidgetDimension.y / 4)));
             m_Slider4->setValue(0.0);
             m_Slider4->setPrecision(0.005);
             tl.y -= m_WidgetSpacing + m_WidgetDimension.y / 4;
-            m_TopLeftWidgetGroup->add(m_Slider5 = new SliderWidget("slider5", NULL, tl, glm::vec2(m_WidgetDimension.x * 10, m_WidgetDimension.y / 4)));
+            m_TopLeftWidgetGroup->add(m_Slider5 = new SliderWidget("slider5", NULL, tl, glm::vec2(m_WidgetDimension.x * 8, m_WidgetDimension.y / 4)));
             m_Slider5->setValue(1.0);
             m_Slider5->setPrecision(0.005);
             tl.y -= m_WidgetSpacing + m_WidgetDimension.y / 4;
@@ -590,8 +590,6 @@ public:
     IWidget* pickWidget(const glm::vec2& pos)
     {
         IWidget* pick = NULL;
-	
-        LOG("Menu::pickWidget(%f, %f)\n", pos.x, pos.y);
 
         pick = m_TopLeftWidgetGroup->pickWidget(pos);
         if (pick != NULL)

@@ -36,12 +36,12 @@ public:
 		m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
 		m_SphericalCameraController.bind(context, view->getCamera3D());
-		m_SphericalCameraController.updateCamera();
+		m_SphericalCameraController.update();
 	}
 
 	void idle() override
 	{
-		m_SphericalCameraController.updateCamera();
+		m_SphericalCameraController.update();
 	}
 
 	virtual void draw()

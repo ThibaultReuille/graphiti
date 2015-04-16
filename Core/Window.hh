@@ -9,8 +9,13 @@
 class GLWindow : public rd::Window
 {
 public:
-    GLWindow(const char* title, const int width, const int height, Root* parent = NULL)
-    : Window(title, width, height)
+    struct Settings : rd::Window::Settings
+    {
+        //TODO: Insert GLWindow specific members here
+    };
+
+    GLWindow(Settings* settings, Root* parent = NULL)
+    : rd::Window(settings)
     {
         m_ActiveVisualizer = 0;
 

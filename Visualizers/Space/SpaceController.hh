@@ -42,6 +42,10 @@ public:
 
 		m_CameraController.bind(context, m_GraphView->camera());
 
+		#ifdef RD_OCULUS_RIFT
+			m_CameraController.select(CameraController::OCULUS_RIFT);
+		#endif
+
 		m_Menu->bind(view);
         m_Menu->getTimeline()->bindTrack(m_GraphContext->sequencer().track("command"));
         m_Menu->getClock()->bind(&m_GraphContext->sequencer().track("command")->clock());
@@ -56,7 +60,7 @@ public:
 	{
 		updateSelection();
 
-		m_CameraController.updateCamera();
+		m_CameraController.update();
 
         g_SpaceResources->ShowNodeLOD = m_Menu->getCheckBox1()->value();
         g_SpaceResources->ShowEdgeLOD = m_Menu->getCheckBox2()->value();
@@ -66,7 +70,7 @@ public:
 
 	void updateSelection()
 	{
-		// NOTE : Has selected node been removed ?
+		// NOTE: Has selected node been removed ?
 		if (m_HasSelection && !m_GraphView->getNodeMap().containsLocalID(m_SelectedNode))
 		{
 			m_HasSelection = false;

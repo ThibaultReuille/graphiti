@@ -54,10 +54,10 @@ public:
 		switch(m_NetworkView->getCamera3D()->mode())
 		{
 		case Camera::PERSPECTIVE:
-			m_SphericalCameraController.updateCamera();
+			m_SphericalCameraController.update();
 			break;
 		case Camera::ORTHOGRAPHIC:
-			m_FirstPersonCameraController.updateCamera();
+			m_FirstPersonCameraController.update();
 			break;
 		}
 	}

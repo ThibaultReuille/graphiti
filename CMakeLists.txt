@@ -56,7 +56,7 @@ include_directories(${GLM_INCLUDE_DIRS})
 include_directories(${PYTHON_INCLUDE_DIRS})
 
 if (DEFINED OG_OCULUS_RIFT)
-	add_definitions(-DOG_OCULUS_RIFT=true)
+	add_definitions(-DRD_OCULUS_RIFT=true)
 	include_directories(${PROJECT_SOURCE_DIR}/../OculusSDK/LibOVR/Include)
 	include_directories(${PROJECT_SOURCE_DIR}/../OculusSDK/LibOVRKernel/Src/)
 

@@ -9,7 +9,7 @@ def start():
 
     # ----- Initialization -----
 
-    og.create_window("OpenGraphiti : Data Visualization Engine", 0, 0)
+    og.create_window("OpenGraphiti : Data Visualization Engine", 1024, 728)
     og.create_entity("graph")
     og.create_visualizer("space")
 
