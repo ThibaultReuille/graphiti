@@ -19,7 +19,11 @@ public:
 			ShowNodeActivity = true;
 
 			EdgeSize = 1.0f;
-			m_EdgeMode = WIDE_LINES;
+			//#ifdef RD_OCULUS_RIFT
+			//	m_EdgeMode = LINES;
+			//#else
+				m_EdgeMode = WIDE_LINES;
+			//#endif
 			ShowEdges = true;
 			ShowEdgeActivity = true;
 			ShowSpheres = true;

@@ -40,10 +40,12 @@ public:
 		m_GraphModel = model;
 		m_GraphView = view;
 
-		m_CameraController.bind(context, m_GraphView->camera());
+		m_CameraController.bind(context, m_GraphView->getCameras());
 
 		#ifdef RD_OCULUS_RIFT
 			m_CameraController.select(CameraController::OCULUS_RIFT);
+		#else
+			m_CameraController.select(CameraController::FIRST_PERSON);
 		#endif
 
 		m_Menu->bind(view);
@@ -182,7 +184,11 @@ public:
 					m_GraphModel->unselectNode(m_GraphView->getNodeMap().getRemoteID(m_SelectedNode));
 				m_HasSelection = false;
 
-				m_CameraController.select(CameraController::FIRST_PERSON);
+				#ifdef RD_OCULUS_RIFT
+					m_CameraController.select(CameraController::OCULUS_RIFT);
+				#else 
+					m_CameraController.select(CameraController::FIRST_PERSON);
+				#endif
 			}
 
 			m_CameraController.onMouseClick(pos);
@@ -196,7 +202,12 @@ public:
 		if (m_HasSelection)
 		{
 			m_GraphContext->messages().push(new GraphTargetNodeMessage(m_SelectedNode));
-			m_CameraController.select(CameraController::SPHERICAL);
+
+			#ifdef RD_OCULUS_RIFT
+				m_CameraController.select(CameraController::OCULUS_RIFT);
+			#else 
+				m_CameraController.select(CameraController::SPHERICAL);
+			#endif
 		}
 
 		m_CameraController.onMouseDoubleClick(pos);
@@ -213,11 +224,13 @@ public:
 	{
 		updateSelection();
 
-		Ray ray = m_GraphView->camera()->createRay(screenX, screenY);
+		auto camera = m_GraphView->getCameras()->elements()[0];
+
+		Ray ray = camera->createRay(screenX, screenY);
 
 		glm::vec3 pos = m_GraphView->getNodes()[m_SelectedNode]->getPosition();
 
-		glm::vec3 direction = pos - m_GraphView->camera()->getPosition();
+		glm::vec3 direction = pos - camera->getPosition();
 		float length = glm::length(direction);
 
 		m_GraphView->getNodes()[m_SelectedNode]->setPosition(ray.position() + length * ray.direction());

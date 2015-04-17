@@ -7,6 +7,7 @@
 #include <raindance/Core/Primitives/Line.hh>
 #include <raindance/Core/Primitives/WideLine.hh>
 #include <raindance/Core/Camera/Camera.hh>
+#include <raindance/Core/Camera/CameraVector.hh>
 #include <raindance/Core/Camera/Frustrum.hh>
 #include <raindance/Core/Transformation.hh>
 #include <raindance/Core/Variables.hh>
@@ -50,7 +51,7 @@ public:
         Scene::Node* node = static_cast<Scene::Node*>(element);
         if (node->getPass() != m_Pass)
         {
-            node->draw(m_Context, m_Camera->getProjectionMatrix(), m_Camera->getViewMatrix(), m_Transformation->state());
+            node->draw(m_Context, *m_Camera, *m_Transformation);
             node->setPass(m_Pass);
             m_DrawCount++;
         }
@@ -104,9 +105,14 @@ class SpaceView : public GraphView
 
         auto dimension = getViewport().getDimension();
 
-        m_Camera.resize(dimension.x, dimension.y);
-        m_Camera.setPerspectiveProjection(60.0f, dimension.x / dimension.y, 0.1f, 1024.0f);
-        m_Camera.lookAt(glm::vec3(0, 0, -5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+        m_Cameras.push(new Camera());
+        #ifdef RD_OCULUS_RIFT
+            m_Cameras.push(new Camera());
+            dimension.x /= 2;
+        #endif
+        m_Cameras.resize(dimension.x, dimension.y);
+        m_Cameras.setPerspectiveProjection(60.0f, dimension.x / dimension.y, 0.1f, 1024.0f);
+        m_Cameras.lookAt(glm::vec3(0, 0, -5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
         m_CameraAnimation = false;
 
         m_EdgeAttractionForce.bind(m_GraphEntity->model(), &m_NodeMap, &m_EdgeMap);
@@ -117,9 +123,14 @@ class SpaceView : public GraphView
 
         g_SpaceResources->Model = m_GraphEntity->model();
 
-        context()->setCamera(&m_Camera);
+        // context()->setCamera(&m_Camera);
 
         return true;
+    }
+
+    void configureCameras()
+    {
+
     }
 
     void applyDegreeTint()
@@ -171,7 +182,7 @@ class SpaceView : public GraphView
         else if (name == "camera:position")
         {
             Vec3Variable* variable = new Vec3Variable();
-            variable->set(m_Camera.getPosition());
+            variable->set(m_Cameras[0]->getPosition());
             return variable;
         }
 
@@ -256,17 +267,31 @@ class SpaceView : public GraphView
  
     void draw()
     {
-        Transformation transformation;
-
-        drawScene(context(), m_Camera, transformation);
-    }
-
-    void drawScene(GraphContext* context, Camera& camera, Transformation& transformation)
-    {
         const glm::vec4 bgcolor = glm::vec4(BLACK, 1.0);
         glClearColor(bgcolor.r, bgcolor.g, bgcolor.b, bgcolor.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        Transformation transformation;
+        
+        glm::vec3 pos(0, 0, -5);
+        glm::vec3 target(0, 0, 0);
+        glm::vec3 up(0, 1, 0);
+
+        #ifdef RD_OCULUS_RIFT
+            auto framebuffer = getViewport().getFramebuffer();
+
+            glViewport(0, 0, framebuffer.Width / 2, framebuffer.Height);
+            drawScene(context(), *m_Cameras[0], transformation);
+
+            glViewport(framebuffer.Width / 2, 0, framebuffer.Width / 2, framebuffer.Height);
+            drawScene(context(), *m_Cameras[1], transformation);
+        #else
+            drawScene(context(), *m_Cameras[0], transformation);
+        #endif
+    }
+
+    void drawScene(GraphContext* context, Camera& camera, Transformation& transformation)
+    {
         /*
         #ifndef EMSCRIPTEN // NOTE : WebGL doesn't like rectangle images
             g_SpaceResources->m_Wallpaper->draw(context());
@@ -284,7 +309,7 @@ class SpaceView : public GraphView
         {
              if (m_Octree == NULL || m_DirtyOctree)
              {
-                 m_SpaceNodes.draw(context, camera.getProjectionMatrix(), camera.getViewMatrix(), transformation.state());
+                 m_SpaceNodes.draw(context, camera, transformation);
  
                  // Draw Edges
                  if (g_SpaceResources->ShowEdges || g_SpaceResources->ShowEdgeActivity)
@@ -295,7 +320,7 @@ class SpaceView : public GraphView
                         glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
                     #endif
 
-                     m_SpaceEdges.draw(context, camera.getProjectionMatrix(), camera.getViewMatrix(), transformation.state());
+                     m_SpaceEdges.draw(context, camera, transformation);
                  }
              }
              else
@@ -317,7 +342,7 @@ class SpaceView : public GraphView
                  }
  
                  if (g_SpaceResources->ShowDebug)
-                     m_Octree->draw(context, camera.getProjectionMatrix(), camera.getViewMatrix(), transformation.state());
+                     m_Octree->draw(context, camera, transformation);
              }
  
              std::set<Node::ID>::iterator iti;
@@ -399,7 +424,7 @@ class SpaceView : public GraphView
 
     bool pickNode(int x, int y, SpaceNode::ID* id)
     {
-        Ray ray = m_Camera.createRay(x, y);
+        Ray ray = m_Cameras[0]->createRay(x, y);
 
         Intersection::Hit hit;
         bool found = false;
@@ -464,7 +489,7 @@ class SpaceView : public GraphView
             pos.x = radius * cos(time / 10.0f);
             pos.y = radius * cos(time / 50.0f);
             pos.z = radius * sin(time / 10.0f);
-            m_Camera.lookAt(pos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0));
+            m_Cameras.lookAt(pos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0));
         }
     }
 
@@ -605,7 +630,7 @@ class SpaceView : public GraphView
         m_DirtyOctree = false;
     }
 
-    inline Camera* camera() { return &m_Camera; }
+    inline CameraVector* getCameras() { return &m_Cameras; }
 
     inline void setNodeSize(float size) { g_SpaceResources->NodeIconSize = size; }
     inline void setEdgeSize(float size) { g_SpaceResources->EdgeSize = size; }
@@ -657,13 +682,13 @@ class SpaceView : public GraphView
         else if (name == "space:camera:position" && type == RD_VEC3)
         {
             vvec3.set(value);
-            m_Camera.setPosition(vvec3.value());
-            m_Camera.updateViewMatrix();
+            m_Cameras[0]->setPosition(vvec3.value());
+            m_Cameras[0]->update();
         }
         else if (name == "space:camera:target" && type == RD_VEC3)
         {
             vvec3.set(value);
-            m_Camera.lookAt(vvec3.value());
+            m_Cameras[0]->lookAt(vvec3.value());
         }
         else if (name == "space:debug" && type == RD_BOOLEAN)
         {
@@ -932,7 +957,7 @@ class SpaceView : public GraphView
     Clock m_Clock;
     Timecode m_LastUpdateTime;
 
-    Camera m_Camera;
+    CameraVector m_Cameras;
     bool m_CameraAnimation;
 
     NodeTranslationMap m_NodeMap;

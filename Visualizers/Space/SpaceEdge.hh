@@ -20,7 +20,7 @@ public:
     {
     }
 
-    void draw(Context* context, const glm::mat4& projection, const glm::mat4& view, const glm::mat4& model)
+    void draw(Context* context, const Camera& camera, Transformation& transformation) override
     {
         glm::vec4 color = glm::vec4(0.5, 0.5, 0.5, 1.0);
 
@@ -45,7 +45,7 @@ public:
 
                     g_SpaceResources->EdgeShader->use();
                     g_SpaceResources->EdgeShader->uniform("u_Mode").set(0.0f);
-                    g_SpaceResources->EdgeShader->uniform("u_ModelViewProjection").set(projection * view * model * getModelMatrix());
+                    g_SpaceResources->EdgeShader->uniform("u_ModelViewProjection").set(camera.getViewProjectionMatrix() * transformation.state() * getModelMatrix());
                     g_SpaceResources->EdgeShader->uniform("u_StartPosition").set(m_WideLine.getPosition(0));
                     g_SpaceResources->EdgeShader->uniform("u_EndPosition").set(m_WideLine.getPosition(1));
                     g_SpaceResources->EdgeShader->uniform("u_Tint").set(color);
@@ -57,11 +57,11 @@ public:
                     break;
 
                 case SpaceResources::WIDE_LINES:
-                    extrusion = 0.25f * g_SpaceResources->EdgeSize * m_WideLine.calculateExtrudeDirection(*context->getCamera());
+                    extrusion = 0.25f * g_SpaceResources->EdgeSize * m_WideLine.calculateExtrudeDirection(camera);
 
                     g_SpaceResources->EdgeShader->use();
                     g_SpaceResources->EdgeShader->uniform("u_Mode").set(1.0f);
-                    g_SpaceResources->EdgeShader->uniform("u_ModelViewProjection").set(projection * view * model * getModelMatrix());
+                    g_SpaceResources->EdgeShader->uniform("u_ModelViewProjection").set(camera.getViewProjectionMatrix() * transformation.state() * getModelMatrix());
                     g_SpaceResources->EdgeShader->uniform("u_StartPosition").set(m_WideLine.getPosition(0));
                     g_SpaceResources->EdgeShader->uniform("u_EndPosition").set(m_WideLine.getPosition(1));
                     g_SpaceResources->EdgeShader->uniform("u_ExtrudeDirection").set(extrusion);
@@ -88,9 +88,9 @@ public:
             c.a *= color.a;
 
             float iconSize = 2.0 * g_SpaceResources->EdgeSize;
-            glm::mat4 billboard = Geometry::billboard(view * glm::translate(model * getModelMatrix(), v));
+            glm::mat4 billboard = Geometry::billboard(camera.getViewMatrix() * glm::translate(transformation.state() * getModelMatrix(), v));
 
-            g_SpaceResources->EdgeActivityIcon->draw(context, projection * glm::scale(billboard, glm::vec3(iconSize, iconSize, iconSize)), c, 0);
+            g_SpaceResources->EdgeActivityIcon->draw(context, camera.getProjectionMatrix() * glm::scale(billboard, glm::vec3(iconSize, iconSize, iconSize)), c, 0);
         }
     }
 

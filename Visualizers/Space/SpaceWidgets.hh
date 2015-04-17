@@ -455,6 +455,7 @@ public:
             tl.y -= m_WidgetDimension.y + 2;
 
             m_TopLeftWidgetGroup->add(m_CheckBox3 = new CheckBoxWidget("checkbox 3", NULL, tl, checkboxDimension));
+            m_CheckBox3->value(true);
             tl.x += m_WidgetDimension.x * 0.66 + m_WidgetSpacing;
             TextWidget* checkbox3TextWidget = new TextWidget("checkbox3 text", NULL, tl, textDimension);
             m_TopLeftWidgetGroup->add(checkbox3TextWidget);
@@ -487,6 +488,7 @@ public:
             tl.y -= m_WidgetDimension.y + 2;
 
             m_TopLeftWidgetGroup->add(m_CheckBox4 = new CheckBoxWidget("checkbox 4", NULL, tl, checkboxDimension));
+            m_CheckBox4->value(true);
             tl.x += m_WidgetDimension.x * 0.66 + m_WidgetSpacing;
             TextWidget* checkbox4TextWidget = new TextWidget("checkbox4 text", NULL, tl, textDimension);
             m_TopLeftWidgetGroup->add(checkbox4TextWidget);
