@@ -53,13 +53,17 @@ public:
         m_Menu->getClock()->bind(&m_GraphContext->sequencer().track("command")->clock());
 	}
 
-	void draw() override
+	void draw(Context* context) override
 	{
+		(void) context;
+
 		m_Menu->draw(m_GraphContext);
 	}
 
-	void idle() override
+	void idle(Context* context) override
 	{
+		(void) context;
+		
 		updateSelection();
 
 		m_CameraController.update();
@@ -110,8 +114,9 @@ public:
 		m_CameraController.onScroll(xoffset, yoffset);
 	}
 	
-	void onMouseMove(const glm::vec2& pos, const glm::vec2& dpos) override
+	void onMouseMove(const glm::vec2& pos, const glm::vec2& dpos) //override
 	{
+		LOG("SpaceController::onMouseMove\n");
 		updateSelection();
 
 		if (m_IsDragging)
@@ -142,6 +147,7 @@ public:
 
 	void onMouseClick(const glm::vec2& pos) override
 	{
+		LOG("SpaceController::onMouseClick\n");
 		m_IsDragging = false;
 
 		updateSelection();

@@ -40,9 +40,9 @@ public:
 		m_WidgetGroup->resize(width, height);
 	}
 
-	void draw() override
+	void draw(Context* context) override
 	{
-		m_WidgetGroup->draw(m_Context, glm::mat4(), m_Camera.getViewMatrix(), m_Camera.getProjectionMatrix());
+		m_WidgetGroup->draw(context, glm::mat4(), m_Camera.getViewMatrix(), m_Camera.getProjectionMatrix());
 	}
 
 	void onMouseClick(const glm::vec2& pos) override

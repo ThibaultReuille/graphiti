@@ -49,8 +49,10 @@ public:
 		}
 	}
 
-	void idle() override
+	void idle(Context* context) override
 	{
+		(void) context;
+
 		switch(m_NetworkView->getCamera3D()->mode())
 		{
 		case Camera::PERSPECTIVE:
@@ -60,10 +62,6 @@ public:
 			m_FirstPersonCameraController.update();
 			break;
 		}
-	}
-
-	void draw() override
-	{
 	}
 
 	void onKey(int key, int scancode, int action, int mods) override

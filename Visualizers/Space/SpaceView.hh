@@ -128,11 +128,6 @@ class SpaceView : public GraphView
         return true;
     }
 
-    void configureCameras()
-    {
-
-    }
-
     void applyDegreeTint()
     {
         std::vector<unsigned int> nodeDegrees;
@@ -265,8 +260,10 @@ class SpaceView : public GraphView
         return NULL;
     }
  
-    void draw()
+    void draw(Context* ctx) override
     {
+        (void) ctx;
+
         const glm::vec4 bgcolor = glm::vec4(BLACK, 1.0);
         glClearColor(bgcolor.r, bgcolor.g, bgcolor.b, bgcolor.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -464,8 +461,10 @@ class SpaceView : public GraphView
         return found;
     }
 
-    void idle() override
+    void idle(Context* ctx) override
     {
+        (void) ctx;
+        
         updateNodes();
         updateEdges();
         updateSpheres();

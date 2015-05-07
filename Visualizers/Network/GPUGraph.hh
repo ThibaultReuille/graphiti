@@ -94,6 +94,8 @@ public:
 
     void initialize(Context* context)
     {
+        (void) context;
+
         // OpenGL
         {
             // ----- Node Particle Geometry -----
@@ -135,6 +137,8 @@ public:
 
     void updateOpenGL(Context* context)
     {
+        (void) context;
+
         // LOG("updateOpenGL: %u nodes, %u edges.\n", m_NodeBuffer.size() / sizeof(Node), m_EdgeBuffer.size() / sizeof(Edge));
 
         if (m_NodeInstanceBuffer.size() == 0) // TODO: HACK: OpenGL doesn't like VBO resizing, Find a way to handle it properly.

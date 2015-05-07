@@ -77,8 +77,10 @@ public:
 		}
 	}
 
-	void idle() override
+	void idle(Context* context) override
 	{
+		(void) context;
+
 		switch(m_CloudView->getCamera3D()->mode())
 		{
 		case Camera::PERSPECTIVE:
@@ -90,9 +92,9 @@ public:
 		}
 	}
 
-	void draw() override
+	void draw(Context* context) override
 	{
-		m_WidgetGroup->draw(m_Context, glm::mat4(), m_Camera.getViewMatrix(), m_Camera.getProjectionMatrix());
+		m_WidgetGroup->draw(context, glm::mat4(), m_Camera.getViewMatrix(), m_Camera.getProjectionMatrix());
 	}
 
 	void onKey(int key, int scancode, int action, int mods) override

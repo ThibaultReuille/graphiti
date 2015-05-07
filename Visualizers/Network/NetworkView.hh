@@ -61,7 +61,7 @@ public:
 		return &m_Camera3D;
 	}
 
-	void draw() override
+	void draw(Context* context) override
 	{
 		glClearColor(0.2, 0.2, 0.2, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -74,22 +74,22 @@ public:
 
         transformation.push();
         transformation.scale(glm::vec3(10, 10, 10));
-        m_Axis->draw(context(), m_Camera3D, transformation);
+        m_Axis->draw(context, m_Camera3D, transformation);
         transformation.pop();
 
-    	m_Graph->draw(context(), m_Camera3D, transformation);
+    	m_Graph->draw(context, m_Camera3D, transformation);
 	}
 
-	void idle() override
+	void idle(Context* context) override
 	{
         static bool m_Initialized = false;
         if (!m_Initialized)
         {
-            m_Graph->initialize(context());
+            m_Graph->initialize(context);
             m_Initialized = true;
         }
 
-        m_Graph->idle(context());
+        m_Graph->idle(context);
 	}
 
 	void notify(IMessage* message)
@@ -139,6 +139,8 @@ public:
 
     void onAddNode(Node::ID uid, const char* label) override // TODO : Attributes in Variables object
     {
+        (void) label; // TODO
+
         GPUGraph::NodeInstance node;
             
         // TODO : Emitter system? (Define where particles appear)

@@ -39,14 +39,16 @@ public:
 		m_SphericalCameraController.update();
 	}
 
-	void idle() override
+	void idle(Context* context) override
 	{
+		(void) context;
+		
 		m_SphericalCameraController.update();
 	}
 
-	virtual void draw()
+	virtual void draw(Context* context)
 	{
-		m_WidgetGroup->draw(m_Context, glm::mat4(), m_Camera.getViewMatrix(), m_Camera.getProjectionMatrix());
+		m_WidgetGroup->draw(context, glm::mat4(), m_Camera.getViewMatrix(), m_Camera.getProjectionMatrix());
 	}
 
 	void onWindowSize(int width, int height) override

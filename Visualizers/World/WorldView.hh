@@ -77,8 +77,10 @@ public:
 		return &m_Camera3D;
 	}
 
-	virtual void draw()
+	void draw(Context* ctx) override
 	{
+		(void) ctx;
+
 		//glClearColor(0.0, 0.0, 0.0, 1.0);
 		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
@@ -97,10 +99,6 @@ public:
 			m_WorldMap->draw(context(), m_Camera2D.getProjectionMatrix(), m_Camera2D.getViewMatrix(), transformation.state());
 		}
 		transformation.pop();
-	}
-
-	virtual void idle()
-	{
 	}
 
 	virtual void onSetAttribute(const std::string& name, VariableType type, const std::string& value)

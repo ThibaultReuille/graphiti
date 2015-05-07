@@ -1,18 +1,22 @@
 #pragma once
 
-#include <raindance/Core/Console/Shell.hh>
+#include <raindance/Core/Interface/Shell.hh>
 
 #include <graphiti/Entities/MVC.hh>
 #include <graphiti/Core/Console.hh>
 
-class GraphitiShell : public Shell, EntityListener
+class GraphitiShell : public Shell, public EntityListener
 {
 public:
-	GraphitiShell()
-	: Shell(), EntityListener()
+	GraphitiShell(Document::Node* parent = NULL)
+	: Shell(parent), EntityListener()
 	{
 		m_Console = NULL;
 	}
+
+    virtual ~GraphitiShell()
+    {
+    }
 
 	virtual void bind(GraphitiConsole* console)
 	{

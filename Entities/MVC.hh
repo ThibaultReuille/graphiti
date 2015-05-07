@@ -60,15 +60,13 @@ class EntityController : public EntityBase, public Controller
 {
 public:
     virtual ~EntityController() = 0;
-    virtual void draw() {}
-    virtual void idle() {}
 };
 
 EntityController::~EntityController() {}
 
 // ------------------------
 
-class EntityVisualizer : public EntityBase, public Document
+class EntityVisualizer : public EntityBase, public Document::Node
 {
 public:
     virtual ~EntityVisualizer() {}
@@ -76,31 +74,20 @@ public:
     virtual EntityView* view() { return m_EntityView; }
     virtual EntityController* controller() { return m_EntityController; }
 
-    void draw() override
+    void draw(Context* context) override
     {
-        auto position = this->position() + glm::vec3(
-            this->margin().left() + this->border().left() + this->padding().left(),
-            this->margin().bottom() + this->border().bottom() + this->padding().bottom(),
-            0);
-   
-        glEnable(GL_SCISSOR_TEST);
-        glViewport(position.x, position.y, this->content().getWidth(), this->content().getHeight());
-        glScissor(position.x, position.y, this->content().getWidth(), this->content().getHeight());
-
         if (view() != NULL)
-            view()->draw();
+            view()->draw(context);
         if (controller() != NULL)
-            controller()->draw();   
-
-        glDisable(GL_SCISSOR_TEST);
+            controller()->draw(context);   
     }
 
-    void idle() override
+    void idle(Context* context) override
     {
         if (view() != NULL)
-            view()->idle();
+            view()->idle(context);
         if (controller() != NULL)
-            controller()->idle();  
+            controller()->idle(context);  
     }
 
     void onResize(const Viewport& viewport) override
@@ -151,8 +138,6 @@ public:
         if (controller() != NULL)
             controller()->onScroll(xoffset, yoffset);
     }
-
-
 
 protected:
     void set(EntityView* view) { m_EntityView = view; }

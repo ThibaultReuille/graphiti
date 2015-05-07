@@ -39,32 +39,22 @@ public:
         return true;
     }
 
-	virtual void draw()
-	{
-		glClearColor(0.7, 0.2, 0.2, 1.0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	}
-
-	virtual void idle()
-	{
-	}
-
-	virtual void onSetAttribute(const std::string& name, VariableType type, const std::string& value)
+	IVariable* getAttribute(const std::string& name) override
 	{
 		(void) name;
-		(void) type;
-		(void) value;
+		return NULL;
 	}
 
-    virtual IVariable* getAttribute(const std::string& name)
-    {
-        (void) name;
-        return NULL;
-    }
+	void draw(Context* context) override
+	{
+		(void) context;
+
+		glClearColor(0.7, 0.2, 0.2, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
 
 	void notify(IMessage* message)
-	{
+	{ 
 		(void) message;
 	}
 

@@ -9,6 +9,8 @@
 
 #include <graphiti/Core/Console.hh>
 #include <graphiti/Core/Window.hh>
+#include <graphiti/Core/Logo.hh>
+#include <graphiti/Core/Shell.hh>
 
 #include <graphiti/Visualizers/Space/SpaceVisualizer.hh>
 #include <graphiti/Visualizers/Network/NetworkVisualizer.hh>
@@ -56,8 +58,38 @@ public:
         #endif
         
         auto window = new GLWindow(&settings, this);
-        window->hud()->getShell()->bind(m_Console);
         add(window);
+    }
+
+    virtual void createShell()
+    {
+        auto window = static_cast<GLWindow*>(windows().active());
+
+        auto shell = new GraphitiShell();
+        shell->bind(m_Console);
+    
+        shell->style().Align = Document::Style::LEFT;
+        shell->style().Left = Document::Length(Document::Length::PIXELS, 10);
+        shell->style().Top = Document::Length(Document::Length::PIXELS, -10);
+        shell->style().Width = Document::Length(Document::Length::PERCENTS, 1.0);
+        shell->style().Height = Document::Length(Document::Length::PERCENTS, 0.25);
+        
+        window->body().addElement(shell);
+    }
+
+    virtual void createLogo()
+    {
+        auto window = static_cast<GLWindow*>(windows().active());
+
+        auto logo = new Logo();
+    
+        logo->style().Align = Document::Style::RIGHT;
+        logo->style().Left = Document::Length(Document::Length::PIXELS, -10);
+        logo->style().Top = Document::Length(Document::Length::PIXELS, -10);
+        logo->style().Width = Document::Length(Document::Length::PIXELS, 64);
+        logo->style().Height = Document::Length(Document::Length::PIXELS, 64);
+        
+        window->body().addElement(logo);
     }
 
     virtual EntityManager::ID createEntity(const char* type)
@@ -119,12 +151,15 @@ public:
             //visualizer->border().top(10);
             //visualizer->border().color(glm::vec4(PINK, 1.0));
 
-            visualizer->content().X = glm::vec2(0, (float) framebuffer.Width);
-            visualizer->content().Y = glm::vec2(0, (float) framebuffer.Height);
-            visualizer->content().Z = glm::vec2(0, 0);
+            visualizer->style().Width = Document::Length(Document::Length::PERCENTS, 1.0);
+            visualizer->style().Height = Document::Length(Document::Length::PERCENTS, 1.0);
 
-            window->body().elements().push_back(visualizer);
+            window->body().addElement(visualizer);
             
+            // TODO: Hack to put shell & logo in front
+            createLogo();
+            createShell();
+
             return true;
         }
         else
@@ -170,9 +205,9 @@ public:
         for (auto e : m_EntityManager.elements())
         {
             for (auto c : e.second->controllers())
-                c->idle();
+                c->idle(m_Context);
             for (auto v : e.second->views())
-                v->idle();
+                v->idle(m_Context);
         }
 
         m_Context->messages().process();

@@ -88,7 +88,7 @@ public:
 		return &m_Camera3D;
 	}
 
-	virtual void draw()
+	void draw(Context* context)
 	{
 		glClearColor(0.2, 0.2, 0.2, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -102,7 +102,7 @@ public:
 
 		transformation.translate(-center);
 
-		m_PointCloud->draw(context(), m_Camera3D.getProjectionMatrix(), m_Camera3D.getViewMatrix(), transformation.state());
+		m_PointCloud->draw(context, m_Camera3D.getProjectionMatrix(), m_Camera3D.getViewMatrix(), transformation.state());
 
 		// IsoVolume rendering
 		if (m_Mesh != NULL)
@@ -125,9 +125,9 @@ public:
 				m_MeshShader->uniform("u_Material.Shininess").set(m_MeshMaterial.getShininess());
 			}
 
-			context()->geometry().bind(m_Mesh->getVertexBuffer(), *m_MeshShader);
-			context()->geometry().drawElements(GL_TRIANGLES, m_Mesh->getTriangleBuffer().size() / sizeof(unsigned int), GL_UNSIGNED_INT, m_Mesh->getTriangleBuffer().ptr());
-			context()->geometry().unbind(m_Mesh->getVertexBuffer());
+			context->geometry().bind(m_Mesh->getVertexBuffer(), *m_MeshShader);
+			context->geometry().drawElements(GL_TRIANGLES, m_Mesh->getTriangleBuffer().size() / sizeof(unsigned int), GL_UNSIGNED_INT, m_Mesh->getTriangleBuffer().ptr());
+			context->geometry().unbind(m_Mesh->getVertexBuffer());
 		}
 
 		if (m_SliceQuad != NULL)
@@ -143,9 +143,9 @@ public:
 			// m_SliceShader->uniform("u_NormalMatrix").set(glm::transpose(glm::inverse(glm::mat3(m_Camera3D.getViewMatrix() * transformation.state()))));
 			m_SliceShader->uniform("u_Texture").set(*m_SliceTexture);
 
-			context()->geometry().bind(m_SliceQuad->getVertexBuffer(), *m_SliceShader);
-			context()->geometry().drawElements(GL_TRIANGLES, m_SliceQuad->getTriangleBuffer().size() / sizeof(unsigned char), GL_UNSIGNED_BYTE, m_SliceQuad->getTriangleBuffer().ptr());
-			context()->geometry().unbind(m_SliceQuad->getVertexBuffer());
+			context->geometry().bind(m_SliceQuad->getVertexBuffer(), *m_SliceShader);
+			context->geometry().drawElements(GL_TRIANGLES, m_SliceQuad->getTriangleBuffer().size() / sizeof(unsigned char), GL_UNSIGNED_BYTE, m_SliceQuad->getTriangleBuffer().ptr());
+			context->geometry().unbind(m_SliceQuad->getVertexBuffer());
 
 			transformation.pop();
 		}
@@ -160,28 +160,24 @@ public:
 			transformation.push();
 			transformation.translate(glm::vec3(center.x, 0, 0));
 			transformation.scale(glm::vec3(textSize, textSize, textSize));
-			m_AxisLabels[0].draw(context(), m_Camera3D.getProjectionMatrix() * m_Camera3D.getViewMatrix() * transformation.state());
+			m_AxisLabels[0].draw(context, m_Camera3D.getProjectionMatrix() * m_Camera3D.getViewMatrix() * transformation.state());
 			transformation.pop();
 
 			transformation.push();
 			transformation.translate(glm::vec3(0.0, center.y, 0.0));
 			transformation.rotate(-90, glm::vec3(0, 0, 1.0));
 			transformation.scale(glm::vec3(textSize, textSize, textSize));
-			m_AxisLabels[1].draw(context(), m_Camera3D.getProjectionMatrix() * m_Camera3D.getViewMatrix() * transformation.state());
+			m_AxisLabels[1].draw(context, m_Camera3D.getProjectionMatrix() * m_Camera3D.getViewMatrix() * transformation.state());
 			transformation.pop();
 
 			transformation.push();
 			transformation.translate(glm::vec3(0.0, 0.0, center.z));
 			transformation.rotate(-90, glm::vec3(0, 1.0, 0.0));
 			transformation.scale(glm::vec3(textSize, textSize, textSize));
-			m_AxisLabels[2].draw(context(), m_Camera3D.getProjectionMatrix() * m_Camera3D.getViewMatrix() * transformation.state());
+			m_AxisLabels[2].draw(context, m_Camera3D.getProjectionMatrix() * m_Camera3D.getViewMatrix() * transformation.state());
 			transformation.pop();
 		}
 		transformation.pop();
-	}
-
-	virtual void idle()
-	{
 	}
 
     virtual IVariable* getAttribute(const std::string& name)
