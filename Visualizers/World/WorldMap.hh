@@ -39,11 +39,11 @@ private:
 	float m_Size;
 };
 
-class WorldMap
+class WorldMap_Old
 {
 public:
 
-	WorldMap(unsigned int width, unsigned int height)
+	WorldMap_Old(unsigned int width, unsigned int height)
 	{
 		std::cout << "Loading world map geometry ..." << std::endl;
 
@@ -72,7 +72,7 @@ public:
 		// m_Shader->dump();
 	}
 
-	~WorldMap()
+	~WorldMap_Old()
 	{
 		ResourceManager::getInstance().unload(m_Shader);
 

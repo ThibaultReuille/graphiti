@@ -1,6 +1,6 @@
 #pragma once
 
-#include <raindance/Core/GUI/Window.hh>
+#include <raindance/Core/Interface/Window.hh>
 
 #include <graphiti/Entities/MVC.hh>
 #include <graphiti/Entities/Root.hh>
@@ -27,6 +27,9 @@ public:
 
     virtual void draw(Context* context)
     {
+        glClearColor(0.3, 0.3, 0.35, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         body().draw(context);
     }
 

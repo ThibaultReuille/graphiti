@@ -27,8 +27,11 @@ public:
 
 		glDisable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		
-		m_Logo->draw(context, m_Camera.getViewProjectionMatrix() , glm::vec4(1.0, 1.0, 1.0, 1.0), 0);
+		m_Logo->draw(context, m_Camera.getViewProjectionMatrix() , glm::vec4(1.0, 1.0, 1.0, 0.75), 0);
 
 		glEnable(GL_DEPTH_TEST);
 	}

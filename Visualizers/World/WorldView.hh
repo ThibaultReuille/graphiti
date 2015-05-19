@@ -53,7 +53,7 @@ public:
 		g_WorldResources = new WorldResources();
 
 		float texture_ratio = 2048.0f / 1502.0f;
-		m_WorldMap = new WorldMap(m_WindowHeight * texture_ratio, m_WindowHeight);
+		m_WorldMap = new WorldMap_Old(m_WindowHeight * texture_ratio, m_WindowHeight);
 
 		m_Earth = new Earth();
 
@@ -213,7 +213,7 @@ private:
 	Camera m_Camera3D;
 	SphericalCameraController m_SphericalCameraController;
 
-	WorldMap* m_WorldMap;
+	WorldMap_Old* m_WorldMap;
 	Earth* m_Earth;
 };
 

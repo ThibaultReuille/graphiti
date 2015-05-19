@@ -18,7 +18,7 @@ public:
     {
     }
 
-	virtual void bind(GraphitiConsole* console)
+	void bind(GraphitiConsole* console)
 	{
 		m_Console = console;
 		m_Console->listeners().push_back(this);

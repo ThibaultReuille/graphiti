@@ -21,6 +21,8 @@
 # include <graphiti/Visualizers/Cloud/CloudVisualizer.hh>
 #endif
 
+#include <graphiti/Documents/WorldMap.hh>
+
 class Graphiti : public Raindance, public Root
 {
 public:
@@ -61,37 +63,6 @@ public:
         add(window);
     }
 
-    virtual void createShell()
-    {
-        auto window = static_cast<GLWindow*>(windows().active());
-
-        auto shell = new GraphitiShell();
-        shell->bind(m_Console);
-    
-        shell->style().Align = Document::Style::LEFT;
-        shell->style().Left = Document::Length(Document::Length::PIXELS, 10);
-        shell->style().Top = Document::Length(Document::Length::PIXELS, -10);
-        shell->style().Width = Document::Length(Document::Length::PERCENTS, 1.0);
-        shell->style().Height = Document::Length(Document::Length::PERCENTS, 0.25);
-        
-        window->body().addElement(shell);
-    }
-
-    virtual void createLogo()
-    {
-        auto window = static_cast<GLWindow*>(windows().active());
-
-        auto logo = new Logo();
-    
-        logo->style().Align = Document::Style::RIGHT;
-        logo->style().Left = Document::Length(Document::Length::PIXELS, -10);
-        logo->style().Top = Document::Length(Document::Length::PIXELS, -10);
-        logo->style().Width = Document::Length(Document::Length::PIXELS, 64);
-        logo->style().Height = Document::Length(Document::Length::PIXELS, 64);
-        
-        window->body().addElement(logo);
-    }
-
     virtual EntityManager::ID createEntity(const char* type)
     {
         std::string stype = type;
@@ -118,6 +89,113 @@ public:
         return id;
     }
 
+    virtual void createShell()
+    {
+        auto window = static_cast<GLWindow*>(windows().active());
+
+        auto textarea = new TextArea();
+        textarea->style().Align = Document::Style::CENTER;
+        textarea->style().Top = Document::Length(Document::Length::PIXELS, -44);
+        textarea->style().Near = Document::Length(Document::Length::PIXELS, 1.0);  
+        textarea->style().Width = Document::Length(Document::Length::PERCENTS, 0.60);
+        textarea->style().Height = Document::Length(Document::Length::PERCENTS, 0.15);
+        window->body().addElement(textarea);
+
+        auto shell = new GraphitiShell();
+        shell->bind(m_Console);
+        shell->attach(textarea);
+        shell->style().Align = Document::Style::CENTER;
+        shell->style().Top = Document::Length(Document::Length::PIXELS, -10);  
+        shell->style().Near = Document::Length(Document::Length::PIXELS, 1.0);  
+        shell->style().Width = Document::Length(Document::Length::PERCENTS, 0.60);
+        shell->style().Height = Document::Length(Document::Length::PIXELS, 34);
+        window->body().addElement(shell);
+    }
+
+    virtual void createLogo()
+    {
+        auto window = static_cast<GLWindow*>(windows().active());
+
+        auto logo = new Logo();
+        logo->style().Align = Document::Style::RIGHT;
+        logo->style().Left = Document::Length(Document::Length::PIXELS, -10);
+        logo->style().Top = Document::Length(Document::Length::PIXELS, -10);
+        logo->style().Near = Document::Length(Document::Length::PIXELS, 1.0);  
+        logo->style().Width = Document::Length(Document::Length::PIXELS, 64);
+        logo->style().Height = Document::Length(Document::Length::PIXELS, 64);
+        window->body().addElement(logo);
+    }
+
+    virtual EntityVisualizer* createSpaceVisualizer()
+    {
+        auto window = static_cast<GLWindow*>(windows().active());
+
+        auto visualizer = new SpaceVisualizer();
+        visualizer->style().Width = Document::Length(Document::Length::PERCENTS, 1.0);
+        visualizer->style().Height = Document::Length(Document::Length::PERCENTS, 1.0);
+        window->body().addElement(visualizer);
+
+        return visualizer;
+    }
+
+    virtual EntityVisualizer* createNetworkVisualizer()
+    {
+        auto window = static_cast<GLWindow*>(windows().active());
+
+        auto visualizer = new NetworkVisualizer();
+        visualizer->style().Width = Document::Length(Document::Length::PERCENTS, 1.0);
+        visualizer->style().Height = Document::Length(Document::Length::PERCENTS, 1.0);
+        window->body().addElement(visualizer);
+
+        return visualizer;
+    }
+
+    virtual EntityVisualizer* createWorldVisualizer()
+    {
+        auto window = static_cast<GLWindow*>(windows().active());
+
+        auto doc = new WorldMap();
+        doc->style().Align = Document::Style::RIGHT;
+        doc->style().Left = Document::Length(Document::Length::PIXELS, -10);
+        doc->style().Top = Document::Length(Document::Length::PIXELS, -10 - 64 - 10);
+        doc->style().Width = Document::Length(Document::Length::PIXELS, 300);
+        doc->style().Height = Document::Length(Document::Length::PIXELS, 220);
+        window->body().addElement(doc);
+
+        /*
+        auto visualizer = new WorldVisualizer();
+        visualizer->style().Width = Document::Length(Document::Length::PERCENTS, 1.0);
+        visualizer->style().Height = Document::Length(Document::Length::PERCENTS, 1.0);
+        window->body().addElement(visualizer);
+        */
+
+        return NULL;
+    }
+
+    virtual EntityVisualizer* createCloudVisualizer()
+    {
+        auto window = static_cast<GLWindow*>(windows().active());
+
+        auto visualizer = new CloudVisualizer();
+        visualizer->style().Width = Document::Length(Document::Length::PERCENTS, 1.0);
+        visualizer->style().Height = Document::Length(Document::Length::PERCENTS, 1.0);
+        window->body().addElement(visualizer);
+
+        return visualizer;
+    }
+
+    virtual EntityVisualizer* createStreamVisualizer()
+    {
+        auto window = static_cast<GLWindow*>(windows().active());
+
+        auto visualizer = new StreamVisualizer();
+        visualizer->style().Width = Document::Length(Document::Length::PERCENTS, 1.0);
+        visualizer->style().Height = Document::Length(Document::Length::PERCENTS, 1.0);
+        window->body().addElement(visualizer);
+
+        return visualizer;
+    }
+
     virtual bool createVisualizer(const char* name)
     {
         Entity* entity = m_EntityManager.active();
@@ -129,39 +207,26 @@ public:
         auto window = static_cast<GLWindow*>(windows().active());
 
         EntityVisualizer* visualizer = NULL;
-        if (sname == "space")
-            visualizer = new SpaceVisualizer();
+        if (sname == "logo")
+            createLogo();
+        else if (sname == "shell")
+            createShell();
+        else if (sname == "space")
+            visualizer = createSpaceVisualizer();
         else if (sname == "network")
-            visualizer = new NetworkVisualizer();
+            visualizer = createNetworkVisualizer();
         else if (sname == "world")
-            visualizer = new WorldVisualizer();
-#ifndef EMSCRIPTEN
+            visualizer = createWorldVisualizer();
         else if (sname == "cloud")
-            visualizer = new CloudVisualizer();
+            visualizer = createCloudVisualizer();
         else if (sname == "stream")
-            visualizer = new StreamVisualizer();
-#endif
+            visualizer = createStreamVisualizer();
 
         auto viewport = window->getViewport();
-        auto framebuffer = viewport.getFramebuffer();
 
         // TODO: Rename "bind" to "attach"
         if (visualizer != NULL && visualizer->bind(viewport, entity))
-        {
-            //visualizer->border().top(10);
-            //visualizer->border().color(glm::vec4(PINK, 1.0));
-
-            visualizer->style().Width = Document::Length(Document::Length::PERCENTS, 1.0);
-            visualizer->style().Height = Document::Length(Document::Length::PERCENTS, 1.0);
-
-            window->body().addElement(visualizer);
-            
-            // TODO: Hack to put shell & logo in front
-            createLogo();
-            createShell();
-
             return true;
-        }
         else
         {
             SAFE_DELETE(visualizer);

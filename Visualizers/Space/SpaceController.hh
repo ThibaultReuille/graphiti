@@ -87,12 +87,31 @@ public:
 
 	void onResize(const Viewport& viewport) override
 	{
+		m_Viewport = viewport;
+
 		if (g_SpaceResources->m_Wallpaper)
 			g_SpaceResources->m_Wallpaper->onResize(viewport);
 
 		m_Menu->onResize(viewport);
 
 		m_CameraController.onResize(viewport);
+	}
+
+	glm::vec2 convertToWindowCoords(const glm::vec2& pos)
+	{
+		// NOTE: Convert viewport to window coordinates
+		// Eventually, Controllers will be documents and
+		// everything will use viewport coordinates,
+		// This is temporary hack. Remove when possible.
+
+        auto framebuffer = m_Viewport.getFramebuffer();
+
+        auto ratio = glm::vec2(
+            m_Viewport.getDimension().x / framebuffer.Width,
+            m_Viewport.getDimension().y / framebuffer.Height
+        );
+
+        return glm::vec2(pos.x * ratio.x, (framebuffer.Height - pos.y) * ratio.y);
 	}
 
 	void onKey(int key, int scancode, int action, int mods) override
@@ -114,9 +133,11 @@ public:
 		m_CameraController.onScroll(xoffset, yoffset);
 	}
 	
-	void onMouseMove(const glm::vec2& pos, const glm::vec2& dpos) //override
+	void onMouseMove(const glm::vec2& viewport_pos, const glm::vec2& viewport_dpos) //override
 	{
-		LOG("SpaceController::onMouseMove\n");
+		auto pos = convertToWindowCoords(viewport_pos); // TODO: Hack! Remove when possible.
+		auto dpos = convertToWindowCoords(viewport_dpos); // TODO: Hack! Remove when possible.
+
 		updateSelection();
 
 		if (m_IsDragging)
@@ -139,16 +160,19 @@ public:
 		}
 	}
 
-	void onMouseDown(const glm::vec2& pos) override
+	void onMouseDown(const glm::vec2& viewport_pos) override
 	{
+		auto pos = convertToWindowCoords(viewport_pos); // TODO: Hack! Remove when possible.
+
 		m_IsDragging = false;
 		m_CameraController.onMouseDown(pos);
 	}
 
-	void onMouseClick(const glm::vec2& pos) override
+	void onMouseClick(const glm::vec2& viewport_pos) override
 	{
-		LOG("SpaceController::onMouseClick\n");
 		m_IsDragging = false;
+
+		auto pos = convertToWindowCoords(viewport_pos); // TODO: Hack! Remove when possible.
 
 		updateSelection();
 
@@ -201,8 +225,10 @@ public:
 		}
 	}
 
-	void onMouseDoubleClick(const glm::vec2& pos) override
+	void onMouseDoubleClick(const glm::vec2& viewport_pos) override
 	{
+		auto pos = convertToWindowCoords(viewport_pos); // TODO: Hack! Remove when possible.
+
 		updateSelection();
 
 		if (m_HasSelection)
@@ -219,8 +245,10 @@ public:
 		m_CameraController.onMouseDoubleClick(pos);
 	}
 
-	void onMouseTripleClick(const glm::vec2& pos) override
+	void onMouseTripleClick(const glm::vec2& viewport_pos) override
 	{
+		auto pos = convertToWindowCoords(viewport_pos); // TODO: Hack! Remove when possible.
+
 		updateSelection();
 
 		m_CameraController.onMouseTripleClick(pos);
@@ -241,7 +269,7 @@ public:
 
 		m_GraphView->getNodes()[m_SelectedNode]->setPosition(ray.position() + length * ray.direction());
 
-		// NOTE : I don't think we need to force octree update here since we can only drag nodes within the vision field.
+		// NOTE: I don't think we need to force octree update here since we can only drag nodes within the vision field.
 	}
 
 	void notify(IMessage* message) override
@@ -253,7 +281,7 @@ public:
 
 			Scene::Node* node = m_GraphView->getNodes()[msg->ID];
 
-			// NOTE : Calculate the zoom distance according to the node size so that it always has the same screen size.
+			// NOTE: Calculate the zoom distance according to the node size so that it always has the same screen size.
 			float zoomAngle = M_PI / 20;
 			float zoomDistance = static_cast<SpaceNode*>(node)->getScreenSize() / (2 * tan(zoomAngle / 2));
 
@@ -419,6 +447,7 @@ private:
 
 	SpaceMenu* m_Menu;
 
+	Viewport m_Viewport;
 	CameraController m_CameraController;
 
 	ToolMode m_ToolMode;
