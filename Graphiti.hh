@@ -158,6 +158,7 @@ public:
         doc->style().Align = Document::Style::RIGHT;
         doc->style().Left = Document::Length(Document::Length::PIXELS, -10);
         doc->style().Top = Document::Length(Document::Length::PIXELS, -10 - 64 - 10);
+        doc->style().Near = Document::Length(Document::Length::PIXELS, 1.0);
         doc->style().Width = Document::Length(Document::Length::PIXELS, 300);
         doc->style().Height = Document::Length(Document::Length::PIXELS, 220);
         window->body().addElement(doc);
