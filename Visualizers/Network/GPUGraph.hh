@@ -66,7 +66,6 @@ public:
         	nodes_geom.content());
         // m_NodeShader->dump();
 
-
         m_EdgeIcon = new Icon();
         m_EdgeIcon->load("network/edge/solid", FS::BinaryFile("Assets/NetworkView/edge_solid.png"));
 

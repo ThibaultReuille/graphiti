@@ -99,6 +99,8 @@ public:
         textarea->style().Near = Document::Length(Document::Length::PIXELS, 1.0);  
         textarea->style().Width = Document::Length(Document::Length::PERCENTS, 0.60);
         textarea->style().Height = Document::Length(Document::Length::PERCENTS, 0.15);
+        textarea->style().BackgroundColor = glm::vec4(BLACK, 0.0);
+        textarea->style().Pickable = false;
         window->body().addElement(textarea);
 
         auto shell = new GraphitiShell();
@@ -109,6 +111,7 @@ public:
         shell->style().Near = Document::Length(Document::Length::PIXELS, 1.0);  
         shell->style().Width = Document::Length(Document::Length::PERCENTS, 0.60);
         shell->style().Height = Document::Length(Document::Length::PIXELS, 34);
+        shell->style().BackgroundColor = glm::vec4(HEX_COLOR(0x2B3856), 0.75);
         window->body().addElement(shell);
     }
 
@@ -123,6 +126,7 @@ public:
         logo->style().Near = Document::Length(Document::Length::PIXELS, 1.0);  
         logo->style().Width = Document::Length(Document::Length::PIXELS, 64);
         logo->style().Height = Document::Length(Document::Length::PIXELS, 64);
+        logo->style().BackgroundColor = glm::vec4(WHITE, 0.5);
         window->body().addElement(logo);
     }
 
@@ -161,14 +165,8 @@ public:
         doc->style().Near = Document::Length(Document::Length::PIXELS, 1.0);
         doc->style().Width = Document::Length(Document::Length::PIXELS, 300);
         doc->style().Height = Document::Length(Document::Length::PIXELS, 220);
+        doc->style().BackgroundColor = glm::vec4(1.0, 1.0, 1.0, 0.75);
         window->body().addElement(doc);
-
-        /*
-        auto visualizer = new WorldVisualizer();
-        visualizer->style().Width = Document::Length(Document::Length::PERCENTS, 1.0);
-        visualizer->style().Height = Document::Length(Document::Length::PERCENTS, 1.0);
-        window->body().addElement(visualizer);
-        */
 
         return NULL;
     }
