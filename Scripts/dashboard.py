@@ -12,7 +12,10 @@ def start():
     og.create_window("OpenGraphiti : Data Visualization Engine", 1024, 728)
     og.create_entity("graph")
     og.create_visualizer("space")
+    og.create_visualizer("globe")
     og.create_visualizer("world")
+    # TODO: og.create_visualizer("timeline") 
+    #og.create_visualizer("stream")
     og.create_visualizer("shell")
     og.create_visualizer("logo")
 

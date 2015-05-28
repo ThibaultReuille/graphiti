@@ -12,6 +12,8 @@
 #include <graphiti/Core/Logo.hh>
 #include <graphiti/Core/Shell.hh>
 
+#include <raindance/Core/Interface/Documents/Timeline.hh>
+
 #include <graphiti/Visualizers/Space/SpaceVisualizer.hh>
 #include <graphiti/Visualizers/Network/NetworkVisualizer.hh>
 #include <graphiti/Visualizers/World/WorldVisualizer.hh>
@@ -22,6 +24,8 @@
 #endif
 
 #include <graphiti/Documents/WorldMap.hh>
+#include <graphiti/Documents/Globe.hh>
+#include <graphiti/Documents/TimeSeries.hh>
 
 class Graphiti : public Raindance, public Root
 {
@@ -130,6 +134,60 @@ public:
         window->body().addElement(logo);
     }
 
+    virtual void createTimeline()
+    {
+        auto window = static_cast<GLWindow*>(windows().active());
+
+        auto doc = new Timeline();
+        doc->style().Align = Document::Style::RIGHT;
+        doc->style().Left = Document::Length(Document::Length::PIXELS, -10);
+        doc->style().Top = Document::Length(Document::Length::PIXELS, -300);
+        doc->style().Near = Document::Length(Document::Length::PIXELS, 1.0);  
+        doc->style().Width = Document::Length(Document::Length::PIXELS, 300);
+        doc->style().Height = Document::Length(Document::Length::PIXELS, 100);
+        doc->style().BackgroundColor = glm::vec4(BLACK, 0.1);
+        
+        auto entity = m_EntityManager.active();
+        auto sequencer = entity->context()->sequencer();
+
+        // doc->bindTrack(sequencer.track("command"));
+        // doc->bind(sequencer.track("command")->clock());
+        // context()->clock().bind(&sequencer.track("command")->clock());
+
+        window->body().addElement(doc);
+    }
+
+    virtual void createGlobe()
+    {
+        auto window = static_cast<GLWindow*>(windows().active());
+
+        auto doc = new Globe();
+        doc->style().Align = Document::Style::RIGHT;
+        doc->style().Near = Document::Length(Document::Length::PIXELS, 1.0);  
+        doc->style().Left = Document::Length(Document::Length::PIXELS, -10);
+        doc->style().Top = Document::Length(Document::Length::PIXELS, -10 - 64 - 10 - 220 -10);
+        doc->style().Width = Document::Length(Document::Length::PIXELS, 300);
+        doc->style().Height = Document::Length(Document::Length::PIXELS, 300);
+        doc->style().BackgroundColor = glm::vec4(HEX_COLOR(0x111111), 0.90);
+        
+        window->body().addElement(doc);
+    }
+
+    virtual void createTimeSeries()
+    {
+        auto window = static_cast<GLWindow*>(windows().active());
+
+        auto doc = new TimeSeries();
+        doc->style().Align = Document::Style::RIGHT;
+        doc->style().Left = Document::Length(Document::Length::PIXELS, -10);
+        doc->style().Width = Document::Length(Document::Length::PIXELS, 300);
+        doc->style().Height = Document::Length(Document::Length::PIXELS, 100);
+        doc->style().Near = Document::Length(Document::Length::PIXELS, 1.0);
+        doc->style().Top = Document::Length(Document::Length::PIXELS, -500);
+
+        window->body().addElement(doc);
+    }
+
     virtual EntityVisualizer* createSpaceVisualizer()
     {
         auto window = static_cast<GLWindow*>(windows().active());
@@ -188,8 +246,10 @@ public:
         auto window = static_cast<GLWindow*>(windows().active());
 
         auto visualizer = new StreamVisualizer();
-        visualizer->style().Width = Document::Length(Document::Length::PERCENTS, 1.0);
-        visualizer->style().Height = Document::Length(Document::Length::PERCENTS, 1.0);
+        visualizer->style().Align = Document::Style::RIGHT;
+        visualizer->style().Left = Document::Length(Document::Length::PIXELS, -10);
+        visualizer->style().Width = Document::Length(Document::Length::PERCENTS, .33);
+        visualizer->style().Height = Document::Length(Document::Length::PERCENTS, .33);
         window->body().addElement(visualizer);
 
         return visualizer;
@@ -203,13 +263,33 @@ public:
 
         std::string sname = name;
 
-        auto window = static_cast<GLWindow*>(windows().active());
-
         EntityVisualizer* visualizer = NULL;
+
         if (sname == "logo")
+        {
             createLogo();
+            return true;
+        }
         else if (sname == "shell")
+        {
             createShell();
+            return true;
+        }
+        else if (sname == "timeline")
+        {
+            createTimeline();
+            return true;
+        }
+        else if (sname == "timeseries")
+        {
+            createTimeSeries();
+            return true;
+        }
+        else if (sname == "globe")
+        {
+            createGlobe();
+            return true;
+        }
         else if (sname == "space")
             visualizer = createSpaceVisualizer();
         else if (sname == "network")
@@ -221,6 +301,7 @@ public:
         else if (sname == "stream")
             visualizer = createStreamVisualizer();
 
+        auto window = static_cast<GLWindow*>(windows().active());
         auto viewport = window->getViewport();
 
         // TODO: Rename "bind" to "attach"

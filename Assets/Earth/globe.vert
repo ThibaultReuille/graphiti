@@ -59,4 +59,3 @@ void main(void)
     
     gl_Position = u_ProjectionMatrix * vec4(vs_Position, 1.0);
 }
-

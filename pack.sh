@@ -34,9 +34,6 @@ xxd -i $RESOURCES/quad.frag >> Pack.hh
 xxd -i $RESOURCES/sphere.vert >> Pack.hh
 xxd -i $RESOURCES/sphere.frag >> Pack.hh
 
-xxd -i $RESOURCES/globe.vert >> Pack.hh
-xxd -i $RESOURCES/globe.frag >> Pack.hh
-
 xxd -i $RESOURCES/graph.vert >> Pack.hh
 xxd -i $RESOURCES/graph.frag >> Pack.hh
 

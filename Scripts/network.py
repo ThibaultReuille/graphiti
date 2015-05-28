@@ -14,6 +14,8 @@ def start():
 	og.create_window("OpenGraphiti : Data Visualization Engine", 0, 0)
 	og.create_entity("graph")
 	og.create_visualizer("network")
+	og.create_visualizer("logo")
+	og.create_visualizer("shell")
 
 	# ----- Console Callback ------
 

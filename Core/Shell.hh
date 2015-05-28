@@ -1,6 +1,6 @@
 #pragma once
 
-#include <raindance/Core/Interface/Shell.hh>
+#include <raindance/Core/Interface/Documents/Shell.hh>
 
 #include <graphiti/Entities/MVC.hh>
 #include <graphiti/Core/Console.hh>

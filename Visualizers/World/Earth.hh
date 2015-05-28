@@ -179,7 +179,11 @@ public:
 	{
 		m_SphereTexture = ResourceManager::getInstance().loadTexture("earth", Assets_Earth_world_2048x1024_jpg, sizeof(Assets_Earth_world_2048x1024_jpg));
 		m_SphereMesh = new SphereMesh(g_WorldResources->EarthRadius, 100, 100);
-		m_SphereShader = ResourceManager::getInstance().loadShader("globe", Assets_globe_vert, sizeof(Assets_globe_vert), Assets_globe_frag, sizeof(Assets_globe_frag));
+
+        FS::TextFile globe_vert("Assets/Earth/globe.vert");
+        FS::TextFile globe_frag("Assets/Earth/globe.frag");
+		m_SphereShader = ResourceManager::getInstance().loadShader("WorldVisualizer/globe", globe_vert.content(), globe_frag.content());
+
 		m_SphereMaterial.setDiffuse(glm::vec4(0.1, 0.1, 0.1, 1.0));
 		m_SphereMaterial.setShininess(45.0f);
 
@@ -231,7 +235,7 @@ public:
 			transformation.rotate(180.0f, glm::vec3(1, 0, 0));
 
 			Buffer& vertexBuffer = m_SphereMesh->getVertexBuffer();
-			Buffer& indexBuffer = m_SphereMesh->getIndexBuffer();
+			//Buffer& indexBuffer = m_SphereMesh->getIndexBuffer();
 
 			m_SphereShader->use();
 			m_SphereShader->uniform("u_ModelMatrix").set(transformation.state());
@@ -254,7 +258,7 @@ public:
 			m_SphereShader->uniform("u_Material.Shininess").set(m_SphereMaterial.getShininess());
 
 			context->geometry().bind(vertexBuffer, *m_SphereShader);
-			context->geometry().drawElements(GL_TRIANGLES, indexBuffer.size() / sizeof(unsigned short int), GL_UNSIGNED_SHORT, indexBuffer.ptr());
+            context->geometry().drawArrays(GL_TRIANGLES, 0, vertexBuffer.size() / sizeof(SphereMesh::Vertex));
 			context->geometry().unbind(vertexBuffer);
 		}
 		transformation.pop();

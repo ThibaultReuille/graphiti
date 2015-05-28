@@ -16,12 +16,12 @@ void main(void)
 {
     vec4 texcolor = texture(u_Texture, vs_Texcoord).rgba;
 
-	float gray = (texcolor.r + texcolor.g + texcolor.b) / 2.5;
-	float c = sin(pow(gray, 4.0));
+	//float gray = (texcolor.r + texcolor.g + texcolor.b) / 2.5;
+	//float c = sin(pow(gray, 4.0));
 
-	texcolor.r = c;
-	texcolor.g = c;
-	texcolor.b = c;
+	//texcolor.r = c;
+	//texcolor.g = c;
+	//texcolor.b = c;
 
-    FragColor = texcolor + vs_Color;
+    FragColor = texcolor * vs_Color;
 }

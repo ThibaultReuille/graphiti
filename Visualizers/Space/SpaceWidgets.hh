@@ -570,13 +570,13 @@ public:
 
             m_TopRightWidgetGroup = new WidgetGroup("top right", WidgetGroup::TOP_RIGHT);
 
-            glm::vec2 timelineDimension = glm::vec2(400, 32);
+            glm::vec2 timelineDimension = glm::vec2(300, 32);
 
-            glm::vec3 tr = glm::vec3(-m_WidgetSpacing - timelineDimension.x, -m_WidgetSpacing, 0);
+            glm::vec3 tr = glm::vec3(-m_WidgetSpacing - timelineDimension.x, -m_WidgetSpacing - timelineDimension.y, 0);
             m_TimelineWidget = new TimelineWidget("timeline", NULL, tr, timelineDimension);
             m_TopRightWidgetGroup->add(m_TimelineWidget);
 
-            tr.y -= timelineDimension.y + 5;
+            tr.y -= 5;
 
             m_ClockWidget = new ClockWidget("clock", NULL, tr, m_WidgetDimension);
             m_TopRightWidgetGroup->add(m_ClockWidget);
