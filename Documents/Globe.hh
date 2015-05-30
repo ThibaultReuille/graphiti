@@ -3,12 +3,13 @@
 #include <raindance/Core/Headers.hh>
 #include <raindance/Core/Transformation.hh>
 #include <raindance/Core/Camera/Camera.hh>
+#include <raindance/Core/FS.hh>
 
-class Earth_New
+class Earth
 {
 public:
 
-	Earth_New()
+	Earth()
 	{
 		float radius = 20.0f;
 
@@ -19,7 +20,7 @@ public:
 		FS::TextFile globe_frag("Assets/Earth/globe.frag");
 
 		m_SphereShader = ResourceManager::getInstance().loadShader("Earth/globe", globe_vert.content(), globe_frag.content());
-		m_SphereShader->dump();
+		//m_SphereShader->dump();
 
 		m_SphereMaterial.setDiffuse(glm::vec4(1.0, 1.0, 1.0, 1.0));
 		m_SphereMaterial.setShininess(20.0f);
@@ -27,7 +28,7 @@ public:
 		m_Sun.setPosition(glm::vec3(100.0, 100.0, 100.0));
 	}
 
-	virtual ~Earth_New()
+	virtual ~Earth()
 	{
 		ResourceManager::getInstance().unload(m_SphereTexture);
 		ResourceManager::getInstance().unload(m_SphereShader);
@@ -99,7 +100,7 @@ public:
 	Globe(Document::Node* parent = NULL)
 	: Document::Node(parent)
 	{       
-		m_Earth = new Earth_New();
+		m_Earth = new Earth();
 	}
 
 	virtual ~Globe()
@@ -109,7 +110,7 @@ public:
 
 	void draw(Context* context) override
 	{
-		glClear(GL_DEPTH_BUFFER_BIT);// | GL_COLOR_BUFFER_BIT);
+		glClear(GL_DEPTH_BUFFER_BIT); // | GL_COLOR_BUFFER_BIT);
 
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
@@ -137,7 +138,7 @@ public:
 	}
 private:
 	Camera m_Camera;
-	Earth_New* m_Earth;
+	Earth* m_Earth;
 };
 
 

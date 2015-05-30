@@ -171,11 +171,11 @@ private:
     float m_Activity;
 };
 
-class Earth
+class Earth_Old
 {
 public:
 
-	Earth()
+	Earth_Old()
 	{
 		m_SphereTexture = ResourceManager::getInstance().loadTexture("earth", Assets_Earth_world_2048x1024_jpg, sizeof(Assets_Earth_world_2048x1024_jpg));
 		m_SphereMesh = new SphereMesh(g_WorldResources->EarthRadius, 100, 100);
@@ -202,7 +202,7 @@ public:
 	    */
 	}
 
-	~Earth()
+	virtual ~Earth_Old()
 	{
 		ResourceManager::getInstance().unload(m_SphereTexture);
 		ResourceManager::getInstance().unload(m_SphereShader);

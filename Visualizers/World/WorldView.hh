@@ -55,7 +55,7 @@ public:
 		float texture_ratio = 2048.0f / 1502.0f;
 		m_WorldMap = new WorldMap_Old(m_WindowHeight * texture_ratio, m_WindowHeight);
 
-		m_Earth = new Earth();
+		m_Earth = new Earth_Old();
 
         if (entity->type() != Entity::GRAPH)
         {
@@ -214,6 +214,6 @@ private:
 	SphericalCameraController m_SphericalCameraController;
 
 	WorldMap_Old* m_WorldMap;
-	Earth* m_Earth;
+	Earth_Old* m_Earth;
 };
 

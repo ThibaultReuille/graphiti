@@ -15,7 +15,7 @@ def start():
     og.create_visualizer("globe")
     og.create_visualizer("world")
     # TODO: og.create_visualizer("timeline") 
-    #og.create_visualizer("stream")
+    og.create_visualizer("timeseries")
     og.create_visualizer("shell")
     og.create_visualizer("logo")
 

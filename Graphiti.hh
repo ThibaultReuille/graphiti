@@ -183,9 +183,21 @@ public:
         doc->style().Width = Document::Length(Document::Length::PIXELS, 300);
         doc->style().Height = Document::Length(Document::Length::PIXELS, 100);
         doc->style().Near = Document::Length(Document::Length::PIXELS, 1.0);
-        doc->style().Top = Document::Length(Document::Length::PIXELS, -500);
+        doc->style().Top = Document::Length(Document::Length::PIXELS, -10 - 64 - 10 - 220 -10 - 300 - 10);
+        doc->style().BackgroundColor = glm::vec4(HEX_COLOR(0x111111), 0.90);
 
         window->body().addElement(doc);
+
+        float value = 50.0;
+        auto tv = new TimeVector();
+        for (float t = 0; t <= 300; t += 10.0)
+        {
+            tv->push(TimeVector::Vertex(t, value));
+            value += 10.0 * RANDOM_FLOAT(-1.0, 1.0);
+        }
+        tv->update();
+
+        doc->addVector(tv);
     }
 
     virtual EntityVisualizer* createSpaceVisualizer()
