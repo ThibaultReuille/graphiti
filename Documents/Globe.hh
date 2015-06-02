@@ -124,11 +124,10 @@ public:
 		auto t = context->clock().seconds() / 2;
 
 		auto pos = glm::vec3(radius * cos(t), 0, radius * sin(t));
-
         m_Camera.lookAt(pos, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
         m_Earth->sun().setPosition(pos);
-
+		
 		m_Earth->draw(context, m_Camera, transformation);
 	}
 
