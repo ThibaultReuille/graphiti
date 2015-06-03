@@ -216,6 +216,7 @@ public:
         m_OpenCL.enqueueAcquireGLObjects(*m_CL.Queue, 1, &m_CL.EdgeInstanceBuffer->Object, 0, 0, NULL);
         {
             // ----- Node Repulsion -----
+            
             m_CL.RepulsionK->setArgument(0, *m_CL.NodeInstanceBuffer);
             m_CL.RepulsionK->setArgument(1, &m_CL.K, sizeof(float));
             m_OpenCL.enqueueNDRangeKernel(*m_CL.Queue, *m_CL.RepulsionK, 1, NULL, &node_count, NULL, 0, NULL, NULL);

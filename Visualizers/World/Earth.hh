@@ -324,8 +324,6 @@ public:
            rotation = glm::angleAxis(glm::radians(vvec2.value()[0] - 90), glm::vec3(0, 0, 1)) * rotation;
            rotation = glm::angleAxis(glm::radians(vvec2.value()[1]), glm::vec3(0, 1, 0)) * rotation;
            m_GeoNodes[vid]->setOrientation(rotation);
-
-	      	LOG("RECEIVED : (%f, %f)\n", vvec2.value()[0], vvec2.value()[1]);
     	}
         else if (name == "world:color" && type == RD_VEC3)
         {

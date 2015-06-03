@@ -12,8 +12,6 @@ public:
 
 	struct Node
 	{
-
-
 		glm::vec2 Location;
 		glm::vec4 Color;
 		float Size;
@@ -44,6 +42,10 @@ public:
 		node.Location = glm::vec2(37.783333, -122.416667);
 		m_VertexBuffer.push(&node, sizeof(Node));
 
+		node.Color = glm::vec4(YELLOW, 0.75);
+		node.Location = glm::vec2(-33.865, 151.209444);
+		m_VertexBuffer.push(&node, sizeof(Node));
+
     	m_VertexBuffer.describe("a_Location", GL_FLOAT, 2);
         m_VertexBuffer.describe("a_Color",    GL_FLOAT, 4);
         m_VertexBuffer.describe("a_Size",     GL_FLOAT, 1);
@@ -65,13 +67,11 @@ public:
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
 
-		m_Shader->use();
-
 		m_Camera.setOrthographicProjection(0.0, this->content().getWidth(), 0.0, this->content().getHeight(), -10, 10);
+
+		m_Shader->use();
 		m_Shader->uniform("u_ProjectionMatrix").set(m_Camera.getProjectionMatrix());
-
-		m_Shader->uniform("u_Dimension").set(glm::vec2(300, 220));
-
+		m_Shader->uniform("u_Dimension").set(glm::vec2(this->content().getWidth(), this->content().getHeight()));
 		m_Batch.execute(context);
 	}
 

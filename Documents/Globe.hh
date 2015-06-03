@@ -4,6 +4,7 @@
 #include <raindance/Core/Transformation.hh>
 #include <raindance/Core/Camera/Camera.hh>
 #include <raindance/Core/FS.hh>
+#include <raindance/Core/Batch.hh>
 
 class Earth
 {
@@ -97,10 +98,52 @@ private:
 class Globe : public Document::Node
 {
 public:
+
+	struct Node
+	{
+		glm::vec2 Location;
+		glm::vec4 Color;
+		float Size;
+	};
+
 	Globe(Document::Node* parent = NULL)
 	: Document::Node(parent)
 	{       
 		m_Earth = new Earth();
+
+		FS::TextFile vert("Assets/Globe/node.vert");
+    	FS::TextFile geom("Assets/Globe/node.geom");
+    	FS::TextFile frag("Assets/Globe/node.frag");
+    	m_Shader = ResourceManager::getInstance().loadShader("Globe/node",
+    		vert.content(),
+    		frag.content(),
+    		geom.content());
+    	m_Shader->dump();
+
+		Node node;
+		node.Size = 2.5;
+
+		node.Color = glm::vec4(SKY_BLUE, 0.75);
+		node.Location = glm::vec2(37.783333, -122.416667);
+		m_VertexBuffer.push(&node, sizeof(Node));
+
+		node.Color = glm::vec4(LOVE_RED, 0.75);
+		node.Location = glm::vec2(48.8567, 2.3508);
+		m_VertexBuffer.push(&node, sizeof(Node));
+
+		node.Color = glm::vec4(YELLOW, 0.75);
+		node.Location = glm::vec2(-33.865, 151.209444);
+		m_VertexBuffer.push(&node, sizeof(Node));
+
+    	m_VertexBuffer.describe("a_Location", GL_FLOAT, 2);
+        m_VertexBuffer.describe("a_Color",    GL_FLOAT, 4);
+        m_VertexBuffer.describe("a_Size",     GL_FLOAT, 1);
+    	m_VertexBuffer.generate(Buffer::STATIC);
+
+		auto drawcall = new DrawArrays();
+		drawcall->shader(m_Shader);
+		drawcall->add(&m_VertexBuffer);
+		m_Batch.add(drawcall);
 	}
 
 	virtual ~Globe()
@@ -112,9 +155,8 @@ public:
 	{
 		glClear(GL_DEPTH_BUFFER_BIT); // | GL_COLOR_BUFFER_BIT);
 
-		glDisable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
 
 		Transformation transformation;
 
@@ -123,21 +165,32 @@ public:
 		float radius = 50;
 		auto t = context->clock().seconds() / 2;
 
-		auto pos = glm::vec3(radius * cos(t), 0, radius * sin(t));
+		auto pos = glm::vec3(radius * cos(t), 5, radius * sin(t));
         m_Camera.lookAt(pos, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
         m_Earth->sun().setPosition(pos);
 		
 		m_Earth->draw(context, m_Camera, transformation);
+
+		m_Shader->use();
+		m_Shader->uniform("u_Radius").set(20.0f);
+		m_Shader->uniform("u_ProjectionMatrix").set(m_Camera.getProjectionMatrix());
+		m_Shader->uniform("u_ViewMatrix").set(m_Camera.getViewMatrix());
+		//m_Shader->uniform("u_ModelMatrix").set(transformation.state());
+		m_Batch.execute(context);
 	}
 
 	void idle(Context* context) override
 	{
 		(void) context;
 	}
+
 private:
 	Camera m_Camera;
 	Earth* m_Earth;
+	Batch m_Batch;
+	Shader::Program* m_Shader;
+	Buffer m_VertexBuffer;
 };
 
 
