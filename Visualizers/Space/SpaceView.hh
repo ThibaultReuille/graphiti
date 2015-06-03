@@ -269,10 +269,6 @@ class SpaceView : public GraphView
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         Transformation transformation;
-        
-        glm::vec3 pos(0, 0, -5);
-        glm::vec3 target(0, 0, 0);
-        glm::vec3 up(0, 1, 0);
 
         #ifdef RD_OCULUS_RIFT
             auto framebuffer = getViewport().getFramebuffer();

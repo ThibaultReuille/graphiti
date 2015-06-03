@@ -11,7 +11,8 @@ def start():
 
     og.create_window("OpenGraphiti : Data Visualization Engine", 1024, 728)
     og.create_entity("graph")
-    og.create_visualizer("space")
+    #og.create_visualizer("space")
+    og.create_visualizer("network")
     og.create_visualizer("globe")
     og.create_visualizer("world")
     # TODO: og.create_visualizer("timeline") 

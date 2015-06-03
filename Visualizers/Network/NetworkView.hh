@@ -43,11 +43,16 @@ public:
             return false;
         }
 
-		m_Camera2D.setOrthographicProjection(0.0f, getViewport().getDimension()[0], 0.0f, getViewport().getDimension()[1], 0.001f, 100.f);
-		m_Camera2D.lookAt(glm::vec3(0, 0, 10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+        auto dimension = getViewport().getDimension();
 
-		m_Camera3D.setPerspectiveProjection(60.0f, getViewport().getDimension()[0] / getViewport().getDimension()[1], 0.1f, 1024.0f);
-		m_Camera3D.lookAt(glm::vec3(0, 0, 30), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+        m_Cameras.push(new Camera());
+        #ifdef RD_OCULUS_RIFT
+            m_Cameras.push(new Camera());
+            dimension.x /= 2;
+        #endif
+        m_Cameras.resize(dimension.x, dimension.y);
+        m_Cameras.setPerspectiveProjection(60.0f, dimension.x / dimension.y, 0.1f, 1024.0f);
+        m_Cameras.lookAt(glm::vec3(0, 0, 30), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
         m_GraphEntity = static_cast<GraphEntity*>(entity);
         m_GraphEntity->views().push_back(this);
@@ -56,11 +61,6 @@ public:
         return true;
     }
 
-	inline Camera* getCamera3D()
-	{
-		return &m_Camera3D;
-	}
-
 	void draw(Context* context) override
 	{
 		glClearColor(0.1, 0.1, 0.1, 1.0);
@@ -68,17 +68,32 @@ public:
         
 		Transformation transformation;
 
+        #ifdef RD_OCULUS_RIFT
+            auto framebuffer = getViewport().getFramebuffer();
+
+            glViewport(0, 0, framebuffer.Width / 2, framebuffer.Height);
+            drawScene(context, *m_Cameras[0], transformation);
+
+            glViewport(framebuffer.Width / 2, 0, framebuffer.Width / 2, framebuffer.Height);
+            drawScene(context, *m_Cameras[1], transformation);
+        #else
+            drawScene(context, *m_Cameras[0], transformation);
+        #endif
+	}
+
+    void drawScene(Context* context, Camera& camera, Transformation& transformation)
+    {
         glDisable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
 
         transformation.push();
         transformation.scale(glm::vec3(10, 10, 10));
-        m_Axis->draw(context, m_Camera3D, transformation);
+        m_Axis->draw(context, camera, transformation);
         transformation.pop();
 
-    	m_Graph->draw(context, m_Camera3D, transformation);
-	}
+        m_Graph->draw(context, camera, transformation);
+    }
 
 	void idle(Context* context) override
 	{
@@ -383,6 +398,9 @@ public:
         return NULL;
     }
 
+
+    inline CameraVector* cameras() { return &m_Cameras; }
+
     inline GraphContext* context() { return static_cast<GraphContext*>(m_GraphEntity->context()); }
 
     inline GraphModel* model() { return static_cast<GraphModel*>(m_GraphEntity->model()); }
@@ -390,8 +408,7 @@ public:
 private:
 	GraphEntity* m_GraphEntity;
 
-	Camera m_Camera2D;
-	Camera m_Camera3D;
+	CameraVector m_Cameras;
 
 	rd::Font* m_Font;
 
