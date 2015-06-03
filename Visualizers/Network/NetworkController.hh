@@ -23,9 +23,6 @@ public:
 		m_Context = context;
 		m_NetworkView = view;
 
-		m_Camera.setOrthographicProjection(0.0f, view->getViewport().getDimension()[0], 0.0f, view->getViewport().getDimension()[1], 0.001f, 100.f);
-		m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-
 		m_CameraController.bind(context, view->cameras());
 		#ifdef RD_OCULUS_RIFT
 			m_CameraController.select(CameraController::OCULUS_RIFT);
@@ -36,12 +33,7 @@ public:
 
 	void onResize(const Viewport& viewport) override
 	{
-		auto dimension = viewport.getDimension();
-
-        m_Camera.resize(dimension.x, dimension.y);
-        m_Camera.setOrthographicProjection(0.0f, dimension.x, 0.0f, dimension.y, 0.001f, 100.f);
-        m_Camera.lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-
+		m_Viewport = viewport;
 		m_CameraController.onResize(viewport);
 	}
 
@@ -52,33 +44,62 @@ public:
 		m_CameraController.update();
 	}
 
+    glm::vec2 convertToWindowCoords(const glm::vec2& pos)
+    {
+        // NOTE: Convert viewport to window coordinates
+        // Eventually, Controllers will be documents and
+        // everything will use viewport coordinates,
+        // This is temporary hack. Remove when possible.
+
+        auto framebuffer = m_Viewport.getFramebuffer();
+
+        auto ratio = glm::vec2(
+            m_Viewport.getDimension().x / framebuffer.Width,
+            m_Viewport.getDimension().y / framebuffer.Height
+        );
+
+        return glm::vec2(pos.x * ratio.x, (framebuffer.Height - pos.y) * ratio.y);
+    }
+
 	void onKey(int key, int scancode, int action, int mods) override
 	{
 		m_CameraController.onKey(key, scancode, action, mods);
 	}
 
-	void onMouseDown(const glm::vec2& pos) override
+	void onMouseDown(const glm::vec2& viewport_pos) override
 	{
+		auto pos = convertToWindowCoords(viewport_pos); // TODO: Hack! Remove when possible.
+
 		m_CameraController.onMouseDown(pos);
 	}
 
-	void onMouseClick(const glm::vec2& pos) override
+	void onMouseClick(const glm::vec2& viewport_pos) override
 	{
+		auto pos = convertToWindowCoords(viewport_pos); // TODO: Hack! Remove when possible.
+		
 		m_CameraController.onMouseClick(pos);
+		m_NetworkView->pick(pos); 
 	}
 
-	void onMouseDoubleClick(const glm::vec2& pos) override
+	void onMouseDoubleClick(const glm::vec2& viewport_pos) override
 	{
+		auto pos = convertToWindowCoords(viewport_pos); // TODO: Hack! Remove when possible.
+		
 		m_CameraController.onMouseDoubleClick(pos);
 	}
 
-	void onMouseTripleClick(const glm::vec2& pos) override
+	void onMouseTripleClick(const glm::vec2& viewport_pos) override
 	{
+		auto pos = convertToWindowCoords(viewport_pos); // TODO: Hack! Remove when possible.
+		
 		m_CameraController.onMouseTripleClick(pos);
 	}
 
-	void onMouseMove(const glm::vec2& pos, const glm::vec2& dpos) override
+	void onMouseMove(const glm::vec2& viewport_pos, const glm::vec2& viewport_dpos) override
 	{
+		auto pos = convertToWindowCoords(viewport_pos); // TODO: Hack! Remove when possible.
+		auto dpos = convertToWindowCoords(viewport_dpos); // TODO: Hack! Remove when possible.
+		
 		m_CameraController.onMouseMove(pos, dpos);
 	}
 
@@ -95,8 +116,8 @@ public:
 private:
 	Context* m_Context;
 	NetworkView* m_NetworkView;
+	Viewport m_Viewport;
 
-	Camera m_Camera;
 	CameraController m_CameraController;
 
 	rd::Font* m_Font;

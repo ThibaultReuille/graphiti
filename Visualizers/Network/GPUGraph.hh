@@ -1,6 +1,6 @@
 #include <raindance/Core/Headers.hh>
-
 #include <raindance/Core/OpenCL.hh>
+#include <raindance/Core/Intersection.hh>
 
 class GPUGraph 
 {
@@ -344,6 +344,45 @@ public:
         drawEdges(context, camera, transformation);
         drawNodes(context, camera, transformation);
     }
+
+    bool intersectNodes(const Ray& ray, NodeInstance::ID* id)
+    {
+        // TODO : Parallel Reduction with OpenCL
+
+        Intersection::Hit hit;
+        bool found = false;
+        float min_distance = std::numeric_limits<float>::max();
+
+        NodeInstance node;
+
+        for (unsigned int i = 0; i < m_NodeInstanceBuffer.size() / sizeof(NodeInstance); i++)
+        {
+            m_NodeInstanceBuffer.get(i, &node, sizeof(NodeInstance));
+
+            if (Intersection::RaySphere(ray, node.Position.xyz(), node.Size, hit))
+            {
+                if (id == NULL)
+                    return true;
+
+                if (hit.distance < min_distance)
+                {
+                    *id = i;
+                    min_distance = hit.distance;
+                }
+
+                found = true;
+            }
+        }
+        
+        return found;
+    }
+
+    /* TODO: GPUGraph::intersectEdges
+    bool intersectEdges(const Ray& ray, EdgeInstance::ID* id)
+    {
+        return false;
+    }
+    */
 
     void computeBoundingBox(glm::vec3& min, glm::vec3& max)
     {

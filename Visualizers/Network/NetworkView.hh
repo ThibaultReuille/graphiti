@@ -107,6 +107,22 @@ public:
         m_Graph->idle(context);
 	}
 
+
+    void pick(const glm::vec2& pos)
+    {
+        auto ray = m_Cameras[0]->createRay(pos.x, pos.y);
+
+        LOG("NetworkView::pick(%f, %f)\n", pos.x, pos.y);
+        
+        GPUGraph::NodeInstance::ID id;
+        if (m_Graph->intersectNodes(ray, &id))
+        { 
+            auto n =  m_Graph->getNode(id);
+            n.Color = glm::vec4(LOVE_RED, 1.0);
+            m_Graph->setNode(id, n);
+        }
+    }
+
 	void notify(IMessage* message)
 	{
 		(void) message;

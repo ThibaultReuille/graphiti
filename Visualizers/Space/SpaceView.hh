@@ -123,8 +123,6 @@ class SpaceView : public GraphView
 
         g_SpaceResources->Model = m_GraphEntity->model();
 
-        // context()->setCamera(&m_Camera);
-
         return true;
     }
 

@@ -96,7 +96,6 @@ public:
     inline void setMark(int mark) { m_Mark = mark; }
     inline int getMark() { return m_Mark; }
 
-
     inline void setSize(float size) { m_Size = size; }
     inline float getSize() { return m_Size; }
     inline float getScreenSize() { return g_SpaceResources->NodeIconSize * m_Size; }
