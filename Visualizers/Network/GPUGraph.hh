@@ -197,20 +197,27 @@ public:
 
         // ----- Parameters -----
 
-        static int Iterations = 0;
-        if (Iterations >= 100)
+        const float Cooling = 0.25; // NOTE : 0+ (slow) to infinity (fast)
+        const float CubeSide = 100; // NOTE : Graph should fit in this cube
+        const float Epsilon = 0.5; // NOTE: Last temperature value
+
+        float final = (CubeSide / Epsilon - 1) / Cooling;
+
+        const int Iterations = static_cast<int>(final) + 1;
+
+        static int iteration = 0;
+        if (iteration >= Iterations)
             return;
 
-        const float cube_side = 100; // NOTE : Graph should fit in this cube
-        const float volume = cube_side * cube_side * cube_side; 
+        const float volume = CubeSide * CubeSide * CubeSide; 
 
         m_CL.K = pow(volume / node_count, 1.0 / 3.0);
 
         m_CL.Time = context->clock().seconds();
 
-        m_CL.Temperature = cube_side / (Iterations + 1);
+        m_CL.Temperature = CubeSide / (Cooling * (iteration + 1) - (Cooling - 1));
 
-        LOG("Iteration: %i, K: %f, Time: %f, Temperature: %f\n", Iterations, m_CL.K, m_CL.Time, m_CL.Temperature);
+        LOG("Iteration: %i, K: %f, Time: %f, Temperature: %f\n", iteration, m_CL.K, m_CL.Time, m_CL.Temperature);
 
         m_OpenCL.enqueueAcquireGLObjects(*m_CL.Queue, 1, &m_CL.NodeInstanceBuffer->Object, 0, 0, NULL);
         m_OpenCL.enqueueAcquireGLObjects(*m_CL.Queue, 1, &m_CL.EdgeInstanceBuffer->Object, 0, 0, NULL);
@@ -245,11 +252,11 @@ public:
 
         clFinish(m_CL.Queue->Object);
 
-        Iterations++;
+        iteration++;
 
         // ----- Copy back to CPU Data -----
 
-        if (Iterations == 100)
+        if (iteration == Iterations)
         {
             m_OpenCL.enqueueAcquireGLObjects(*m_CL.Queue, 1, &m_CL.NodeInstanceBuffer->Object, 0, 0, NULL);
             m_OpenCL.enqueueAcquireGLObjects(*m_CL.Queue, 1, &m_CL.EdgeInstanceBuffer->Object, 0, 0, NULL);
@@ -261,6 +268,8 @@ public:
             m_OpenCL.enqueueReleaseGLObjects(*m_CL.Queue, 1, &m_CL.NodeInstanceBuffer->Object, 0, 0, NULL);
             
             clFinish(m_CL.Queue->Object);
+
+            m_CL.RunPhysics = false;
         }
     }
 
