@@ -17,7 +17,6 @@ public:
     : rd::Window(settings)
     {
         m_ActiveVisualizer = 0;
-
         m_Parent = parent;
     }
 

@@ -255,7 +255,7 @@ static PyObject* bindEntity(PyObject* self, PyObject* args)
     return Py_BuildValue("");
 }
 
-static PyObject* send(PyObject* self, PyObject* args)
+static PyObject* request(PyObject* self, PyObject* args)
 {
     (void) self;
 
@@ -269,7 +269,7 @@ static PyObject* send(PyObject* self, PyObject* args)
         return Py_BuildValue("");
     Variables* output = new Variables();
 
-    API::send(id, *input, *output);
+    API::request(id, *input, *output);
 
     PyObject* pyOutput = convertVariablesToPyDict(output);
 
@@ -714,7 +714,7 @@ static PyMethodDef g_Module[] =
     // ----- Entities -----
     {"create_entity",         API::Python::createEntity,        METH_VARARGS, "Create an entity"},
     {"bind_entity",           API::Python::bindEntity,          METH_VARARGS, "Create an entity"},
-    {"send",                  API::Python::send,                METH_VARARGS, "Send message to an entity"},
+    {"request",               API::Python::request,             METH_VARARGS, "Send request to an entity"},
     {"destroy_entity",        API::Python::destroyEntity,       METH_VARARGS, "Destroy an entity"},
     // ----- Attributes -----
     {"set_attribute",         API::Python::setAttribute,        METH_VARARGS, "Set entity attribute"},

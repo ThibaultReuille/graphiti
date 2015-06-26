@@ -187,17 +187,6 @@ public:
         doc->style().BackgroundColor = glm::vec4(HEX_COLOR(0x111111), 0.90);
 
         window->body().addElement(doc);
-
-        float value = 50.0;
-        auto tv = new TimeVector();
-        for (float t = 0; t <= 300; t += 10.0)
-        {
-            tv->push(TimeVector::Vertex(t, value));
-            value += 10.0 * RANDOM_FLOAT(-1.0, 1.0);
-        }
-        tv->update();
-
-        doc->addVector(tv);
     }
 
     virtual EntityVisualizer* createSpaceVisualizer()
@@ -372,6 +361,13 @@ public:
         // TODO : We shoud align every message on Graphiti.context()
         if (m_EntityManager.active() != NULL)
             m_EntityManager.active()->context()->messages().process();
+    }
+
+    virtual void request(EntityManager::ID id, const Variables& input, Variables& output)
+    {
+         auto window = static_cast<GLWindow*>(windows().active());
+
+         window->body().getElements()[id]->request(input, output);
     }
 
     void registerScript(const char* name, const char* source)

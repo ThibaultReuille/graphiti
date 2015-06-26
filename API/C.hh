@@ -55,6 +55,12 @@ extern "C" {
 		g_Graphiti->console()->send(input, output);
 	}
 
+	void request(EntityManager::ID id, const Variables& input, Variables& output)
+	{
+	    //LOG("[API] request(%lu, %p, %p)\n", id, &input, &output);
+	    g_Graphiti->request(id, input, output);
+	}
+
 	// ----- Entities -----
 
 	EntityManager::ID createEntity(const char* type)
@@ -67,12 +73,6 @@ extern "C" {
 	{
 	    // LOG("[API] bindEntitiy(%lu)\n", id);
 	    g_Graphiti->entities().bind(id);
-	}
-
-	void send(EntityManager::ID id, const Variables& input, Variables& output)
-	{
-	    // LOG("[API] send(%p, %p)\n", &input, &output);
-	    g_Graphiti->entities().element(id)->send(input, output);
 	}
 
 	void destroyEntity(EntityManager::ID id)

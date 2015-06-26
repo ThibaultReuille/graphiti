@@ -12,7 +12,7 @@ public:
 
     struct Vertex
     {
-        Vertex(float time, float value)
+        Vertex(float time = 0, float value = 0)
         : Time(time), Value(value)
         {
         }
@@ -45,7 +45,7 @@ public:
         m_VertexBuffer.clear();
     }
 
-    void push(Vertex vertex)
+    void push(const Vertex& vertex)
     {
         m_VertexBuffer.push(&vertex, sizeof(Vertex));
     }
@@ -66,6 +66,9 @@ public:
 
     void draw(Context* context, const Camera& camera, Transformation& transformation)
     {
+        if (m_VertexBuffer.size() == 0)
+            return;
+
         m_Shader->use();
         m_Shader->uniform("u_ModelViewProjectionMatrix").set(camera.getViewProjectionMatrix() * transformation.state());
         m_Shader->uniform("u_Color").set(glm::vec4(HEX_COLOR(0xC41E3A), 0.75));
@@ -138,6 +141,61 @@ public:
 	{
 		(void) context;
 	}
+
+    void request(const Variables& input, Variables& output) override
+    {
+        //LOG("[TIMESERIES] Request received!\n");
+        //input.dump();
+
+        std::string function;
+        if (!input.get("function", function))
+            return;
+
+        bool error = false;
+
+        if (function == "add")
+        {
+            auto tv = new TimeVector();
+            tv->update();
+            auto id = addVector(tv);
+
+            auto var = new IntVariable();
+            var->set(id);
+            output.set("id", var);
+        }
+        else if (function == "push")
+        {
+            long id = -1;
+            TimeVector::Vertex vertex;
+
+            error &= input.get("id", &id);
+            error &= input.get("time", &vertex.Time);
+            error &= input.get("value", &vertex.Value);
+
+            if (!error)
+            {
+                vector(id)->push(vertex);
+                vector(id)->update();
+            }
+        }
+        else if (function == "clear")
+        {
+            long id = -1;
+            TimeVector::Vertex vertex;
+
+            error &= input.get("id", &id);
+
+            if (!error)
+            {
+                vector(id)->clear();
+                vector(id)->update();
+            }
+        }
+
+        auto var = new IntVariable();
+        var->set(error ? -1 : 1);
+        output.set("error", var);
+    }
 
     unsigned int addVector(TimeVector* tv)
     {

@@ -42,14 +42,10 @@ public:
 		node.Location = glm::vec2(37.783333, -122.416667);
 		m_VertexBuffer.push(&node, sizeof(Node));
 
-		node.Color = glm::vec4(YELLOW, 0.75);
-		node.Location = glm::vec2(-33.865, 151.209444);
-		m_VertexBuffer.push(&node, sizeof(Node));
-
     	m_VertexBuffer.describe("a_Location", GL_FLOAT, 2);
         m_VertexBuffer.describe("a_Color",    GL_FLOAT, 4);
         m_VertexBuffer.describe("a_Size",     GL_FLOAT, 1);
-    	m_VertexBuffer.generate(Buffer::STATIC);
+    	m_VertexBuffer.generate(Buffer::DYNAMIC);
 
     	auto drawcall = new DrawArrays();
     	drawcall->shader(m_Shader);
@@ -78,6 +74,45 @@ public:
 	void idle(Context* context) override
 	{
 		(void) context;
+	}
+
+	void request(const Variables& input, Variables& output) override
+	{
+		//LOG("[WORLDMAP] Request received!\n");
+		//input.dump();
+
+		std::string function;
+		if (!input.get("function", function))
+			return;
+
+		bool error = false;
+
+		if (function == "add")
+		{
+			float latitude = 0;
+			float longitude = 0;
+			float size = 5.0;
+			glm::vec4 color = glm::vec4(WHITE, 0.75);
+
+			error &= input.get("latitude", &latitude);
+			error &= input.get("longitude", &longitude);
+			error &= input.get("color.r", &color.r);
+			error &= input.get("color.g", &color.g);
+			error &= input.get("color.b", &color.b);
+			error &= input.get("color.a", &color.a);
+			error &= input.get("size", &size);
+
+			Node node;
+			node.Size = size;
+			node.Color = color;
+			node.Location = glm::vec2(latitude, longitude);
+			m_VertexBuffer.push(&node, sizeof(Node));
+			m_VertexBuffer.update();
+		}
+
+		auto var = new IntVariable();
+		var->set(error ? -1 : 1);
+		output.set("error", var);
 	}
 
 private:

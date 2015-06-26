@@ -157,6 +157,13 @@ class Help(script.Script):
 		self.console.log("Avalailable commands:")
 		self.console.log(", ".join(self.console.context['scripts'].keys()))
 
+class Native(script.Script):
+	def __init__(self, console):
+		super(Native, self).__init__(console)
+
+	def run(self, args):
+		exec(" ".join(args[1:]))
+		
 # ----- Callbacks -----
 
 class OpenGraphiti(object):
@@ -223,7 +230,9 @@ class Console(object):
 				"help" : Help(self),
 				"color" : Color(self),
 
-				"opendns" : opendns.OpenDNS(self)
+				"opendns" : opendns.OpenDNS(self),
+
+				"py" : Native(self)
 			}
 		}
 		self.query = dict()

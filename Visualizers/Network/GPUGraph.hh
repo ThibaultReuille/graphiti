@@ -197,9 +197,9 @@ public:
 
         // ----- Parameters -----
 
-        const float Cooling = 0.25; // NOTE : 0+ (slow) to infinity (fast)
-        const float CubeSide = 100; // NOTE : Graph should fit in this cube
-        const float Epsilon = 0.5; // NOTE: Last temperature value
+        const float Cooling = 0.5; // NOTE : 0+ (slow) to infinity (fast)
+        const float CubeSide = 50; // NOTE : Graph should fit in this cube
+        const float Epsilon = 1.0; // NOTE: Last temperature value
 
         float final = (CubeSide / Epsilon - 1) / Cooling;
 
