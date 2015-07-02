@@ -166,6 +166,16 @@ static PyObject* start(PyObject* self, PyObject* args)
 	return Py_BuildValue("");
 }
 
+static PyObject* quit(PyObject* self, PyObject* args)
+{
+	(void) self;
+	(void) args;
+
+	API::stop();
+
+	return Py_BuildValue("");
+}
+
 static PyObject* createWindow(PyObject* self, PyObject* args)
 {
 	(void) self;
@@ -707,6 +717,7 @@ static PyObject* removeJob(PyObject* self, PyObject* args)
 static PyMethodDef g_Module[] =
 {
 	{"start",                 API::Python::start,               METH_VARARGS, "Start engine"},
+	{"quit",                  API::Python::quit,                METH_VARARGS, "Stop engine"},
 	{"create_window",         API::Python::createWindow,        METH_VARARGS, "Create window"},
 	{"create_visualizer",     API::Python::createVisualizer,    METH_VARARGS, "Create visualizer"},
 	{"screenshot",            API::Python::screenshot,          METH_VARARGS, "Take a screenshot"},
