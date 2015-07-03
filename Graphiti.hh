@@ -117,6 +117,7 @@ public:
         shell->style().Height = Document::Length(Document::Length::PIXELS, 34);
         shell->style().BackgroundColor = glm::vec4(HEX_COLOR(0x2B3856), 0.75);
         window->body().addElement(shell);
+        window->focus(shell);
     }
 
     virtual void createLogo()
