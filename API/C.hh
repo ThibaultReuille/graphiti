@@ -38,6 +38,12 @@ extern "C" {
 		g_Graphiti->start();
 	}
 
+	void stop()
+	{
+		LOG("[API] stop()\n");
+		g_Graphiti->stop();
+	}
+
 	void destroy()
 	{
 	    LOG("[API] destroy()\n");

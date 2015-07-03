@@ -156,6 +156,14 @@ class Help(script.Script):
 	def run(self, args):
 		self.console.log("Avalailable commands:")
 		self.console.log(", ".join(self.console.context['scripts'].keys()))
+		
+class Quit(script.Script):
+	def __init__(self, console):
+		super(Quit, self).__init__(console)
+		
+	def run(self, args):
+		self.console.log("Terminating OpenGraphiti...")
+		og.quit()
 
 class Native(script.Script):
 	def __init__(self, console):
@@ -229,6 +237,8 @@ class Console(object):
 
 				"help" : Help(self),
 				"color" : Color(self),
+				
+				"quit" : Quit(self),
 
 				"opendns" : opendns.OpenDNS(self),
 
