@@ -108,19 +108,25 @@ public:
 	}
 
 
-    void pick(const glm::vec2& pos)
+    bool pick(const glm::vec2& pos, GPUGraph::NodeInstance::ID* id = NULL)
     {
         auto ray = m_Cameras[0]->createRay(pos.x, pos.y);
 
         LOG("NetworkView::pick(%f, %f)\n", pos.x, pos.y);
         
-        GPUGraph::NodeInstance::ID id;
-        if (m_Graph->intersectNodes(ray, &id))
+        GPUGraph::NodeInstance::ID nid;
+        if (m_Graph->intersectNodes(ray, &nid))
         { 
-            auto n =  m_Graph->getNode(id);
+            auto n =  m_Graph->getNode(nid);
             n.Color = glm::vec4(LOVE_RED, 1.0);
-            m_Graph->setNode(id, n);
+            m_Graph->setNode(nid, n);
+
+            if (id != NULL)
+                *id = nid;
+            return true;
         }
+
+        return false;
     }
 
 	void notify(IMessage* message)

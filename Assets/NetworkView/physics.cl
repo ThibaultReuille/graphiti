@@ -78,6 +78,8 @@ __kernel void node_animation(__global NodeInstance* instances, const float tempe
         }
     }
 
+    // instances[i].Position.z = 0;
+
     instances[i].Force.Direction = (float4)(0.0);
 }
 

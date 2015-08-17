@@ -136,7 +136,6 @@ public:
 	void onMouseMove(const glm::vec2& viewport_pos, const glm::vec2& viewport_dpos) //override
 	{
 		auto pos = convertToWindowCoords(viewport_pos); // TODO: Hack! Remove when possible.
-		auto dpos = convertToWindowCoords(viewport_dpos); // TODO: Hack! Remove when possible.
 
 		updateSelection();
 
@@ -148,14 +147,14 @@ public:
 		{
 			m_HasPick = m_GraphView->pickNode((int)pos.x, (int)pos.y, &m_PickNode);
 
-			if (m_HasPick && m_PickNode == m_SelectedNode && dpos.x < 5 && dpos.y < 5)
+			if (m_HasPick && m_PickNode == m_SelectedNode && viewport_dpos.x < 5 && viewport_dpos.y < 5)
 			{
 				m_IsDragging = true;
 				dragVertex(m_SelectedNode, (int)pos.x, (int)pos.y);
 			}
 			else
 			{
-				m_CameraController.onMouseMove(pos, dpos);
+				m_CameraController.onMouseMove(pos, viewport_dpos);
 			}
 		}
 	}

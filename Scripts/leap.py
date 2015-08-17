@@ -268,13 +268,14 @@ def start():
     controller = Leap.Controller()
     controller.add_listener(listener)
 
+    graphiti.create_window("OpenGraphiti : Data Visualization Engine", 0, 0)
+    graphiti.create_entity("graph")
+    graphiti.create_visualizer("space")
+
     graphiti.register_script("#started", "leap.on_started()")
     graphiti.register_script('#idle', 'leap.on_idle()')
     graphiti.add_job("#idle", delta);
 
-    graphiti.create_window("OpenGraphiti : Data Visualization Engine", 0, 0)
-    graphiti.create_entity("graph")
-    graphiti.create_visualizer("space")
     graphiti.start()
     
     controller.remove_listener(listener)

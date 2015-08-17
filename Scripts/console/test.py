@@ -53,6 +53,15 @@ class Test(script.Script):
 	        width = random.uniform(0.0, 5.0)
 	        og.set_edge_attribute(id, "og:space:width", "float", str(width))
 
+
+	def randomize_spheres(self):
+		node_ids = og.get_node_ids()
+		for s in range(0, og.count_nodes() / 100):
+			sphere = og.add_sphere(str(s))
+			for i in range(0, 1):
+				og.tag_node(random.choice(node_ids), sphere)
+
+
 	def randomize(self, args):
 		if len(args) == 2 and args[1] == "activity":
 			self.randomize_activity()
@@ -62,6 +71,8 @@ class Test(script.Script):
 			self.randomize_lod()
 		elif len(args) == 2 and args[1] == "icons":
 			self.randomize_icons()
+		elif len(args) == 2 and args[1] == "spheres":
+			self.randomize_spheres()
 		elif len(args) == 3 and args[1] == "node" and args[2] == "size":
 			self.randomize_node_size()
 		elif len(args) == 3 and args[1] == "edge" and args[2] == "width":

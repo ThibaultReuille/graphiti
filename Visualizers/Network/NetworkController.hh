@@ -12,6 +12,7 @@ public:
 	NetworkController()
 	{
 		m_Font = new rd::Font();
+		m_HasPick = false;
 	}
 
 	virtual ~NetworkController()
@@ -27,7 +28,7 @@ public:
 		#ifdef RD_OCULUS_RIFT
 			m_CameraController.select(CameraController::OCULUS_RIFT);
 		#else
-			m_CameraController.select(CameraController::SPHERICAL);
+			m_CameraController.select(CameraController::FIRST_PERSON);
 		#endif
 	}
 
@@ -78,13 +79,44 @@ public:
 		auto pos = convertToWindowCoords(viewport_pos); // TODO: Hack! Remove when possible.
 		
 		m_CameraController.onMouseClick(pos);
-		m_NetworkView->pick(pos); 
+		
+		m_SelectedNodes.clear();
+
+		GPUGraph::NodeInstance::ID nid;
+		m_HasPick = m_NetworkView->pick(pos, &nid);
+		if (m_HasPick)
+		{
+			m_SelectedNodes.push_back(nid);
+		}
+		/*
+		else
+		{
+			#ifdef RD_OCULUS_RIFT
+				m_CameraController.select(CameraController::OCULUS_RIFT);
+			#else 
+				m_CameraController.select(CameraController::FIRST_PERSON);
+			#endif
+		}
+		*/
 	}
 
 	void onMouseDoubleClick(const glm::vec2& viewport_pos) override
 	{
 		auto pos = convertToWindowCoords(viewport_pos); // TODO: Hack! Remove when possible.
 		
+		/*
+		if (m_HasPick)
+		{
+			m_CameraController.zoom(m_SelectNodes[0])
+
+			#ifdef RD_OCULUS_RIFT
+				m_CameraController.select(CameraController::OCULUS_RIFT);
+			#else 
+				m_CameraController.select(CameraController::SPHERICAL);
+			#endif
+		}
+		*/
+
 		m_CameraController.onMouseDoubleClick(pos);
 	}
 
@@ -121,5 +153,8 @@ private:
 	CameraController m_CameraController;
 
 	rd::Font* m_Font;
+
+	bool m_HasPick;
+	std::vector<GPUGraph::NodeInstance::ID> m_SelectedNodes;
 };
 
