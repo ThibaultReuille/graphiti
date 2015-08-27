@@ -419,8 +419,10 @@ public:
 
             glm::vec3 tl = glm::vec3(m_WidgetSpacing, -m_WidgetSpacing, 0);
 
+
             m_TopLeftWidgetGroup->add(m_TitleWidget = new TextWidget("title widget", NULL , tl, titleDimension));
             m_TitleWidget->text().set("OpenGraphiti", m_Font);
+
 
             tl.y -= titleDimension.y + m_WidgetDimension.y;
 

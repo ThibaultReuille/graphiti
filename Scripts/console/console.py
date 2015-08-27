@@ -263,8 +263,11 @@ class Console(object):
 
 	def execute(self, command):
 		args = command.split()
-		if 'scripts' in self.context and args[0] in self.context['scripts']:
-			self.context['scripts'][args[0]].run(args)
-		else:
-			# TODO: og.console("{0}: Command not found!".format(args[0]))
-			self.log("{0}: Command not found!".format(args[0]))
+		
+		if args:
+			if 'scripts' in self.context and args[0] in self.context['scripts']:
+				self.context['scripts'][args[0]].run(args)
+			else:
+				# TODO: og.console("{0}: Command not found!".format(args[0]))
+				self.log("{0}: Command not found!".format(args[0]))
+			

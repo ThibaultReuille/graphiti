@@ -1,7 +1,6 @@
 #pragma once
 
 #include <raindance/Core/Interface/Window.hh>
-
 #include <graphiti/Entities/MVC.hh>
 #include <graphiti/Entities/Root.hh>
 
@@ -46,6 +45,10 @@ public:
             Geometry::getMetrics().dump();
             Geometry::getMetrics().reset();
             ResourceManager::getInstance().dump();
+        }
+        else if (key == GLFW_KEY_ENTER && action == GLFW_RELEASE)
+        {
+            print();
         }
         else
         { 
