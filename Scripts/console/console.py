@@ -1,6 +1,8 @@
 import script
 from script import *
 
+import shlex
+
 import edition
 import layout
 import query
@@ -262,7 +264,12 @@ class Console(object):
 		self.log(s)
 
 	def execute(self, command):
-		args = command.split()
+		
+		lex = shlex.shlex(command, posix=True)
+		lex.whitespace_split = True
+		
+		args = list(lex)
+
 		if 'scripts' in self.context and args[0] in self.context['scripts']:
 			self.context['scripts'][args[0]].run(args)
 		else:
