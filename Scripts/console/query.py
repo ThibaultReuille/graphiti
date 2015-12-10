@@ -62,9 +62,9 @@ class Query(script.Script):
 
 		self.console.print_query()
 
-class Find(script.Script):
+class Select(script.Script):
 	def __init__(self, console):
-		super(Find, self).__init__(console)
+		super(Select, self).__init__(console)
 
 	def run(self, args):
 		if len(args) <= 1 or len(args) > 3:

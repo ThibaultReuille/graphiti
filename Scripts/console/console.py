@@ -225,7 +225,7 @@ class Console(object):
 				"map" : edition.Map(self),
 				"clear" : edition.Clear(self),
 
-				"find" : query.Find(self),
+				"select" : query.Select(self),
 				"filter" : query.Filter(self),
 				"query" : query.Query(self),
 
