@@ -127,11 +127,13 @@ def prepare_node(node):
 def prepare_edge(edge):
     if 'id' not in edge:
         edge['id'] = "{0} -> {1}".format(edge['src'], edge['dst'])
+    '''
     if "investigate" in edge:
         for ee in edge['investigate']:
-            if ee['type'] == "co-occurrence":
+            if 'type' in ee and ee['type'] == "co-occurrence":
                 edge['og:space:activity'] = 4 * ee['score']
                 break
+    '''
     return edge
 
 def load_json(json_filename):
