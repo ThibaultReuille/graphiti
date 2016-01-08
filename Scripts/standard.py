@@ -109,6 +109,31 @@ def get_attribute_info(attribute):
     else:
         return None
 
+
+def prepare_node(node):
+    if 'label' not in node:
+        node['label'] = node['id']
+    if node['depth'] == 0:
+        node['og:space:activity'] = 1.0
+    
+    try: node['sgraph:infected'] = node['investigate']['categorization']['status']
+    except: pass
+    
+    try: node['sgraph:dga:score'] = node['investigate']['security']['dga_score']
+    except: pass
+
+    return node
+
+def prepare_edge(edge):
+    if 'id' not in edge:
+        edge['id'] = "{0} -> {1}".format(edge['src'], edge['dst'])
+    if "investigate" in edge:
+        for ee in edge['investigate']:
+            if ee['type'] == "co-occurrence":
+                edge['og:space:activity'] = 4 * ee['score']
+                break
+    return edge
+
 def load_json(json_filename):
     nodes = {}
     edges = {}
@@ -140,6 +165,8 @@ def load_json(json_filename):
 
     print(". Loading nodes ...")
     for n in data["nodes"]:
+        n = prepare_node(n)
+
         label = ""
         if "label" in n:
             label = n["label"].encode("utf-8")
@@ -158,6 +185,8 @@ def load_json(json_filename):
 
     print(". Loading edges ...")
     for e in data["edges"]:
+        e = prepare_edge(e)
+
         if "src" in e:
             eid = graphiti.add_edge(nodes[e["src"]], nodes[e["dst"]])
         else:
