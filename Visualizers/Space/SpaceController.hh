@@ -27,6 +27,7 @@ public:
 		m_IsDragging = false;
 
 		m_Menu = new SpaceMenu();
+		m_ShowMenu = true;
 	}
 
 	virtual ~SpaceController()
@@ -57,7 +58,8 @@ public:
 	{
 		(void) context;
 
-		m_Menu->draw(m_GraphContext);
+		if (m_ShowMenu)
+			m_Menu->draw(m_GraphContext);
 	}
 
 	void idle(Context* context) override
@@ -123,6 +125,10 @@ public:
 		    else
 		        m_GraphContext->sequencer().clock().start();
 		    return;
+		}
+		else if (action == GLFW_PRESS && key == GLFW_KEY_TAB && mods == GLFW_MOD_ALT)
+		{
+			m_ShowMenu = !m_ShowMenu;
 		}
 		
 		m_CameraController.onKey(key, scancode, action, mods);
@@ -456,6 +462,8 @@ private:
 	bool m_IsDragging;
 	SpaceNode::ID m_PickNode;
 	SpaceNode::ID m_SelectedNode;
+
+	bool m_ShowMenu;
 
 	DemoMode m_DemoMode;
 };

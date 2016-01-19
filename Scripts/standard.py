@@ -24,7 +24,7 @@ def random_vec4(r1, r2, r3, r4):
 reserved_attributes = [ "id", "label", "src", "dst" ]
 
 graph_attributes = [
-    { 'name' : "raindance:space:title",        'type' : "string" }
+    { 'name' : "raindance:space:title",        'type' : "string" },
 ]
 
 node_attributes = [

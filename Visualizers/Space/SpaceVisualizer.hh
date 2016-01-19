@@ -35,7 +35,7 @@ public:
         entity->controllers().push_back(controller);
         entity->listeners().push_back(controller);
         entity->context()->messages().addListener(controller);
-
+        
         set(view);
         set(controller);
 

@@ -72,7 +72,7 @@ class Set(script.Script):
 		super(Set, self).__init__(console)
 
 	def run(self, args):
-		if len(args) < 4:
+		if len(args) < 3:
 			self.console.log("Usage: {0} <type> <name> <value>".format(args[0]))
 			return
 
