@@ -112,8 +112,8 @@ def get_attribute_info(attribute):
 
 def prepare_node(node):
     if 'label' not in node:
-        node['label'] = node['id']
-    if node['depth'] == 0:
+        node['label'] = str(node['id'])
+    if 'depth'in node and node['depth'] == 0:
         node['og:space:activity'] = 1.0
     
     try: node['sgraph:infected'] = node['investigate']['categorization']['status']
