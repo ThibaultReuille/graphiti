@@ -200,7 +200,7 @@ def load_json(json_filename):
                 continue
             att_info = get_attribute_info(e[key])
             if att_info is None:
-                print("Error: Couldn't parse key '" + key + "' with value '" + str(n[key]) + "'!")
+                print("Error: Couldn't parse key '" + key + "' with value '" + str(e[key]) + "'!")
                 continue
             graphiti.set_edge_attribute(eid, key, att_info[0], att_info[1])
 

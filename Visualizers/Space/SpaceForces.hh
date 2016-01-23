@@ -62,6 +62,10 @@ public:
 			dir1 = dir1 - (dir / d) * (d * d / k);
 			dir2 = dir2 + (dir / d) * (d * d / k);
 
+			// 2D Mode
+			//dir1.z = 0;
+			//dir2.z = 0;
+
 			nodes[id1]->setDirection(dir1, false);
 			nodes[id2]->setDirection(dir2, false);
 		}
@@ -152,6 +156,10 @@ public:
 				glm::vec3 fr = (dir / d) * (k * k / d);
 				dir1 = dir1 + fr;
 				dir2 = dir2 - fr;
+
+				// 2D Mode
+				// dir1.z = 0;
+				// dir2.z = 0;
 
 				nodes[id2]->setDirection(dir2, false);
 			}
