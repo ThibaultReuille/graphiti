@@ -206,12 +206,13 @@ static PyObject* createVisualizer(PyObject* self, PyObject* args)
 static PyObject* screenshot(PyObject* self, PyObject* args)
 {
 	char* filename = NULL;
+	float factor = 1.0;
 
 	(void) self;
 
-	PROTECT_PARSE(PyArg_ParseTuple(args, "s", &filename))
+	PROTECT_PARSE(PyArg_ParseTuple(args, "sf", &filename, &factor))
 
-	API::screenshot(filename);
+	API::screenshot(filename, factor);
 
 	return Py_BuildValue("");
 }

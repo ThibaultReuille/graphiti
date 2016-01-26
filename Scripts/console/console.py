@@ -219,6 +219,7 @@ class Console(object):
 				"info" : edition.Info(self),
 				"load" : edition.Load(self),
 				"save" : edition.Save(self),
+				"screenshot" : edition.Screenshot(self),
 				"set" : edition.Set(self),
 				"get" : edition.Get(self),
 				"remove" : edition.Remove(self),

@@ -26,6 +26,18 @@ class Save(script.Script):
 		std.save_json(args[1])
 		self.console.log("File saved in '{0}'.".format(args[1]))
 
+class Screenshot(script.Script):
+	def run(self, args):
+		if len(args) != 3:
+			self.console.log("Usage: {0} <filename> <factor>".format(args[0]))
+			return
+		if os.path.isfile(args[1]):
+			self.console.log("Error: File {0} already exists!".format(args[1]))
+			return
+		
+		og.screenshot(args[1], float(args[2]))
+		self.console.log("Screenshot with factor {0} saved in '{1}'.".format(args[2], args[1]))
+
 class Clear(script.Script):
 
 	def clear_graph(self):

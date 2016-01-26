@@ -50,10 +50,10 @@ extern "C" {
 		SAFE_DELETE(g_Graphiti);
 	}
 
-	void screenshot(const char* filename)
+	void screenshot(const char* filename, float factor)
 	{
-	    LOG("[API] screenshot(%s)\n", filename);
-		// TODO : g_Graphiti->screenshot(filename);
+	    LOG("[API] screenshot(%s, %f)\n", filename, factor);
+		g_Graphiti->screenshot(filename, factor);
 	}
 
 	void console(const Variables& input, Variables& output)
