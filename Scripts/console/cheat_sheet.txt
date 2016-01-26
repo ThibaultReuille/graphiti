@@ -48,11 +48,11 @@ color
 
 # Queries
 
-find
-	$ find blah        	<--- Find Node named blah
-	$ find *blah*      	<--- Find nodes matching "*blah*"
-	$ find blah plop	<--- Find edge between blah and plop
-	$ find blah *       <--- Find all edges connected to node named blah
+select
+	$ select blah        	<--- Select Node named blah
+	$ select *blah*      	<--- Select nodes matching "*blah*"
+	$ select blah plop	<--- Select edge between blah and plop
+	$ select blah *       <--- Select all edges connected to node named blah
 
 filter
 	$ filter type 2     <--- Select all nodes with type "2"

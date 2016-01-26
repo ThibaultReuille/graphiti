@@ -158,8 +158,8 @@ public:
 				dir2 = dir2 - fr;
 
 				// 2D Mode
-				// dir1.z = 0;
-				// dir2.z = 0;
+				//dir1.z = 0;
+				//dir2.z = 0;
 
 				nodes[id2]->setDirection(dir2, false);
 			}
