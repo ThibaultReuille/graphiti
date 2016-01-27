@@ -28,15 +28,25 @@ class Save(script.Script):
 
 class Screenshot(script.Script):
 	def run(self, args):
-		if len(args) != 3:
-			self.console.log("Usage: {0} <filename> <factor>".format(args[0]))
+		if len(args) != 2 and len(args) != 3:
+			self.console.log("Usage: {0} <filename> [<factor>]".format(args[0]))
 			return
 		if os.path.isfile(args[1]):
 			self.console.log("Error: File {0} already exists!".format(args[1]))
 			return
+
+		filename = args[1]
+		try:
+			factor = float(args[2])
+		except:
+			factor = 1.0
+
+		if not filename.lower().endswith('.tga'):
+			self.console.log("Extension not recognized, needs to be TGA")
+			return
 		
-		og.screenshot(args[1], float(args[2]))
-		self.console.log("Screenshot with factor {0} saved in '{1}'.".format(args[2], args[1]))
+		og.screenshot(filename, factor)
+		self.console.log("Screenshot with factor {0} saved in '{1}'.".format(factor, filename))
 
 class Clear(script.Script):
 
