@@ -1,9 +1,24 @@
 #pragma once
 
 #include <raindance/Core/Interface/Documents/Shell.hh>
+#include <raindance/Core/Interface/Documents/TextArea.hh>
 
 #include <graphiti/Entities/MVC.hh>
 #include <graphiti/Core/Console.hh>
+
+class GraphitiStdout : public TextArea
+{
+public:
+	GraphitiStdout(Document::Node* parent = NULL)
+	: TextArea(parent)
+	{
+	}
+
+    void onScreenshot(bool enter) override
+    {
+    	style().Visible = !enter;
+    }
+};
 
 class GraphitiShell : public Shell, public EntityListener
 {
@@ -16,6 +31,11 @@ public:
 
     virtual ~GraphitiShell()
     {
+    }
+
+    void onScreenshot(bool enter) override
+    {
+    	style().Visible = !enter;
     }
 
 	void bind(GraphitiConsole* console)

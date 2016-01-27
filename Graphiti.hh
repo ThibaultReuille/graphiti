@@ -97,19 +97,19 @@ public:
     {
         auto window = static_cast<GLWindow*>(windows().active());
 
-        auto textarea = new TextArea();
-        textarea->style().Align = Document::Style::CENTER;
-        textarea->style().Top = Document::Length(Document::Length::PIXELS, -44);
-        textarea->style().Near = Document::Length(Document::Length::PIXELS, 1.0);  
-        textarea->style().Width = Document::Length(Document::Length::PERCENTS, 0.60);
-        textarea->style().Height = Document::Length(Document::Length::PERCENTS, 0.15);
-        textarea->style().BackgroundColor = glm::vec4(BLACK, 0.0);
-        textarea->style().Pickable = false;
-        window->body().addElement(textarea);
+        auto stdout = new GraphitiStdout();
+        stdout->style().Align = Document::Style::CENTER;
+        stdout->style().Top = Document::Length(Document::Length::PIXELS, -44);
+        stdout->style().Near = Document::Length(Document::Length::PIXELS, 1.0);  
+        stdout->style().Width = Document::Length(Document::Length::PERCENTS, 0.60);
+        stdout->style().Height = Document::Length(Document::Length::PERCENTS, 0.15);
+        stdout->style().BackgroundColor = glm::vec4(BLACK, 0.0);
+        stdout->style().Pickable = false;
+        window->body().addElement(stdout);
 
         auto shell = new GraphitiShell();
         shell->bind(m_Console);
-        shell->attach(textarea);
+        shell->attach(stdout);
         shell->style().Align = Document::Style::CENTER;
         shell->style().Top = Document::Length(Document::Length::PIXELS, -10);  
         shell->style().Near = Document::Length(Document::Length::PIXELS, 1.0);  

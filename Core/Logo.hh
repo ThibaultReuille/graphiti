@@ -13,4 +13,9 @@ public:
 	{       
 		background().loadImage("umbrella-logo.png", FS::BinaryFile("Assets/umbrella-logo.png")); 
 	}
+
+    void onScreenshot(bool enter) override
+    {
+    	style().Visible = !enter;
+    }
 };
