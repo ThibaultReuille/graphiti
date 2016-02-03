@@ -1,6 +1,20 @@
 Cheat Sheet:
 ==================
 
+# Basic Controls
+
+	Click + Move mouse to change camera orientation
+
+	Click on a node to select it
+
+	Double click on a node to zoom in and lock the camera on that node
+
+	Click anywhere else to unlock the camera from that node
+
+	ALT + TAB : Hide left panel
+
+	ALT + SPACE : Play/Pause event timeline
+
 # Basic Commands
 
 help
