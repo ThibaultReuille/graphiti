@@ -1,4 +1,4 @@
-Shell Cheat Sheet:
+Cheat Sheet:
 ==================
 
 # Basic Commands
@@ -13,6 +13,10 @@ load
 	$ load my_dataset.json
 save
 	$ save my_graph.json
+
+screenshot
+	$ screenshot example.tga <--- Take a screenshot and save it in example.tga
+	$ screenshot example.tga 2 <--- Take a screenshot with the resolution of your window multiplied by 2
 
 set
 	$ set my_attribute my_value
@@ -44,7 +48,6 @@ color
 	$ color set rgb 1 .46 0 1
 	$ color mul alpha 0.8
 	$ color add rgba .2
-
 
 # Queries
 
@@ -108,11 +111,11 @@ test
 	$ test randomize node size
 	$ test randomize edge width
 	$ test randomize timeline
-	$ test neighbor plop        <--- Add a neighbor "plop" to selected node.
+	$ test neighbor plop    <--- Add a neighbor "plop" to selected node.
 
 # Custom Commands
 
 opendns
-	$ opendns infected         	<--- Show infected score (Whitelisted/Blocked)
-	$ opendns dga				<--- Show DGA score on red gradient (Red: DGA, White: Benign)
+	$ opendns infected      <--- Show infected score (Whitelisted/Blocked)
+	$ opendns dga		<--- Show DGA score on red gradient (Red: DGA, White: Benign)
 
