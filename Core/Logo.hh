@@ -11,7 +11,7 @@ public:
 	Logo(Document::Node* parent = NULL)
 	: Document::Node(parent)
 	{       
-		background().loadImage("umbrella-logo.png", FS::BinaryFile("Assets/umbrella-logo.png")); 
+		background().loadImage("og-logo.png", FS::BinaryFile("Assets/og-logo.png")); 
 	}
 
     void onScreenshot(bool enter) override

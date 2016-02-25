@@ -126,7 +126,7 @@ public:
 		        m_GraphContext->sequencer().clock().start();
 		    return;
 		}
-		else if (action == GLFW_PRESS && key == GLFW_KEY_TAB && mods == GLFW_MOD_ALT)
+		else if (action == GLFW_PRESS && key == GLFW_KEY_M && mods == GLFW_MOD_ALT)
 		{
 			m_ShowMenu = !m_ShowMenu;
 		}

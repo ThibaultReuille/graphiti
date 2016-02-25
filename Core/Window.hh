@@ -41,7 +41,7 @@ public:
 
     void onKey(int key, int scancode, int action, int mods) override
     {     
-        if (key == GLFW_KEY_M && action == GLFW_PRESS && mods == GLFW_MOD_ALT)
+        if (key == GLFW_KEY_S && action == GLFW_PRESS && mods == GLFW_MOD_ALT)
         {
             Geometry::getMetrics().dump();
             Geometry::getMetrics().reset();
