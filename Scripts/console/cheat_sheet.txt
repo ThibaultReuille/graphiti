@@ -11,7 +11,7 @@ Cheat Sheet:
 
 	Click anywhere else to unlock the camera from that node
 
-	ALT + TAB : Hide left panel
+	ALT + M : Hide left panel
 
 	ALT + SPACE : Play/Pause event timeline
 
