@@ -212,8 +212,22 @@ class OpenGraphiti(object):
 			return self.getters[entity_type](entity_id, attr_name)
 		raise Exception("{0}: Unknown entity type!".format(entity_type))
 
+class Singleton(type):
+	"""
+	Generic singleton pattern by "theheadofabroom" (https://github.com/alistair-broomhead)
+	More details at http://stackoverflow.com/questions/6760685/creating-a-singleton-in-python 
+	"""
+	_instances = {}
+	def __call__(cls, *args, **kwargs):
+		if cls not in cls._instances:
+			cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+		return cls._instances[cls]
+
 class Console(object):
+	__metaclass__ = Singleton # make sure there is only ever one!
+
 	def __init__(self):
+		print 'new Console() created'
 		self.context = {
 			"scripts" : {
 				"info" : edition.Info(self),
